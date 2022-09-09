@@ -201,7 +201,7 @@ TEST_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
 ntrain = 1000
 ntest = 100
 
-modes = 16
+modes = 12
 width = 20
 
 batch_size = 20
