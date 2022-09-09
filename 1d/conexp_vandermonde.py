@@ -18,6 +18,8 @@ from functools import reduce
 from functools import partial
 from timeit import default_timer
 
+import sys
+sys.path.append('../')
 from utilities3 import *
 from Adam import Adam
 

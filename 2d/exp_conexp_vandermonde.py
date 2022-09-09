@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
-from utilities3 import *
+
 
 import operator
 from functools import reduce
@@ -21,13 +21,14 @@ from functools import partial
 
 from timeit import default_timer
 
+import sys
+sys.path.append('../')
 from Adam import Adam
-
+from utilities3 import *
 import pdb
 
 torch.manual_seed(0)
 np.random.seed(0)
-
 
 ################################################################
 # fourier layer
@@ -362,5 +363,5 @@ with torch.no_grad():
         full_pred = torch.cat((full_pred, pred), -1)
 
 # ll: save as .txt instead of .mat
-scipy.io.savemat('./VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
 

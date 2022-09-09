@@ -13,7 +13,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
-from utilities3 import *
+
 
 import operator
 from functools import reduce
@@ -21,8 +21,10 @@ from functools import partial
 
 from timeit import default_timer
 
+import sys
+sys.path.append('../')
 from Adam import Adam
-
+from utilities3 import *
 import pdb
 
 torch.manual_seed(0)
@@ -195,13 +197,13 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-TRAIN_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
-TEST_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
+TRAIN_PATH = '../../VNO_data/rand_ns_V1e-3_N5000_T50.mat'
+TEST_PATH = '../../VNO_data/rand_ns_V1e-3_N5000_T50.mat'
 
 ntrain = 1000
 ntest = 100
 
-modes = 12
+modes = 10
 width = 20
 
 batch_size = 20
@@ -214,7 +216,7 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-path = 'conexp_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = 'rand_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 path_model = './VNO_models/'+path
 # path_train_err = 'results/'+path+'train.txt'
 # path_test_err = 'results/'+path+'test.txt'
@@ -362,5 +364,5 @@ with torch.no_grad():
         full_pred = torch.cat((full_pred, pred), -1)
 
 # ll: save as .txt instead of .mat
-scipy.io.savemat('./VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
 
