@@ -67,7 +67,6 @@ for id in range(100):
         dense_data = dense_data.reshape(size,size)
         full_dense_data[-(100 - id), :, :, time] = dense_data
 
-pdb.set_trace()
 
 print('Saving uniform data.')
 scipy.io.savemat('../../../VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
