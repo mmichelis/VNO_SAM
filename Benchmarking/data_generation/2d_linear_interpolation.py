@@ -1,9 +1,9 @@
 import sys
 import scipy.io
 import matplotlib.pyplot as plt
-from matplotlib import animation
-from matplotlib import cm
 import numpy as np
+import scipy
+import scipy.interpolate
 import torch
 import pdb
 
@@ -11,55 +11,63 @@ sys.path.append('../../')
 
 from utilities3 import *
 
-# # import the training data
+
+# import the training data
 print(f'Loading data.')
-train_dataloader = MatReader('../../../data/ns_V1e-3_N5000_T50.mat')
+train_dataloader = MatReader('../../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat')
 x_train = train_dataloader.read_field('u')[:,:,:,:]
+loc_x = train_dataloader.read_field('loc_x')
+loc_y = train_dataloader.read_field('loc_y')
 print(x_train.shape)
 
+# port everything to numpy
+x_train = x_train.numpy()
+sparse_x = loc_x.numpy()
+sparse_y = loc_y.numpy()
 
-# 64 points across, so working with two 32 point regions both above and below center
-growth_x = 1.5
-growth_y = 1.2
+sparse_x, sparse_y = np.meshgrid(sparse_x, sparse_y)
 
-# num_samples = int(x_train.shape[0])
-ar_len = 32
+# prepare some flattened tensors for the original (sparse) and new (dense) positions
+sparse_loc = np.stack((sparse_x.flatten(), sparse_y.flatten()), axis=1)
 
-# the new nonuniform length
-nu_len_x = int(ar_len**(1/growth_x))
-print(f'Number of points along x: {nu_len_x}')
-nu_len_y = int(ar_len**(1/growth_y))
-print(f'Number of points along y: {nu_len_y}')
+size = 55
+d = np.arange(size)
+dx, dy = np.meshgrid(d, d)
+dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
 
-# generate positions for expanding and contracting section
-exp_x = torch.zeros(nu_len_x)
-exp_y = torch.zeros(nu_len_y)
-for index in range(nu_len_x):
-    exp_x[index] = index ** growth_x
-exp_x = exp_x.int()
-for index in range(nu_len_y):
-    exp_y[index] = index ** growth_y
-exp_y = exp_y.int()
+# the array to hold all the data until ready to port to torch
+full_dense_data = np.zeros([1100, size, size, 50])
 
-# contracting section has opposite distribution
-con_x = exp_x[-1] - exp_x
-con_x = torch.flip(con_x, [0])
-con_y = exp_y[-1] - exp_y
-con_y = torch.flip(con_y, [0])
+# loop through each tensor
+for id in range(1000):
+    
+    # loop through each time step
+    for time in range(50):
 
-# expanding section must be offset
-exp_x  = exp_x + exp_x[-1] + 1
-exp_y  = exp_y + exp_y[-1] + 1
+        # flatten the data
+        sparse_data = x_train[id, :, :, time].flatten()
+        dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc)
+        dense_data = dense_data.reshape(size,size)
+        full_dense_data[id, :, :, time] = dense_data
 
-# concatenate the contracting and expanding sections
-pos_x = torch.cat([con_x, exp_x])
-pos_y = torch.cat([con_y, exp_y])
+        # if time%10 == 0: 
+        #     plt.contourf(dx, dy, dense_data)
+        #     plt.scatter(dx, dy, marker='.')
+        #     plt.show()
 
+# loop through each tensor
+for id in range(100):
+    
+    # loop through each time step
+    for time in range(50):
 
-# select indices for nonuniform data
-print('Creating nonuniform data.')
-x_train_conexp = torch.index_select(torch.index_select(x_train, 2, pos_x), 1, pos_y)
+        # flatten the data
+        sparse_data = x_train[-(100 - id), :, :, time].flatten()
+        dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc)
+        dense_data = dense_data.reshape(size,size)
+        full_dense_data[-(100 - id), :, :, time] = dense_data
 
+pdb.set_trace()
 
-print('Saving nonuniform data.')
-scipy.io.savemat('../../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat', mdict={'loc_x': pos_x.numpy(), 'loc_y':pos_y.numpy(), 'u': x_train_conexp.numpy()})
+print('Saving uniform data.')
+scipy.io.savemat('../../../VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
