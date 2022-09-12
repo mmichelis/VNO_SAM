@@ -182,7 +182,7 @@ path_test_err = 'results/'+path+'test.txt'
 path_image = 'image/'+path
 
 sub = 1
-S = 55
+S = 56
 T_in = 25
 T = 25
 step = 1
