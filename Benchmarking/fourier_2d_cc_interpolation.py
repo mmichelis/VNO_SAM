@@ -27,6 +27,7 @@ from Adam import Adam
 torch.manual_seed(0)
 np.random.seed(0)
 
+import pdb
 
 ################################################################
 # fourier layer
@@ -175,7 +176,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 path = 'cc_interpolation_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-path_model = '../model/'+path
+path_model = '../VNO_models/'+path
 path_train_err = 'results/'+path+'train.txt'
 path_test_err = 'results/'+path+'test.txt'
 path_image = 'image/'+path
@@ -238,6 +239,7 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
+            pdb.set_trace()
             y = yy[..., t:t + step]
             im = model(xx)
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
