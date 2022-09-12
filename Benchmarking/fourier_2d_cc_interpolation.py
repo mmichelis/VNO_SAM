@@ -255,7 +255,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            # xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
@@ -280,7 +280,7 @@ for ep in range(epochs):
 
                 im = model(xx)
                 im = torch.index_select(im, 1, loc_x)
-                im = torch.index_select(im, 1, loc_y)
+                im = torch.index_select(im, 2, loc_y)
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -289,7 +289,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im), dim=-1)
+                # xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -305,7 +305,7 @@ torch.save(model, path_model)
 
 # pred = torch.zeros(test_u.shape)
 index = 0
-# test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
+test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 # ll: adding this to put y_norm on cuda
 # y_normalizer.cuda()
 with torch.no_grad():
@@ -321,7 +321,13 @@ with torch.no_grad():
         full_pred = model(xx)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
+            y = torch.index_select(y, 1, loc_x)
+            y = torch.index_select(y, 2, loc_y)
+
             im = model(xx)
+            im = torch.index_select(im, 1, loc_x)
+            im = torch.index_select(im, 2, loc_y)
+
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
@@ -329,7 +335,7 @@ with torch.no_grad():
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            # xx = torch.cat((xx[..., step:], im), dim=-1)
 
         print(index, loss.item())
         index = index + 1
