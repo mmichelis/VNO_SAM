@@ -198,8 +198,8 @@ test_a = reader.read_field('u')[-ntest:,::sub,::sub,:T_in]
 test_u = reader.read_field('u')[-ntest:,::sub,::sub,T_in:T+T_in]
 
 reader = MatReader(TEST_PATH)
-loc_x = reader.read_field('loc_x')
-loc_y = reader.read_field('loc_y')
+loc_x = reader.read_field('loc_x').int().flatten().to(device)
+loc_y = reader.read_field('loc_y').int().flatten().to(device)
 
 print(train_u.shape)
 print(test_u.shape)
@@ -241,7 +241,13 @@ for ep in range(epochs):
         for t in range(0, T, step):
             pdb.set_trace()
             y = yy[..., t:t + step]
+            y = torch.index_select(y, 1, loc_x)
+            y = torch.index_select(y, 2, loc_y)
+
             im = model(xx)
+            im = torch.index_select(im, 1, loc_x)
+            im = torch.index_select(im, 1, loc_y)
+
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
@@ -269,7 +275,13 @@ for ep in range(epochs):
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
+                y = torch.index_select(y, 1, loc_x)
+                y = torch.index_select(y, 2, loc_y)
+
                 im = model(xx)
+                im = torch.index_select(im, 1, loc_x)
+                im = torch.index_select(im, 1, loc_y)
+                
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
