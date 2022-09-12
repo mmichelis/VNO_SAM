@@ -11,7 +11,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
-from utilities3 import *
+import sys
+
 
 import operator
 from functools import reduce
@@ -19,6 +20,8 @@ from functools import partial
 
 from timeit import default_timer
 
+sys.path.append('../')
+from utilities3 import *
 from Adam import Adam
 
 torch.manual_seed(0)
