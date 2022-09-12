@@ -30,7 +30,7 @@ sparse_x, sparse_y = np.meshgrid(sparse_x, sparse_y)
 # prepare some flattened tensors for the original (sparse) and new (dense) positions
 sparse_loc = np.stack((sparse_x.flatten(), sparse_y.flatten()), axis=1)
 
-size = 55
+size = 56
 d = np.arange(size)
 dx, dy = np.meshgrid(d, d)
 dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
@@ -67,6 +67,6 @@ for id in range(100):
         dense_data = dense_data.reshape(size,size)
         full_dense_data[-(100 - id), :, :, time] = dense_data
 
-
+pdb.set_trace()
 print('Saving uniform data.')
-scipy.io.savemat('../../../VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
+scipy.io.savemat('/userdata/llingsch/SAM/VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
