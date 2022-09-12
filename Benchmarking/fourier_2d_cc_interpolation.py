@@ -243,10 +243,7 @@ for ep in range(epochs):
         yy = torch.index_select(yy, 2, loc_y)
 
         for t in range(0, T, step):
-            # pdb.set_trace()
             y = yy[..., t:t + step]
-            y = torch.index_select(y, 1, loc_x)
-            y = torch.index_select(y, 2, loc_y)
 
             im = model(xx)
             im = torch.index_select(im, 1, loc_x)
@@ -277,10 +274,11 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
+            yy = torch.index_select(yy, 1, loc_x)
+            yy = torch.index_select(yy, 2, loc_y)
+
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
-                y = torch.index_select(y, 1, loc_x)
-                y = torch.index_select(y, 2, loc_y)
 
                 im = model(xx)
                 im = torch.index_select(im, 1, loc_x)
