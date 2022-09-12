@@ -168,7 +168,7 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 100
+epochs = 500
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -316,15 +316,17 @@ with torch.no_grad():
         xx = xx.to(device)
         yy = yy.to(device)
         
+        yy = torch.index_select(yy, 1, loc_x)
+        yy = torch.index_select(yy, 2, loc_y)
         # ll: this was already here, but I am going to uncomment it
         # out = y_normalizer.decode(out)
         # print(out.shape)
         # pred[index] = out.reshape(batch_size,-1)
         full_pred = model(xx)
+        full_pred = torch.index_select(full_pred, 1, loc_x)
+        full_pred = torch.index_select(full_pred, 2, loc_y)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
-            y = torch.index_select(y, 1, loc_x)
-            y = torch.index_select(y, 2, loc_y)
 
             im = model(xx)
             im = torch.index_select(im, 1, loc_x)
