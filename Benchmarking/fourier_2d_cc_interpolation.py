@@ -156,7 +156,7 @@ class FNO2d(nn.Module):
 ################################################################
 
 TRAIN_PATH = '../../VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat'
-TEST_PATH = '../../VNO_data/conexp_ns_V1e-3_N1100_T50.mat'
+TEST_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
 
 ntrain = 1000
 ntest = 100
