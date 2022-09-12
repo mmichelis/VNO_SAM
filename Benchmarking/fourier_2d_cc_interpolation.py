@@ -239,7 +239,7 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
-            pdb.set_trace()
+            # pdb.set_trace()
             y = yy[..., t:t + step]
             y = torch.index_select(y, 1, loc_x)
             y = torch.index_select(y, 2, loc_y)
