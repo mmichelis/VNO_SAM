@@ -246,7 +246,7 @@ for ep in range(epochs):
 
             im = model(xx)
             im = torch.index_select(im, 1, loc_x)
-            im = torch.index_select(im, 1, loc_y)
+            im = torch.index_select(im, 2, loc_y)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
