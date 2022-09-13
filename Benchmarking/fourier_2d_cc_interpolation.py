@@ -220,7 +220,7 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 ################################################################
 
 model = FNO2d(modes, modes, width).cuda()
-# model = torch.load('../model/ns_fourier_V100_N1000_ep100_m8_w20')
+model = torch.load(path_model)
 
 
 print(count_params(model))
@@ -300,7 +300,7 @@ for ep in range(epochs):
     scheduler.step()
     print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
           test_l2_full / ntest)
-torch.save(model, path_model)
+# torch.save(model, path_model)
 
 
 
@@ -346,5 +346,5 @@ with torch.no_grad():
         full_pred = torch.cat((full_pred, pred), -1)
 
 # ll: save as .txt instead of .mat
-# scipy.io.savemat('../pred/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('../pred/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
 
