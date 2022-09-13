@@ -59,7 +59,7 @@ class SpectralConv1d(nn.Module):
              for col in range(s):
                 V[row, col] = np.exp(-1j * np.pi * 2 / s * row *  col) 
         V = V / np.sqrt(s)
-        return torch.transpose(V, 0, 1), torch.resolve_conj(V)
+        return torch.transpose(V, 0, 1), torch.conj(V)
 
     def forward(self, x):
         # x_ft = self.matmul_complex(x, self.V)
@@ -260,23 +260,23 @@ with torch.no_grad():
 ################################################################
 # optionally, load a model
 ################################################################
-model = torch.load('./VNO_models/uniform_vandermonde_burgers')
-pred = torch.zeros(y_test.shape)
-index = 0
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
-with torch.no_grad():
-    for x, y in test_loader:
-        test_l2 = 0
-        x, y = x.cuda(), y.cuda()
+# model = torch.load('./VNO_models/uniform_vandermonde_burgers')
+# pred = torch.zeros(y_test.shape)
+# index = 0
+# test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
+# with torch.no_grad():
+#     for x, y in test_loader:
+#         test_l2 = 0
+#         x, y = x.cuda(), y.cuda()
 
-        out = model(x).view(-1)
-        pred[index] = out
+#         out = model(x).view(-1)
+#         pred[index] = out
 
-        test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
-        print(index, test_l2)
-        index = index + 1
+#         test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
+#         print(index, test_l2)
+#         index = index + 1
 
 ################################################################
 # save predictions
 ################################################################
-# scipy.io.savemat('./VNO_predictions/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./VNO_predictions/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
