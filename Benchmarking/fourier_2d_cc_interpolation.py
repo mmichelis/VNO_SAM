@@ -227,7 +227,7 @@ print(count_params(model))
 # optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
 
-# myloss = LpLoss(size_average=False)
+myloss = LpLoss(size_average=False)
 # for ep in range(epochs):
 #     model.train()
 #     t1 = default_timer()
