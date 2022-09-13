@@ -59,7 +59,7 @@ class SpectralConv1d(nn.Module):
              for col in range(s):
                 V[row, col] = np.exp(-1j * np.pi * 2 / s * row *  col) 
         V = V / np.sqrt(s)
-        return torch.transpose(V, 0, 1), torch.conj(V)
+        return torch.transpose(V, 0, 1), torch.resolve_conj(V)
 
     def forward(self, x):
         # x_ft = self.matmul_complex(x, self.V)
@@ -240,7 +240,7 @@ for ep in range(epochs):
     print(ep, t2-t1, train_mse, train_l2, test_l2)
 
 
-torch.save(model, './VNO_models/uniform_vandermonde_burgers')
+torch.save(model, '../VNO_models/uniform_vandermonde_burgers')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -279,4 +279,4 @@ with torch.no_grad():
 ################################################################
 # save predictions
 ################################################################
-scipy.io.savemat('./VNO_predictions/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
