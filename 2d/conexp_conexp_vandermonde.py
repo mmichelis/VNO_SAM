@@ -217,7 +217,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 path = 'conexp_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-path_model = './VNO_models/'+path
+path_model = '../VNO_models/'+path
 # path_train_err = 'results/'+path+'train.txt'
 # path_test_err = 'results/'+path+'test.txt'
 # path_image = 'image/'+path
@@ -326,9 +326,10 @@ for ep in range(epochs):
             # print(loss.item(), test_l2_full, ntest)
     t2 = default_timer()
     scheduler.step()
-    # print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
-    #       test_l2_full / ntest)
-    print(f'epoch: {ep}, train loss: {train_l2_full / ntrain}, test loss: {test_l2_full / ntest}')
+    print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
+          test_l2_full / ntest)
+    
+    # print(f'epoch: {ep}, train loss: {train_l2_full / ntrain}, test loss: {test_l2_full / ntest}')
 torch.save(model, path_model)
 
 

@@ -224,82 +224,82 @@ model = torch.load(path_model)
 
 
 print(count_params(model))
-optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
+# optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
 
-myloss = LpLoss(size_average=False)
-for ep in range(epochs):
-    model.train()
-    t1 = default_timer()
-    train_l2_step = 0
-    train_l2_full = 0
-    for xx, yy in train_loader:
-        loss = 0
-        xx = xx.to(device)
-        yy = yy.to(device)
+# myloss = LpLoss(size_average=False)
+# for ep in range(epochs):
+#     model.train()
+#     t1 = default_timer()
+#     train_l2_step = 0
+#     train_l2_full = 0
+#     for xx, yy in train_loader:
+#         loss = 0
+#         xx = xx.to(device)
+#         yy = yy.to(device)
 
-        # pdb.set_trace()
-        yy = torch.index_select(yy, 1, loc_x)
-        yy = torch.index_select(yy, 2, loc_y)
+#         # pdb.set_trace()
+#         yy = torch.index_select(yy, 1, loc_x)
+#         yy = torch.index_select(yy, 2, loc_y)
 
-        for t in range(0, T, step):
-            y = yy[..., t:t + step]
+#         for t in range(0, T, step):
+#             y = yy[..., t:t + step]
 
-            im = model(xx)
-            im = torch.index_select(im, 1, loc_x)
-            im = torch.index_select(im, 2, loc_y)
+#             im = model(xx)
+#             im = torch.index_select(im, 1, loc_x)
+#             im = torch.index_select(im, 2, loc_y)
 
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+#             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
-            if t == 0:
-                pred = im
-            else:
-                pred = torch.cat((pred, im), -1)
+#             if t == 0:
+#                 pred = im
+#             else:
+#                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+#             # xx = torch.cat((xx[..., step:], im), dim=-1)
 
-        train_l2_step += loss.item()
-        l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
-        train_l2_full += l2_full.item()
+#         train_l2_step += loss.item()
+#         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
+#         train_l2_full += l2_full.item()
 
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+#         optimizer.zero_grad()
+#         loss.backward()
+#         optimizer.step()
 
-    test_l2_step = 0
-    test_l2_full = 0
-    with torch.no_grad():
-        for xx, yy in test_loader:
-            loss = 0
-            xx = xx.to(device)
-            yy = yy.to(device)
+#     test_l2_step = 0
+#     test_l2_full = 0
+#     with torch.no_grad():
+#         for xx, yy in test_loader:
+#             loss = 0
+#             xx = xx.to(device)
+#             yy = yy.to(device)
 
-            yy = torch.index_select(yy, 1, loc_x)
-            yy = torch.index_select(yy, 2, loc_y)
+#             yy = torch.index_select(yy, 1, loc_x)
+#             yy = torch.index_select(yy, 2, loc_y)
 
-            for t in range(0, T, step):
-                y = yy[..., t:t + step]
+#             for t in range(0, T, step):
+#                 y = yy[..., t:t + step]
 
-                im = model(xx)
-                im = torch.index_select(im, 1, loc_x)
-                im = torch.index_select(im, 2, loc_y)
+#                 im = model(xx)
+#                 im = torch.index_select(im, 1, loc_x)
+#                 im = torch.index_select(im, 2, loc_y)
                 
-                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+#                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
-                if t == 0:
-                    pred = im
-                else:
-                    pred = torch.cat((pred, im), -1)
+#                 if t == 0:
+#                     pred = im
+#                 else:
+#                     pred = torch.cat((pred, im), -1)
 
-                # xx = torch.cat((xx[..., step:], im), dim=-1)
+#                 # xx = torch.cat((xx[..., step:], im), dim=-1)
 
-            test_l2_step += loss.item()
-            test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
+#             test_l2_step += loss.item()
+#             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
 
-    t2 = default_timer()
-    scheduler.step()
-    print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
-          test_l2_full / ntest)
+#     t2 = default_timer()
+#     scheduler.step()
+#     print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
+#           test_l2_full / ntest)
 # torch.save(model, path_model)
 
 
@@ -332,7 +332,7 @@ with torch.no_grad():
             im = torch.index_select(im, 1, loc_x)
             im = torch.index_select(im, 2, loc_y)
 
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            loss = myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
                 pred = im
@@ -346,5 +346,5 @@ with torch.no_grad():
         full_pred = torch.cat((full_pred, pred), -1)
 
 # ll: save as .txt instead of .mat
-scipy.io.savemat('../pred/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
 
