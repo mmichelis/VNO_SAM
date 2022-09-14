@@ -212,7 +212,7 @@ x_train = x_train.reshape(ntrain,s,1)
 x_test = x_test.reshape(ntest,s,1)
 
 testloader = MatReader('../../../VNO_data/1d/conexp_burgers_data_R10.mat')
-loc = testloader.read_field('loc')[:,:].cuda()
+loc = testloader.read_field('loc')[:,:].int().cuda()
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
