@@ -28,23 +28,19 @@ for dist in distributions:
     y_data = y_data.numpy()
     sparse_loc = loc.numpy()
 
-    size = 8193
-    d = np.arange(size)
+    max = np.amax(loc) + 1
+    min = np.amin(loc)
+    d = np.arange(min, max)
 
+    x_dense = np.zeros([2048,max])
+    x_dense = np.zeros([2048,max])
     # the array to hold all the data until ready to port to torch
-    # x_dense = np.zeros([x.data.shape[0], size])
-    # y_dense = np.zeros([y.data.shape[0], size])
-    x_dense = scipy.interpolate.griddata(sparse_loc, x_data, d)
-    y_dense = scipy.interpolate.griddata(sparse_loc, y_data, d)
+    for id in range(2048):
+        fx = interpolate.interp1d(sparse_loc[0,:], x_data[id,:])
+        fy = interpolate.interp1d(sparse_loc[0,:], y_data[id,:])
 
-
-
-    # loop through each tensor
-    # for id in range(x.data.shape[0]):
-    #     sparse_data = x_train[id, :].flatten()
-    #     dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc)
-    #     dense_data = dense_data.reshape(size,size)
-    #     full_dense_data[id, :] = dense_data
+        x_dense[id,:] = fx(d)
+        y_dense[id,:] = fy(d)
 
 
     print('Saving '+dist+' data.')
