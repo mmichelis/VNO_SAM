@@ -280,8 +280,8 @@ for ep in range(epochs):
     test_l2 /= ntest
 
     # t2 = default_timer()
-    print(ep, t2-t1, t_f2-t_f1, t_b2-t_b1, train_mse, train_l2, test_l2)
-    # print(f'{ep}, training: {t12-t11}, testing: {t22-t21}')
+    # print(ep, t2-t1, t_f2-t_f1, t_b2-t_b1, train_mse, train_l2, test_l2)
+    print(f'{ep}, training: {t12-t11}, testing: {t22-t21}')
 
 # ll: make sure to save to correct locaiton
 torch.save(model, '../model/ns_fourier_burgers')
