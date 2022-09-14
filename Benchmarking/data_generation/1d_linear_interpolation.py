@@ -15,7 +15,7 @@ distributions = {'conexp', 'exp', 'rand'}
 
 for dist in distributions:
     pdb.set_trace()
-    
+
     # import the training data
     print(f'Loading data.')
     dataloader = MatReader('../../../VNO_data/1d/full_from_'+dist+'_burgers_data_R10.mat')
@@ -48,4 +48,4 @@ for dist in distributions:
 
 
     print('Saving '+dist+' data.')
-    scipy.io.savemat('../../../VNO_data/1d/full_from_'+dist+'_burgers_data_R10.mat', mdict={'u': x_dense}, mdict={'a': y_dense})
+    scipy.io.savemat('../../../VNO_data/1d/full_from_'+dist+'_burgers_data_R10.mat', mdict={'u': x_dense,'a': y_dense})
