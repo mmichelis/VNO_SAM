@@ -3,7 +3,7 @@ import scipy.io
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy
-import scipy.interpolate
+from scipy import interpolate
 import torch
 import pdb
 
