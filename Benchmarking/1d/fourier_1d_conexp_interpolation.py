@@ -16,7 +16,7 @@ from functools import partial
 from timeit import default_timer
 
 import sys
-sys.path_append('../../')
+sys.path.append('../../')
 from utilities3 import *
 
 from Adam import Adam
