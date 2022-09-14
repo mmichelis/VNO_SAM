@@ -177,8 +177,8 @@ ntrain = 1000
 ntest = 200
 
 sub = 1 #subsampling rate
-h = 2**13 // sub #total grid size divided by the subsampling rate
-s = h
+# h = 2**13 // sub #total grid size divided by the subsampling rate
+
 
 batch_size = 20
 learning_rate = 0.001
@@ -199,6 +199,8 @@ width = 64
 trainloader = MatReader('../../../VNO_data/1d/full_from_conexp_burgers_data_R10.mat')
 x_data = trainloader.read_field('a')[:,:]
 y_data = trainloader.read_field('u')[:,:]
+
+s = x_data.shape[1]
 
 x_train = x_data[:ntrain,:]
 y_train = y_data[:ntrain,:]
