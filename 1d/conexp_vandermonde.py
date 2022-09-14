@@ -62,6 +62,7 @@ class SpectralConv1d(nn.Module):
 
     def forward(self, x):
         x_ft = torch.matmul(x.cfloat(), self.V)
+        x_ft -= torch.min(x_ft)
 
         # Multiply relevant Fourier modes
         out_ft = self.compl_mul1d(x_ft, self.weights1)
