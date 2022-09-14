@@ -18,7 +18,7 @@ for dist in distributions:
 
     # import the training data
     print(f'Loading data.')
-    dataloader = MatReader('../../../VNO_data/1d/full_from_'+dist+'_burgers_data_R10.mat')
+    dataloader = MatReader('../../../VNO_data/1d/'+dist+'_burgers_data_R10.mat')
     x_data = dataloader.read_field('a')[:,:]
     y_data = dataloader.read_field('u')[:,:]
     loc = dataloader.read_field('loc')[:,:]
