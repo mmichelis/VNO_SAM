@@ -28,8 +28,8 @@ for dist in distributions:
     y_data = y_data.numpy()
     sparse_loc = loc.numpy()
 
-    max = np.amax(loc) + 1
-    min = np.amin(loc)
+    max = np.int(np.amax(sparse_loc) + 1)
+    min = np.int(np.amin(sparse_loc))
     d = np.arange(min, max)
 
     x_dense = np.zeros([2048,max])
