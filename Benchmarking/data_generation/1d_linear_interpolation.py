@@ -33,7 +33,7 @@ for dist in distributions:
     d = np.arange(min, max)
 
     x_dense = np.zeros([2048,max])
-    x_dense = np.zeros([2048,max])
+    y_dense = np.zeros([2048,max])
     # the array to hold all the data until ready to port to torch
     for id in range(2048):
         fx = interpolate.interp1d(sparse_loc[0,:], x_data[id,:])
