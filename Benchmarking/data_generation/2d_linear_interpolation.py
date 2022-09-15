@@ -11,10 +11,12 @@ sys.path.append('../../')
 
 from utilities3 import *
 
+data_dist = 'conexp'
+interp_kind = 'cubic'
 
 # import the training data
 print(f'Loading data.')
-train_dataloader = MatReader('../../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat')
+train_dataloader = MatReader('../../../VNO_data/'+data_dist+'_ns_V1e-3_N5000_T50.mat')
 x_train = train_dataloader.read_field('u')[:,:,:,:]
 loc_x = train_dataloader.read_field('loc_x')
 loc_y = train_dataloader.read_field('loc_y')
@@ -46,7 +48,7 @@ for id in range(1000):
 
         # flatten the data
         sparse_data = x_train[id, :, :, time].flatten()
-        dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc)
+        dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc, method=interp_kind)
         dense_data = dense_data.reshape(size,size)
         full_dense_data[id, :, :, time] = dense_data
 
@@ -69,4 +71,4 @@ for id in range(100):
 
 pdb.set_trace()
 print('Saving uniform data.')
-scipy.io.savemat('/userdata/llingsch/SAM/VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
+scipy.io.savemat('/userdata/llingsch/SAM/VNO_data/'+interp_kind+'_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
