@@ -247,7 +247,7 @@ for ep in range(epochs):
     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
 training_history.close()
 
-# torch.save(model, './VNO_models/'+data_dist+'_vandermonde_burgers')
+# torch.save(model, '../VNO_models/'+data_dist+'_vandermonde_burgers')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -265,25 +265,6 @@ with torch.no_grad():
         index = index + 1
 # t2 = default_timer()
 # print(f'Time per evaluation : {(t2-t1)/ntest}')
-
-################################################################
-# optionally, load a model
-################################################################
-# model = torch.load('./VNO_models/'+data_dist+'_vandermonde_burgers')
-# pred = torch.zeros(y_test.shape)
-# index = 0
-# test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
-# with torch.no_grad():
-#     for x, y in test_loader:
-#         test_l2 = 0
-#         x, y = x.cuda(), y.cuda()
-
-#         out = model(x).view(-1)
-#         pred[index] = out
-
-#         test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
-#         print(index, test_l2)
-#         index = index + 1
 
 ################################################################
 # save predictions
