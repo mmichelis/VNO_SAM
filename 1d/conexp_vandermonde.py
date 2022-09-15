@@ -197,6 +197,9 @@ print(count_params(model))
 ################################################################
 # training and evaluation
 ################################################################
+training_history = open('./training_history/conexp.txt', 'w')
+training_history.write('Epoch, Time, Train MSE, Train L2, Test L2')
+
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
@@ -238,6 +241,8 @@ for ep in range(epochs):
 
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
+    training_history.write(ep+' '+ t2-t1+' '+ train_mse+' '+ train_l2+' '+ test_l2 +'\n')
+training_history.close()
 
 # torch.save(model, './VNO_models/conexp_vandermonde_burgers')
 pred = torch.zeros(y_test.shape)
