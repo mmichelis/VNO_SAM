@@ -241,7 +241,7 @@ for ep in range(epochs):
 
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
-    training_history.write(ep+' '+ t2-t1+' '+ train_mse+' '+ train_l2+' '+ test_l2 +'\n')
+    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
 training_history.close()
 
 # torch.save(model, './VNO_models/conexp_vandermonde_burgers')
