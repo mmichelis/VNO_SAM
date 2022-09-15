@@ -172,7 +172,7 @@ width = 64
 data_dist = 'conexp'
 
 # Data is of the shape (number of samples, grid size)
-dataloader = MatReader('../../../VNO_data/1d/'+data_dist+'_burgers_data_R10.mat')
+dataloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 p_data = dataloader.read_field('loc')[:,:]
