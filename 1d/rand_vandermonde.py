@@ -58,7 +58,7 @@ class SpectralConv1d(nn.Module):
              for col in range(s):
                 V[row, col] = np.exp(-1j * row *  p_data[0,col,0]) 
         V = torch.divide(V, np.sqrt(s))
-        return torch.transpose(V, 0, 1), torch.resolve_conj(V)
+        return torch.transpose(V, 0, 1), torch.conj(V)
 
     def forward(self, x):
         x_ft = torch.matmul(x.cfloat(), self.V)
