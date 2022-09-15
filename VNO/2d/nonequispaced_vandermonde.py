@@ -196,9 +196,13 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
+# define which (nonequispaced) data to work with
+# options are 'conexp_conexp', 'exp_conexp', 'rand_rand'
+data_dist = 'conexp_conexp'
 
-TRAIN_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
-TEST_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
+
+TRAIN_PATH = '../../../VNO_data/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
+TEST_PATH = '../../../VNO_data/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 
 ntrain = 1000
 ntest = 100
@@ -216,7 +220,7 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-path = 'conexp_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = data_dist+'_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 path_model = '../VNO_models/'+path
 # path_train_err = 'results/'+path+'train.txt'
 # path_test_err = 'results/'+path+'test.txt'
@@ -262,6 +266,8 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 ################################################################
 # training and evaluation
 ################################################################
+training_history = open('./training_history/'+data_dist+'.txt', 'w')
+training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 model = FNO2d(modes, modes, width).cuda()
 
@@ -330,7 +336,10 @@ for ep in range(epochs):
           test_l2_full / ntest)
     
     # print(f'epoch: {ep}, train loss: {train_l2_full / ntrain}, test loss: {test_l2_full / ntest}')
-torch.save(model, path_model)
+    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))+' '+ 
+    str(train_l2_full / ntrain)+' '+ str(test_l2_step / ntest / (T / step))+' '+ str(test_l2_full / ntest) +'\n')
+training_history.close()
+# torch.save(model, path_model)
 
 
 
@@ -365,5 +374,5 @@ with torch.no_grad():
         full_pred = torch.cat((full_pred, pred), -1)
 
 # ll: save as .txt instead of .mat
-scipy.io.savemat('../VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
 
