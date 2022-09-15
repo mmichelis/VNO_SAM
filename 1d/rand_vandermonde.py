@@ -169,7 +169,7 @@ width = 64
 ################################################################
 
 # Data is of the shape (number of samples, grid size)
-dataloader = MatReader('../../VNO_data/rand_burgers_data_R10.mat')
+dataloader = MatReader('../../VNO_data/1d/rand_burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 p_data = dataloader.read_field('loc')[:,:]
@@ -239,7 +239,7 @@ for ep in range(epochs):
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
 
-torch.save(model, './VNO_models/rand_vandermonde_burgers')
+# torch.save(model, '../VNO_models/rand_vandermonde_burgers')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -259,24 +259,24 @@ with torch.no_grad():
 ################################################################
 # optionally, load a model
 ################################################################
-model = torch.load('./VNO_models/rand_vandermonde_burgers')
-pred = torch.zeros(y_test.shape)
-index = 0
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
-with torch.no_grad():
-    for x, y in test_loader:
-        test_l2 = 0
-        x, y = x.cuda(), y.cuda()
+# model = torch.load('./VNO_models/rand_vandermonde_burgers')
+# pred = torch.zeros(y_test.shape)
+# index = 0
+# test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
+# with torch.no_grad():
+#     for x, y in test_loader:
+#         test_l2 = 0
+#         x, y = x.cuda(), y.cuda()
 
-        out = model(x).view(-1)
-        pred[index] = out
+#         out = model(x).view(-1)
+#         pred[index] = out
 
-        test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
-        print(index, test_l2)
-        index = index + 1
+#         test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
+#         print(index, test_l2)
+#         index = index + 1
 
 ################################################################
 # save predictions
 ################################################################
-# scipy.io.savemat('./VNO_predictions/rand_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/1d/rand_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
 

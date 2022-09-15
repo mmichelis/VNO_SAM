@@ -171,7 +171,7 @@ width = 64
 ################################################################
 
 # Data is of the shape (number of samples, grid size)
-dataloader = MatReader('../../VNO_data/burgers_data_R10.mat')
+dataloader = MatReader('../../VNO_data/1d/burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 # p_data = dataloader.read_field('loc')[:,:]
@@ -240,7 +240,7 @@ for ep in range(epochs):
     print(ep, t2-t1, train_mse, train_l2, test_l2)
 
 
-torch.save(model, '../VNO_models/uniform_vandermonde_burgers')
+# torch.save(model, '../VNO_models/uniform_vandermonde_burgers')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -279,4 +279,4 @@ with torch.no_grad():
 ################################################################
 # save predictions
 ################################################################
-scipy.io.savemat('../VNO_predictions/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/1d/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
