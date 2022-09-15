@@ -19,7 +19,7 @@ from functools import partial
 from timeit import default_timer
 
 import sys
-sys.path.append('../')
+sys.path.append('../../')
 from utilities3 import *
 from Adam import Adam
 
@@ -171,7 +171,7 @@ width = 64
 ################################################################
 
 # Data is of the shape (number of samples, grid size)
-dataloader = MatReader('../../VNO_data/1d/burgers_data_R10.mat')
+dataloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 # p_data = dataloader.read_field('loc')[:,:]
@@ -197,6 +197,9 @@ print(count_params(model))
 ################################################################
 # training and evaluation
 ################################################################
+training_history = open('./training_history/uniform.txt', 'w')
+training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
+
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
@@ -238,6 +241,8 @@ for ep in range(epochs):
 
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
+    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
+training_history.close()
 
 
 # torch.save(model, '../VNO_models/uniform_vandermonde_burgers')
@@ -279,4 +284,4 @@ with torch.no_grad():
 ################################################################
 # save predictions
 ################################################################
-scipy.io.savemat('../VNO_predictions/1d/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/uniform_burger_test.mat', mdict={'pred': pred.cpu().numpy()})

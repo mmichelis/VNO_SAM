@@ -19,7 +19,7 @@ from functools import partial
 from timeit import default_timer
 
 import sys
-sys.path.append('../')
+sys.path.append('../../')
 from utilities3 import *
 from Adam import Adam
 
@@ -172,7 +172,7 @@ width = 64
 data_dist = 'conexp'
 
 # Data is of the shape (number of samples, grid size)
-dataloader = MatReader('../../VNO_data/1d/'+data_dist+'_burgers_data_R10.mat')
+dataloader = MatReader('../../../VNO_data/1d/'+data_dist+'_burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 p_data = dataloader.read_field('loc')[:,:]
@@ -269,5 +269,5 @@ with torch.no_grad():
 ################################################################
 # save predictions
 ################################################################
-scipy.io.savemat('../VNO_predictions/1d/'+data_dist+'_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+data_dist+'_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
 
