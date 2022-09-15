@@ -201,8 +201,8 @@ class FNO2d(nn.Module):
 data_dist = 'conexp_conexp'
 
 
-TRAIN_PATH = '../../../VNO_data/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
-TEST_PATH = '../../../VNO_data/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
+TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
+TEST_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 
 ntrain = 1000
 ntest = 100
