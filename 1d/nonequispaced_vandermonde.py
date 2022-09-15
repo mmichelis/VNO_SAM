@@ -167,9 +167,12 @@ width = 64
 ################################################################
 # read data
 ################################################################
+# define which (nonequispaced) data to work with
+# options are 'conexp', 'exp', 'rand'
+data_dist = 'conexp'
 
 # Data is of the shape (number of samples, grid size)
-dataloader = MatReader('../../VNO_data/1d/conexp_burgers_data_R10.mat')
+dataloader = MatReader('../../VNO_data/1d/'+data_dist+'_burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 p_data = dataloader.read_field('loc')[:,:]
@@ -197,7 +200,7 @@ print(count_params(model))
 ################################################################
 # training and evaluation
 ################################################################
-training_history = open('./training_history/conexp.txt', 'w')
+training_history = open('./training_history/'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -244,7 +247,7 @@ for ep in range(epochs):
     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
 training_history.close()
 
-# torch.save(model, './VNO_models/conexp_vandermonde_burgers')
+# torch.save(model, './VNO_models/'+data_dist+'_vandermonde_burgers')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -266,7 +269,7 @@ with torch.no_grad():
 ################################################################
 # optionally, load a model
 ################################################################
-# model = torch.load('./VNO_models/conexp_vandermonde_burgers')
+# model = torch.load('./VNO_models/'+data_dist+'_vandermonde_burgers')
 # pred = torch.zeros(y_test.shape)
 # index = 0
 # test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -285,5 +288,5 @@ with torch.no_grad():
 ################################################################
 # save predictions
 ################################################################
-scipy.io.savemat('../VNO_predictions/1d/conexp_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('../VNO_predictions/1d/'+data_dist+'_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
 
