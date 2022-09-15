@@ -230,6 +230,9 @@ print(count_params(model))
 ################################################################
 # training and evaluation
 ################################################################
+training_history = open('./training_history/'+data_dist+'.txt', 'w')
+training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
+
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
@@ -276,9 +279,10 @@ for ep in range(epochs):
 
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
+    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
+training_history.close()
 
-# ll: make sure to save to correct locaiton
-torch.save(model, '../model/ns_fourier_burgers')
+# torch.save(model, '../model/ns_fourier_burgers')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -300,11 +304,3 @@ print(f'Time per evaluation : {(t2-t1)/ntest}')
 # np.savetxt('../pred/burger_test.csv', pred.cpu().numpy(), delimiter=',')
 scipy.io.savemat('../pred/burger_test.mat', mdict={'pred': pred.cpu().numpy()})
 
-
-# fig = plt.figure()
-# plt.loglog(np.arange(0,epochs), train_loss)
-# fig.suptitle('FNO: Training Loss Convergence for 1D Burgers Data', fontsize=20)
-# plt.xlabel('Epoch', fontsize=18)
-# plt.ylabel('L2 Loss', fontsize=18)
-# plt.show()
-# fig.savefig('FNO_1D_Train_Loss.jpg')
