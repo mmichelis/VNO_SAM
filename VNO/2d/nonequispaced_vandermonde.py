@@ -22,7 +22,7 @@ from functools import partial
 from timeit import default_timer
 
 import sys
-sys.path.append('../')
+sys.path.append('../../')
 from Adam import Adam
 from utilities3 import *
 import pdb
