@@ -12,6 +12,7 @@ sys.path.append('../../')
 from utilities3 import *
 
 distributions = {'conexp', 'exp', 'rand'}
+interp_kind = 'cubic'
 
 for dist in distributions:
     pdb.set_trace()
@@ -37,12 +38,12 @@ for dist in distributions:
 
     # the array to hold all the data until ready to port to torch
     for id in range(2048):
-        fx = interpolate.interp1d(sparse_loc[0,:], x_data[id,:])
-        fy = interpolate.interp1d(sparse_loc[0,:], y_data[id,:])
+        fx = interpolate.interp1d(sparse_loc[0,:], x_data[id,:], kind=interp_kind)
+        fy = interpolate.interp1d(sparse_loc[0,:], y_data[id,:], kind=interp_kind)
 
         x_dense[id,:] = fx(d)
         y_dense[id,:] = fy(d)
 
 
     print('Saving '+dist+' data.')
-    scipy.io.savemat('../../../VNO_data/1d/full_from_'+dist+'_burgers_data_R10.mat', mdict={'u': x_dense,'a': y_dense})
+    scipy.io.savemat('../../../VNO_data/1d/'+interp_kind+'_from_'+dist+'_burgers_data_R10.mat', mdict={'u': x_dense,'a': y_dense})
