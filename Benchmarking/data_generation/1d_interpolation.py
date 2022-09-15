@@ -27,6 +27,7 @@ for dist in distributions:
     # port everything to numpy
     x_data = x_data.numpy()
     y_data = y_data.numpy()
+    
     sparse_loc = loc.numpy()
 
     max = np.int(np.amax(sparse_loc) + 1)

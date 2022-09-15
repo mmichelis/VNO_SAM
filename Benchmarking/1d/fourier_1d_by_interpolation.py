@@ -198,7 +198,7 @@ width = 64
 # options are 'conexp', 'exp', 'rand'
 data_dist = 'conexp'
 # options are 'linear' and 'cubic'
-interp = 'linear'
+interp = 'cubic'
 
 
 # Data is of the shape (number of samples, grid size)
