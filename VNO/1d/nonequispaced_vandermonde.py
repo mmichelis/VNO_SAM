@@ -169,7 +169,7 @@ width = 64
 ################################################################
 # define which (nonequispaced) data to work with
 # options are 'conexp', 'exp', 'rand'
-data_dist = 'conexp'
+data_dist = input('data distribution: conexp, exp, or rand?\n')
 
 # Data is of the shape (number of samples, grid size)
 dataloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
