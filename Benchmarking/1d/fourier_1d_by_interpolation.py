@@ -162,9 +162,9 @@ width = 64
 ################################################################
 # define which (nonequispaced) data and interpolation to work with
 # options are 'conexp', 'exp', 'rand'
-data_dist = 'conexp'
+data_dist = input('data distribution: conexp, exp, or rand?\n')
 # options are 'linear' and 'cubic'
-interp = 'cubic'
+interp = input('interpolation method: cubic or linear?\n')
 
 
 # Data is of the shape (number of samples, grid size)
@@ -183,7 +183,7 @@ y_test = y_data[-ntest:,:]
 x_train = x_train.reshape(ntrain,s,1)
 x_test = x_test.reshape(ntest,s,1)
 
-testloader = MatReader('../../../VNO_data/1d/'+data_dist+'_burgers_data_R10.mat')
+testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
 loc = testloader.read_field('loc')[:,:].int().cuda()
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
