@@ -44,4 +44,4 @@ ax[1].title.set_text('Uniformly Random Points')
 plt.show()
 
 # save the data
-scipy.io.savemat('../../../nu_data/rand_burgers_data_R10.mat', mdict={'loc': pos.numpy(), 'a': x_nu.numpy(), 'u': y_nu.numpy()})
+scipy.io.savemat('../../../../VNO_data/1d/vno_rand_burgers_data_R10.mat', mdict={'loc': pos.numpy(), 'a': x_nu.numpy(), 'u': y_nu.numpy()})
