@@ -12,16 +12,19 @@ from utilities3 import *
 
 # import the training data
 print(f'Loading data.')
-dataloader = MatReader('../../../data/burgers_data_R10.mat')
+dataloader = MatReader('../../../../VNO_data/burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 
 # come up with some size for creating new data
 num_samples = int(x_data.shape[0])
-ar_len = 100
+ar_len = 64
 
 # generate positions randomly
-pos = torch.randint(8192, [ar_len,])
+pos = torch.randperm(8192, [ar_len,])
+
+import pdb
+pdb.set_trace()
 
 # create the nonuniform data using the positions
 x_nu = torch.index_select(x_data, 1, pos)
