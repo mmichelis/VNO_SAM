@@ -12,7 +12,7 @@ from utilities3 import *
 
 # import the training data
 print(f'Loading data.')
-dataloader = MatReader('../../../../VNO_data/burgers_data_R10.mat')
+dataloader = MatReader('../../../../VNO_data/1d/burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 
