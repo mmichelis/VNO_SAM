@@ -6,7 +6,7 @@ from matplotlib import animation
 from matplotlib import cm
 import numpy as np
 
-sys.path.append('../../')
+sys.path.append('../../../')
 
 from utilities3 import *
 
