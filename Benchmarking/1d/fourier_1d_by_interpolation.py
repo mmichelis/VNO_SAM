@@ -254,14 +254,14 @@ index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
 with torch.no_grad():
     for x, y in test_loader:
-        
-        test_l2 = 0
         x, y = x.cuda(), y.cuda()
 
-        t1 = default_timer()
         out = model(x).view(-1)
-        t3 = default_timer()
-        print(t3 - t1)
+        pred[index] = out
+
+        test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
+        print(index, test_l2)
+        index = index + 1
 
 t2 = default_timer()
 print(f'Time per evaluation : {(t2-t1)/ntest}')
