@@ -122,40 +122,6 @@ class FNO1d(nn.Module):
         x2 = self.w3(x)
         x = x1 + x2
 
-        ###########################################################
-        # Bias Term
-        #x2 = self.w0(x)
-        #x = x2
-        #x = F.gelu(x)
-
-        #x2 = self.w1(x)
-        #x = x2
-        #x = F.gelu(x)
-
-        #x2 = self.w2(x)
-        #x = x2
-        #x = F.gelu(x)
-
-        # x2 = self.w3(x)
-        # x = x2
-        ###########################################################
-        # Spectral Convolution
-        # x1 = self.conv0(x)
-        # x = x1 
-        # x = F.gelu(x)
-
-        # x1 = self.conv1(x)
-        # x = x1 
-        # x = F.gelu(x)
-
-        # x1 = self.conv2(x)
-        # x = x1 
-        # x = F.gelu(x)
-
-        # x1 = self.conv3(x)
-        # x = x1 
-        ###########################################################
-
 
         # x = x[..., :-self.padding] # pad the domain if input is non-periodic
         x = x.permute(0, 2, 1)
@@ -230,7 +196,7 @@ print(count_params(model))
 ################################################################
 # training and evaluation
 ################################################################
-training_history = open('./training_history/'+data_dist+'.txt', 'w')
+training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
