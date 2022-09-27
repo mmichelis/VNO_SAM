@@ -21,7 +21,7 @@ num_samples = int(x_data.shape[0])
 ar_len = 64
 
 # generate positions randomly
-pos = torch.randperm(8192, [ar_len,])
+pos = torch.randperm(8192)[:ar_len]
 
 import pdb
 pdb.set_trace()
