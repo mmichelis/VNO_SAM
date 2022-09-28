@@ -223,7 +223,7 @@ for ep in range(epochs):
 
         mse = F.mse_loss(out.view(batch_size, -1), y.view(batch_size, -1), reduction='mean')
         # l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1))
-        l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
+        l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
         l2.backward() # use the l2 relative loss
 
         optimizer.step()
@@ -266,7 +266,7 @@ with torch.no_grad():
         # pdb.set_trace()
         out = model(x).view(-1)
         pred[index] = out
-        print(out.shape)
+        # print(out.shape)
 
         out_sparse = torch.index_select(out, 0, loc[0,:])
         y_sparse = torch.index_select(y.view(-1), 0, loc[0,:])
