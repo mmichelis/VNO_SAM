@@ -149,7 +149,7 @@ sub = 1 #subsampling rate
 batch_size = 20
 learning_rate = 0.001
 
-epochs = 500
+epochs = 10
 step_size = 50
 gamma = 0.5
 
@@ -262,7 +262,7 @@ with torch.no_grad():
 
         # test_l2 = 0
 
-        out = model(x)#.view(-1)
+        out = model(x).view(-1)
         pred[index] = out
         print(out.shape)
 
