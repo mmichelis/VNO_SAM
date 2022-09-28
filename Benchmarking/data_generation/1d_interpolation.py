@@ -12,7 +12,7 @@ sys.path.append('../../')
 from utilities3 import *
 
 distributions = {'conexp', 'exp', 'rand'}
-interp_kind = 'cubic'
+interp_kind = 'linear'
 
 for dist in distributions:
     pdb.set_trace()
@@ -20,8 +20,8 @@ for dist in distributions:
     # import the training data
     print(f'Loading data.')
     dataloader = MatReader('../../../VNO_data/1d/vno_'+dist+'_burgers_data_R10.mat')
-    x_data = dataloader.read_field('u')[:,:]
-    y_data = dataloader.read_field('a')[:,:]
+    x_data = dataloader.read_field('a')[:,:]
+    y_data = dataloader.read_field('u')[:,:]
     loc = dataloader.read_field('loc')[:,:]
 
     # port everything to numpy
@@ -47,4 +47,4 @@ for dist in distributions:
 
 
     print('Saving '+dist+' data.')
-    scipy.io.savemat('../../../VNO_data/1d/'+interp_kind+'_from_'+dist+'_burgers_data_R10.mat', mdict={'u': x_dense,'a': y_dense})
+    scipy.io.savemat('../../../VNO_data/1d/'+interp_kind+'_from_'+dist+'_burgers_data_R10.mat', mdict={'a': x_dense,'u': y_dense})
