@@ -202,7 +202,7 @@ training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
-myloss = LpLoss(size_average=False)
+myloss = nn.L1Loss() #LpLoss(size_average=False)
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
@@ -215,6 +215,7 @@ for ep in range(epochs):
         optimizer.zero_grad()
 
         out = model(x)
+        print(out)
 
         out_sparse = torch.index_select(out, 1, loc[0,:])
         y_sparse = torch.index_select(y, 1, loc[0,:])
