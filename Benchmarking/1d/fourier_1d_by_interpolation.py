@@ -185,6 +185,7 @@ y_test = y_data[-ntest:,:]
 x_train = x_train.reshape(ntrain,s,1)
 x_test = x_test.reshape(ntest,s,1)
 
+pdb.set_trace()
 testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
 loc = testloader.read_field('loc')[:,:].int().cuda()
 
