@@ -149,7 +149,7 @@ sub = 1 #subsampling rate
 batch_size = 20
 learning_rate = 0.001
 
-epochs = 10
+epochs = 500
 step_size = 50
 gamma = 0.5
 
@@ -263,7 +263,7 @@ with torch.no_grad():
         x, y = x.cuda(), y.cuda()
 
         # test_l2 = 0
-        pdb.set_trace()
+        # pdb.set_trace()
         out = model(x).view(-1)
         pred[index] = out
         print(out.shape)
@@ -272,7 +272,6 @@ with torch.no_grad():
         y_sparse = torch.index_select(y.view(-1), 0, loc[0,:])
         test_l2 = myloss(out_sparse.view(-1), y_sparse.view(-1)).item()
 
-        # test_l2 = myloss(out.view(1, -1), y.view(1, -1)).item() 
         print(index, test_l2)
         index = index + 1
         prediction_history.write(str(test_l2)+'/n')
