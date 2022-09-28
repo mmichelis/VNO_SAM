@@ -237,7 +237,7 @@ for ep in range(epochs):
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
 
-            out = model(x)
+            out = model(x).view(-1)
             out_sparse = torch.index_select(out, 1, loc[0,:])
             y_sparse = torch.index_select(y, 1, loc[0,:])
             test_l2 += myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
