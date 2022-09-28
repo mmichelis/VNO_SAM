@@ -262,8 +262,9 @@ with torch.no_grad():
 
         # test_l2 = 0
 
-        out = model(x).view(-1)
+        out = model(x)#.view(-1)
         pred[index] = out
+        print(out.shape)
 
         out_sparse = torch.index_select(out, 1, loc[0,:])
         y_sparse = torch.index_select(y, 1, loc[0,:])
@@ -281,4 +282,3 @@ print(f'Time per evaluation : {(t2-t1)/ntest}')
 
 # np.savetxt('../pred/burger_test.csv', pred.cpu().numpy(), delimiter=',')
 scipy.io.savemat('./predictions/'+interp+'_from_'+data_dist+'.mat', mdict={'pred': pred.cpu().numpy()})
-
