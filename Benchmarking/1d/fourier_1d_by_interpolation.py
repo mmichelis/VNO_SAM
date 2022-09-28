@@ -139,7 +139,7 @@ class FNO1d(nn.Module):
 ################################################################
 #  configurations
 ################################################################
-ntrain = 200
+ntrain = 1000
 ntest = 200
 
 sub = 1 #subsampling rate
@@ -202,7 +202,7 @@ training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=0)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
-myloss = nn.L1Loss() #LpLoss(size_average=False)
+myloss = LpLoss(size_average=False)
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
@@ -260,10 +260,16 @@ with torch.no_grad():
     for x, y in test_loader:
         x, y = x.cuda(), y.cuda()
 
+        # test_l2 = 0
+
         out = model(x).view(-1)
         pred[index] = out
 
-        test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
+        out_sparse = torch.index_select(out, 1, loc[0,:])
+        y_sparse = torch.index_select(y, 1, loc[0,:])
+        test_l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1)).item()
+
+        # test_l2 = myloss(out.view(1, -1), y.view(1, -1)).item() 
         print(index, test_l2)
         index = index + 1
         prediction_history.write(str(test_l2))
