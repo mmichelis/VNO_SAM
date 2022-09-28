@@ -264,6 +264,7 @@ with torch.no_grad():
         print(index, test_l2)
         index = index + 1
         prediction_history.write(str(test_l2))
+prediction_history.close()
 
 t2 = default_timer()
 print(f'Time per evaluation : {(t2-t1)/ntest}')
