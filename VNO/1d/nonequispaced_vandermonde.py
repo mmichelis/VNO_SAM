@@ -248,6 +248,7 @@ for ep in range(epochs):
 training_history.close()
 
 # torch.save(model, '../VNO_models/'+data_dist+'_vandermonde_burgers')
+prediction_history = open('./training_history/'+data_dist+'_test_loss.txt', 'w')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -263,6 +264,8 @@ with torch.no_grad():
         test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
         print(index, test_l2)
         index = index + 1
+        prediction_history.write(str(test_l2))
+prediction_history.close()
 # t2 = default_timer()
 # print(f'Time per evaluation : {(t2-t1)/ntest}')
 
