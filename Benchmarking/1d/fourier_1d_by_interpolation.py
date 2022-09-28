@@ -270,7 +270,7 @@ with torch.no_grad():
 
         out_sparse = torch.index_select(out, 0, loc[0,:])
         y_sparse = torch.index_select(y, 0, loc[0,:])
-        test_l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1)).item()
+        test_l2 = myloss(out_sparse.view(-1), y_sparse.view(-1)).item()
 
         # test_l2 = myloss(out.view(1, -1), y.view(1, -1)).item() 
         print(index, test_l2)
