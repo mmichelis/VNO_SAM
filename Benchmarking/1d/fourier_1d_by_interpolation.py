@@ -266,8 +266,8 @@ with torch.no_grad():
         pred[index] = out
         print(out.shape)
 
-        out_sparse = torch.index_select(out, 1, loc[0,:])
-        y_sparse = torch.index_select(y, 1, loc[0,:])
+        out_sparse = torch.index_select(out, 0, loc[0,:])
+        y_sparse = torch.index_select(y, 0, loc[0,:])
         test_l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1)).item()
 
         # test_l2 = myloss(out.view(1, -1), y.view(1, -1)).item() 
