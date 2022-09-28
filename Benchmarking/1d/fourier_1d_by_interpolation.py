@@ -223,7 +223,7 @@ for ep in range(epochs):
 
         mse = F.mse_loss(out.view(batch_size, -1), y.view(batch_size, -1), reduction='mean')
         # l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1))
-        l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
+        l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
         l2.backward() # use the l2 relative loss
 
         optimizer.step()
@@ -237,10 +237,10 @@ for ep in range(epochs):
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
 
-            out = model(x).view(-1)
+            out = model(x)
             out_sparse = torch.index_select(out, 1, loc[0,:])
             y_sparse = torch.index_select(y, 1, loc[0,:])
-            test_l2 += myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
+            test_l2 += myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1)).item()
 
     train_mse /= len(train_loader)
     train_l2 /= ntrain
