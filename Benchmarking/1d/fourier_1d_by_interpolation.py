@@ -19,6 +19,8 @@ import sys
 sys.path.append('../../')
 from utilities3 import *
 
+import pdb
+
 from Adam import Adam
 
 torch.manual_seed(0)
@@ -257,7 +259,7 @@ pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
 
-import pdb
+
 with torch.no_grad():
     for x, y in test_loader:
         x, y = x.cuda(), y.cuda()
