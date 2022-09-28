@@ -186,7 +186,7 @@ x_test = x_test.reshape(ntest,s,1)
 testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
 loc = testloader.read_field('loc')[:,:].int().cuda()
 
-train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=False)
+train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
 # model
@@ -216,7 +216,7 @@ for ep in range(epochs):
 
         out = model(x)
         # print(out)
-        print(torch.mean(out))
+        # print(torch.mean(out))
 
         # out_sparse = torch.index_select(out, 1, loc[0,:])
         # y_sparse = torch.index_select(y, 1, loc[0,:])
