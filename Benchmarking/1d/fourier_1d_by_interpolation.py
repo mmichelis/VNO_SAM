@@ -262,7 +262,7 @@ with torch.no_grad():
 
         # test_l2 = 0
 
-        out = model(x).view(-1)
+        out = model(x)#.view(-1)
         pred[index] = out
         print(out.shape)
 
