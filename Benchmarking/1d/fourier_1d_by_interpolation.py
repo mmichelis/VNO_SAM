@@ -263,8 +263,8 @@ with torch.no_grad():
         x, y = x.cuda(), y.cuda()
 
         # test_l2 = 0
-        pdb.set_trace()
-        out = model(x)#.view(-1)
+        # pdb.set_trace()
+        out = model(x).view(-1)
         pred[index] = out
         print(out.shape)
 
