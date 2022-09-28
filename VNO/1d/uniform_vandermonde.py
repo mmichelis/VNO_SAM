@@ -246,6 +246,7 @@ training_history.close()
 
 
 # torch.save(model, '../VNO_models/uniform_vandermonde_burgers')
+prediction_history = open('./training_history/uniform_test_loss.txt', 'w')
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
@@ -261,6 +262,8 @@ with torch.no_grad():
         test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
         print(index, test_l2)
         index = index + 1
+        prediction_history.write(str(test_l2))
+prediction_history.close()
 
 ################################################################
 # optionally, load a model
