@@ -139,7 +139,7 @@ class FNO1d(nn.Module):
 ################################################################
 #  configurations
 ################################################################
-ntrain = 1000
+ntrain = 200
 ntest = 200
 
 sub = 1 #subsampling rate
@@ -199,7 +199,7 @@ print(count_params(model))
 training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
-optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=0)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
 myloss = nn.L1Loss() #LpLoss(size_average=False)
