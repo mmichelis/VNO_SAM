@@ -256,12 +256,14 @@ prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test
 pred = torch.zeros(y_test.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
+
+import pdb
 with torch.no_grad():
     for x, y in test_loader:
         x, y = x.cuda(), y.cuda()
 
         # test_l2 = 0
-
+        pdb.set_trace()
         out = model(x)#.view(-1)
         pred[index] = out
         print(out.shape)
