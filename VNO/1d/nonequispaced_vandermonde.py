@@ -264,7 +264,7 @@ with torch.no_grad():
         test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
         print(index, test_l2)
         index = index + 1
-        prediction_history.write(str(test_l2)+'/n')
+        prediction_history.write(str(test_l2)+'\n')
 prediction_history.close()
 # t2 = default_timer()
 # print(f'Time per evaluation : {(t2-t1)/ntest}')
