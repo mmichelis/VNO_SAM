@@ -160,7 +160,7 @@ step_size = 50
 gamma = 0.5
 
 modes = 32
-width = 64
+width = 48
 
 
 
@@ -203,7 +203,7 @@ print(count_params(model))
 training_history = open('./training_history/'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
-optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
 myloss = LpLoss(size_average=False)
