@@ -185,9 +185,11 @@ y_test = y_data[-ntest:,:]
 x_train = x_train.reshape(ntrain,s,1)
 x_test = x_test.reshape(ntest,s,1)
 
-pdb.set_trace()
+# pdb.set_trace()
 testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
 loc = testloader.read_field('loc')[:,:].int().cuda()
+# loc will contain indices which are out of range for the rand data because they have been offset
+loc -= torch.min(loc)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
@@ -239,7 +241,7 @@ for ep in range(epochs):
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
-            pdb.set_trace()
+            # pdb.set_trace()
             out = model(x)
             out_sparse = torch.index_select(out, 1, loc[0,:])
             y_sparse = torch.index_select(y, 1, loc[0,:])
