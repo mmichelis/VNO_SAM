@@ -1,17 +1,18 @@
 import sys
 import scipy.io
 import matplotlib.pyplot as plt
+import torch
 from matplotlib import animation
 from matplotlib import cm
 import numpy as np
 
-sys.path.append('../../')
+sys.path.append('../../../')
 
 from utilities3 import *
 
 # import the training data
 print(f'Loading data.')
-dataloader = MatReader('../../../data/burgers_data_R10.mat')
+dataloader = MatReader('../../../../VNO_data/1d/burgers_data_R10.mat')
 x_data = dataloader.read_field('a')[:,:]
 y_data = dataloader.read_field('u')[:,:]
 
@@ -20,7 +21,7 @@ y_data = dataloader.read_field('u')[:,:]
 # second half of the data should have irregular spacing, growth rate of 1.1
 num_samples = int(x_data.shape[0])
 ar_len = int(x_data.shape[1])
-growth_factor = 2 
+growth_factor = 2.16
 
 uniform = int(0) # int(ar_len/4)
 nonuniform =  int(ar_len**(1/growth_factor)) #int(np.floor(np.log(ar_len - uniform)/np.log(1.1)))+1
