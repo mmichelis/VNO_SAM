@@ -160,7 +160,7 @@ step_size = 50
 gamma = 0.5
 
 modes = 32
-width = 48
+width = 64
 
 
 
