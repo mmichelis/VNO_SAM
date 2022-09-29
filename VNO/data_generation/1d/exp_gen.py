@@ -54,7 +54,7 @@ ax[1].scatter(pos, x_nu[1, :], marker='.')
 ax[0].scatter(x, x_data[1, :], marker='.')
 ax[0].title.set_text('Uniform Points')
 ax[1].title.set_text('Expanding Points')
-plt.show()
+# plt.show()
 
 # save the data
-scipy.io.savemat('../../../nu_data/exp_burgers_data_R10.mat', mdict={'loc': pos.numpy(), 'a': x_nu.numpy(), 'u': y_nu.numpy()})
+scipy.io.savemat('../../../../VNO_data/1d/vno_exp_burgers_data_R10.mat', mdict={'loc': pos.numpy(), 'a': x_nu.numpy(), 'u': y_nu.numpy()})
