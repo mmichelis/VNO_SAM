@@ -223,8 +223,8 @@ for ep in range(epochs):
         # print(out)
         # print(torch.mean(out))
 
-        # out_sparse = torch.index_select(out, 1, loc[0,:])
-        # y_sparse = torch.index_select(y, 1, loc[0,:])
+        out_sparse = torch.index_select(out, 1, loc[0,:])
+        y_sparse = torch.index_select(y, 1, loc[0,:])
 
         mse = F.mse_loss(out.view(batch_size, -1), y.view(batch_size, -1), reduction='mean')
         # l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1))
