@@ -277,12 +277,12 @@ for data_dist in {'conexp', 'exp', 'rand'}:
                 x, y = x.cuda(), y.cuda()
 
                 test_l2 = 0
-                # pdb.set_trace()
-                out = model(x).view(-1)
+                pdb.set_trace()
+                out = model(x)
                 pred[index] = out
                 # print(out.shape)
 
-                out_sparse = torch.index_select(out.view(-1), 0, loc[0,:])
+                out_sparse = torch.index_select(out, 0, loc[0,:])
                 y_sparse = torch.index_select(y.view(-1), 0, loc[0,:])
                 test_l2 = myloss(out_sparse.view(-1), y_sparse.view(-1)).item()
 
