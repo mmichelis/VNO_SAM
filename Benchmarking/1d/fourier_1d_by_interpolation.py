@@ -151,7 +151,7 @@ sub = 1 #subsampling rate
 batch_size = 20
 learning_rate = 0.001
 
-epochs = 5
+epochs = 500
 step_size = 50
 gamma = 0.5
 
