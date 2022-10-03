@@ -177,8 +177,8 @@ loc -= torch.min(loc)
 end_id = torch.max(loc)
 
 # Data is of the shape (number of samples, grid size)
-# trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
-trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
+trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
+# trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
 x_data = trainloader.read_field('a')[:,:]
 y_data = trainloader.read_field('u')[:,:]
 
