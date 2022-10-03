@@ -278,7 +278,7 @@ for data_dist in {'conexp', 'exp', 'rand'}:
 
                 test_l2 = 0
                 pdb.set_trace()
-                out = model(x)
+                out = model(x).view(-1)
                 pred[index] = out
                 # print(out.shape)
 
