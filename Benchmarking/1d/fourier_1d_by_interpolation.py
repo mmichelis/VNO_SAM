@@ -247,7 +247,7 @@ for ep in range(epochs):
     with torch.no_grad():
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
-            # pdb.set_trace()
+            pdb.set_trace()
             out = model(x)
             out_sparse = torch.index_select(out, 1, loc[0,:])
             y_sparse = torch.index_select(y, 1, loc[0,:])
