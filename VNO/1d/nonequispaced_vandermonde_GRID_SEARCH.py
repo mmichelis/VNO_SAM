@@ -155,7 +155,7 @@ ntest = 200
 batch_size = 20
 learning_rate_ = {0.001, 5e-4, 1e-4}
 
-epochs = 50
+epochs = 500
 step_size = 50
 gamma = 0.5
 
@@ -250,35 +250,6 @@ for learning_rate in learning_rate_:
                     train_loss[ep] = train_l2
 
                     t2 = default_timer()
-                    # print(ep, t2-t1, train_mse, train_l2, test_l2)
                 print(str(learning_rate)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2))
                 training_history.write(str(learning_rate)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2)+'\n')
 training_history.close()
-
-# torch.save(model, '../VNO_models/'+data_dist+'_vandermonde_burgers')
-prediction_history = open('./training_history/'+data_dist+'_test_loss.txt', 'w')
-pred = torch.zeros(y_test.shape)
-index = 0
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
-with torch.no_grad():
-    t1 = default_timer()
-    for x, y in test_loader:
-        test_l2 = 0
-        x, y = x.cuda(), y.cuda()
-
-        out = model(x).view(-1)
-        pred[index] = out
-
-        test_l2 += myloss(out.view(1, -1), y.view(1, -1)).item()
-        print(index, test_l2)
-        index = index + 1
-        prediction_history.write(str(test_l2)+'\n')
-prediction_history.close()
-# t2 = default_timer()
-# print(f'Time per evaluation : {(t2-t1)/ntest}')
-
-################################################################
-# save predictions
-################################################################
-scipy.io.savemat('./predictions/'+data_dist+'_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
-
