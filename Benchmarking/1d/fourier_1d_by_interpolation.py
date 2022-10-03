@@ -277,7 +277,7 @@ for data_dist in {'conexp', 'exp', 'rand'}:
                 x, y = x.cuda(), y.cuda()
 
                 test_l2 = 0
-                pdb.set_trace()
+                # pdb.set_trace()
                 out = model(x).view(-1)
                 pred[index] = out
                 # print(out.shape)
