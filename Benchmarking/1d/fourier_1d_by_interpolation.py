@@ -288,7 +288,7 @@ for data_dist in {'conexp', 'exp', 'rand'}:
 
                 print(index, test_l2)
                 index = index + 1
-                prediction_history.write(str(test_l2)+'/n')
+                prediction_history.write(str(test_l2)+'\n')
         prediction_history.close()
 
         # t2 = default_timer()
