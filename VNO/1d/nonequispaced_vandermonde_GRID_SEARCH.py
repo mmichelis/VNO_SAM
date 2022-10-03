@@ -251,6 +251,7 @@ for learning_rate in learning_rate_:
 
                     t2 = default_timer()
                     # print(ep, t2-t1, train_mse, train_l2, test_l2)
+                print(str(learning_rate)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2))
                 training_history.write(str(learning_rate)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2)+'\n')
 training_history.close()
 
