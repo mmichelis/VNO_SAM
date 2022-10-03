@@ -282,8 +282,8 @@ for data_dist in {'conexp', 'exp', 'rand'}:
                 pred[index] = out
                 # print(out.shape)
 
-                out_sparse = torch.index_select(out, 0, loc[0,:])
-                y_sparse = torch.index_select(y, 0, loc[0,:])
+                out_sparse = torch.index_select(out, 1, loc[0,:])
+                y_sparse = torch.index_select(y.view(-1), 1, loc[0,:])
                 test_l2 = myloss(out_sparse.view(-1), y_sparse.view(-1)).item()
 
                 print(index, test_l2)
