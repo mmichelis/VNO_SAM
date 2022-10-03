@@ -168,14 +168,22 @@ data_dist = input('data distribution: conexp, exp, or rand?\n')
 # options are 'linear' and 'cubic'
 interp = input('interpolation method: cubic or linear?\n')
 
+# retrieve the index locations for comparison with VNO
+testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
+loc = testloader.read_field('loc')[:,:].int().cuda()
+# loc will contain indices which are out of range for the rand data because they have been offset
+loc -= torch.min(loc)
+end_id = torch.max(loc)
 
 # Data is of the shape (number of samples, grid size)
 # trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
 trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
-x_data = trainloader.read_field('a')[:,:]
-y_data = trainloader.read_field('u')[:,:]
+x_data = trainloader.read_field('a')[:,:end_id]
+y_data = trainloader.read_field('u')[:,:end_id]
 
 s = x_data.shape[1]
+print(end_id)
+print(s)
 
 x_train = x_data[:ntrain,:]
 y_train = y_data[:ntrain,:]
@@ -186,11 +194,7 @@ y_test = y_data[-ntest:,:]
 x_train = x_train.reshape(ntrain,s,1)
 x_test = x_test.reshape(ntest,s,1)
 
-# pdb.set_trace()
-testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
-loc = testloader.read_field('loc')[:,:].int().cuda()
-# loc will contain indices which are out of range for the rand data because they have been offset
-loc -= torch.min(loc)
+
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
@@ -202,8 +206,8 @@ print(count_params(model))
 ################################################################
 # training and evaluation
 ################################################################
-training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
-training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
+# training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
+# training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
@@ -254,8 +258,8 @@ for ep in range(epochs):
 
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
-    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
-training_history.close()
+#     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
+# training_history.close()
 
 # torch.save(model, '../model/ns_fourier_burgers')
 prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
