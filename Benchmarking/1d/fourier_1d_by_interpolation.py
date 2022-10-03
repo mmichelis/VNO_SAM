@@ -168,7 +168,7 @@ data_dist = input('data distribution: conexp, exp, or rand?\n')
 # options are 'linear' and 'cubic'
 interp = input('interpolation method: cubic or linear?\n')
 
-# pdb.set_trace()
+pdb.set_trace()
 # retrieve the index locations for comparison with VNO
 testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
 loc = testloader.read_field('loc')[:,:].int().cuda()
@@ -179,8 +179,8 @@ end_id = torch.max(loc)
 # Data is of the shape (number of samples, grid size)
 # trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
 trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
-x_data = trainloader.read_field('a')[:,:end_id+1]
-y_data = trainloader.read_field('u')[:,:end_id+1]
+x_data = trainloader.read_field('a')[:,:]
+y_data = trainloader.read_field('u')[:,:]
 
 s = x_data.shape[1]
 print(end_id)
