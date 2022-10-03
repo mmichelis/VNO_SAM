@@ -151,7 +151,7 @@ sub = 1 #subsampling rate
 batch_size = 20
 learning_rate = 0.001
 
-epochs = 500
+epochs = 5
 step_size = 50
 gamma = 0.5
 
@@ -164,133 +164,136 @@ width = 64
 ################################################################
 # define which (nonequispaced) data and interpolation to work with
 # options are 'conexp', 'exp', 'rand'
-data_dist = input('data distribution: conexp, exp, or rand?\n')
-# options are 'linear' and 'cubic'
-interp = input('interpolation method: cubic or linear?\n')
+# data_dist = input('data distribution: conexp, exp, or rand?\n')
+# # options are 'linear' and 'cubic'
+# interp = input('interpolation method: cubic or linear?\n')
 
-pdb.set_trace()
-# retrieve the index locations for comparison with VNO
-testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
-loc = testloader.read_field('loc')[:,:].int().cuda()
-# loc will contain indices which are out of range for the rand data because they have been offset
-loc -= torch.min(loc)
-end_id = torch.max(loc)
+# pdb.set_trace()
+for data_dist in {'conexp', 'exp', 'rand'}:
+    for interp in {'cubic', 'linear'}:
+        print(data_dist + ' ' + interp)
+        # retrieve the index locations for comparison with VNO
+        testloader = MatReader('../../../VNO_data/1d/vno_'+data_dist+'_burgers_data_R10.mat')
+        loc = testloader.read_field('loc')[:,:].int().cuda()
+        # loc will contain indices which are out of range for the rand data because they have been offset
+        loc -= torch.min(loc)
+        end_id = torch.max(loc)
 
-# Data is of the shape (number of samples, grid size)
-trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
-# trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
-x_data = trainloader.read_field('a')[:,:]
-y_data = trainloader.read_field('u')[:,:]
+        # Data is of the shape (number of samples, grid size)
+        trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
+        # trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
+        x_data = trainloader.read_field('a')[:,:]
+        y_data = trainloader.read_field('u')[:,:]
 
-s = x_data.shape[1]
-print(end_id)
-print(s)
+        s = x_data.shape[1]
+        print(end_id)
+        print(s)
 
-x_train = x_data[:ntrain,:]
-y_train = y_data[:ntrain,:]
+        x_train = x_data[:ntrain,:]
+        y_train = y_data[:ntrain,:]
 
-x_test = x_data[-ntest:,:]
-y_test = y_data[-ntest:,:]
+        x_test = x_data[-ntest:,:]
+        y_test = y_data[-ntest:,:]
 
-x_train = x_train.reshape(ntrain,s,1)
-x_test = x_test.reshape(ntest,s,1)
-
-
-
-train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
-
-# model
-model = FNO1d(modes, width).cuda()
-print(count_params(model))
-
-################################################################
-# training and evaluation
-################################################################
-# training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
-# training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
-
-optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
-scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
-train_loss = np.zeros(epochs)
-myloss = LpLoss(size_average=False)
-for ep in range(epochs):
-    model.train()
-    t1 = default_timer()
-    train_mse = 0
-    train_l2 = 0
-    for x, y in train_loader:
-        # t_train1 = default_timer()
-        x, y = x.cuda(), y.cuda()
-
-        optimizer.zero_grad()
-
-        out = model(x)
-        # print(out)
-        # print(torch.mean(out))
-
-        # out_sparse = torch.index_select(out, 1, loc[0,:])
-        # y_sparse = torch.index_select(y, 1, loc[0,:])
-
-        mse = F.mse_loss(out.view(batch_size, -1), y.view(batch_size, -1), reduction='mean')
-        # l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1))
-        l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
-        l2.backward() # use the l2 relative loss
-
-        optimizer.step()
-        train_mse += mse.item()
-        train_l2 += l2.item()
-
-    scheduler.step()
-    model.eval()
-    test_l2 = 0.0
-    with torch.no_grad():
-        for x, y in test_loader:
-            x, y = x.cuda(), y.cuda()
-            # pdb.set_trace()
-            out = model(x)
-            out_sparse = torch.index_select(out, 1, loc[0,:])
-            y_sparse = torch.index_select(y, 1, loc[0,:])
-            test_l2 += myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1)).item()
-
-    train_mse /= len(train_loader)
-    train_l2 /= ntrain
-    test_l2 /= ntest
-
-    t2 = default_timer()
-    print(ep, t2-t1, train_mse, train_l2, test_l2)
-#     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
-# training_history.close()
-
-# torch.save(model, '../model/ns_fourier_burgers')
-prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
-pred = torch.zeros(y_test.shape)
-index = 0
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
+        x_train = x_train.reshape(ntrain,s,1)
+        x_test = x_test.reshape(ntest,s,1)
 
 
-with torch.no_grad():
-    for x, y in test_loader:
-        x, y = x.cuda(), y.cuda()
 
-        # test_l2 = 0
-        # pdb.set_trace()
-        out = model(x).view(-1)
-        pred[index] = out
-        # print(out.shape)
+        train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_train, y_train), batch_size=batch_size, shuffle=True)
+        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
-        out_sparse = torch.index_select(out, 0, loc[0,:])
-        y_sparse = torch.index_select(y.view(-1), 0, loc[0,:])
-        test_l2 = myloss(out_sparse.view(-1), y_sparse.view(-1)).item()
+        # model
+        model = FNO1d(modes, width).cuda()
+        print(count_params(model))
 
-        print(index, test_l2)
-        index = index + 1
-        prediction_history.write(str(test_l2)+'/n')
-prediction_history.close()
+        ################################################################
+        # training and evaluation
+        ################################################################
+        training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
+        training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
-t2 = default_timer()
-print(f'Time per evaluation : {(t2-t1)/ntest}')
+        optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
+        train_loss = np.zeros(epochs)
+        myloss = LpLoss(size_average=False)
+        for ep in range(epochs):
+            model.train()
+            t1 = default_timer()
+            train_mse = 0
+            train_l2 = 0
+            for x, y in train_loader:
+                # t_train1 = default_timer()
+                x, y = x.cuda(), y.cuda()
+
+                optimizer.zero_grad()
+
+                out = model(x)
+                # print(out)
+                # print(torch.mean(out))
+
+                # out_sparse = torch.index_select(out, 1, loc[0,:])
+                # y_sparse = torch.index_select(y, 1, loc[0,:])
+
+                mse = F.mse_loss(out.view(batch_size, -1), y.view(batch_size, -1), reduction='mean')
+                # l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1))
+                l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
+                l2.backward() # use the l2 relative loss
+
+                optimizer.step()
+                train_mse += mse.item()
+                train_l2 += l2.item()
+
+            scheduler.step()
+            model.eval()
+            test_l2 = 0.0
+            with torch.no_grad():
+                for x, y in test_loader:
+                    x, y = x.cuda(), y.cuda()
+                    # pdb.set_trace()
+                    out = model(x)
+                    out_sparse = torch.index_select(out, 1, loc[0,:])
+                    y_sparse = torch.index_select(y, 1, loc[0,:])
+                    test_l2 += myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1)).item()
+
+            train_mse /= len(train_loader)
+            train_l2 /= ntrain
+            test_l2 /= ntest
+
+            t2 = default_timer()
+            print(ep, t2-t1, train_mse, train_l2, test_l2)
+            training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_mse)+' '+ str(train_l2)+' '+ str(test_l2) +'\n')
+        training_history.close()
+
+        # torch.save(model, '../model/ns_fourier_burgers')
+        prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
+        pred = torch.zeros(y_test.shape)
+        index = 0
+        test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=1, shuffle=False)
 
 
-# np.savetxt('../pred/burger_test.csv', pred.cpu().numpy(), delimiter=',')
-scipy.io.savemat('./predictions/'+interp+'_from_'+data_dist+'.mat', mdict={'pred': pred.cpu().numpy()})
+        with torch.no_grad():
+            for x, y in test_loader:
+                x, y = x.cuda(), y.cuda()
+
+                # test_l2 = 0
+                # pdb.set_trace()
+                out = model(x).view(-1)
+                pred[index] = out
+                # print(out.shape)
+
+                out_sparse = torch.index_select(out, 0, loc[0,:])
+                y_sparse = torch.index_select(y.view(-1), 0, loc[0,:])
+                test_l2 = myloss(out_sparse.view(-1), y_sparse.view(-1)).item()
+
+                print(index, test_l2)
+                index = index + 1
+                prediction_history.write(str(test_l2)+'/n')
+        prediction_history.close()
+
+        # t2 = default_timer()
+        # print(f'Time per evaluation : {(t2-t1)/ntest}')
+
+
+        # np.savetxt('../pred/burger_test.csv', pred.cpu().numpy(), delimiter=',')
+        scipy.io.savemat('./predictions/'+interp+'_from_'+data_dist+'.mat', mdict={'pred': pred.cpu().numpy()})
