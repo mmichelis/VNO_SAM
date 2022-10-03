@@ -170,7 +170,8 @@ interp = input('interpolation method: cubic or linear?\n')
 
 
 # Data is of the shape (number of samples, grid size)
-trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
+# trainloader = MatReader('../../../VNO_data/1d/'+interp+'_from_'+data_dist+'_burgers_data_R10.mat')
+trainloader = MatReader('../../../VNO_data/1d/burgers_data_R10.mat')
 x_data = trainloader.read_field('a')[:,:]
 y_data = trainloader.read_field('u')[:,:]
 
@@ -204,7 +205,7 @@ print(count_params(model))
 training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train MSE  Train L2  Test L2 \n')
 
-optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=0)
+optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=step_size, gamma=gamma)
 train_loss = np.zeros(epochs)
 myloss = LpLoss(size_average=False)
@@ -223,8 +224,8 @@ for ep in range(epochs):
         # print(out)
         # print(torch.mean(out))
 
-        out_sparse = torch.index_select(out, 1, loc[0,:])
-        y_sparse = torch.index_select(y, 1, loc[0,:])
+        # out_sparse = torch.index_select(out, 1, loc[0,:])
+        # y_sparse = torch.index_select(y, 1, loc[0,:])
 
         mse = F.mse_loss(out.view(batch_size, -1), y.view(batch_size, -1), reduction='mean')
         # l2 = myloss(out_sparse.view(batch_size, -1), y_sparse.view(batch_size, -1))
