@@ -159,7 +159,7 @@ epochs = 500
 step_size = 50
 gamma = 0.5
 
-modes = 32
+modes = 64
 width = 64
 
 
