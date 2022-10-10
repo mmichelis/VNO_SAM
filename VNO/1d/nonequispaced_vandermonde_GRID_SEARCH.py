@@ -195,7 +195,7 @@ train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_trai
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
 training_history = open('./grid_search_history/'+data_dist+'.txt', 'w')
-training_history.write('Learning_Rate  Modes  Width  Weight_Decay --- Train_Loss Test_Loss \n')
+training_history.write('Step_size  Modes  Width  Weight_Decay --- Train_Loss Test_Loss \n')
 
 for step_size in step_size_:
     for modes in modes_:
@@ -250,6 +250,6 @@ for step_size in step_size_:
                     train_loss[ep] = train_l2
 
                     t2 = default_timer()
-                print(str(learning_rate)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2))
-                training_history.write(str(learning_rate)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2)+'\n')
+                print(str(step_size)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2))
+                training_history.write(str(step_size)+' '+ str(modes)+' '+ str(width)+' '+ str(weight_decay)+' --- '+ str(train_l2) +' '+ str(test_l2)+'\n')
 training_history.close()
