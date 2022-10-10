@@ -169,7 +169,7 @@ width = 64
 # interp = input('interpolation method: cubic or linear?\n')
 
 # pdb.set_trace()
-for data_dist in {'conexp', 'exp', 'rand'}:
+for data_dist in {'rand'}:
     for interp in {'cubic', 'linear'}:
         print(data_dist + ' ' + interp)
         # retrieve the index locations for comparison with VNO
