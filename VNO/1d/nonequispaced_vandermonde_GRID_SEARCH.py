@@ -153,16 +153,16 @@ ntrain = 1000
 ntest = 200
 
 batch_size = 20
-learning_rate_ = {0.00065, 0.0008, 0.0005}
+learning_rate = 0.001
 
 epochs = 500
-step_size = 50
+step_size_ = {25, 50, 60}
 gamma = 0.5
 
-modes_ = {32}
+modes_ = {64}
 width_ = {64}
 
-weight_decay_ = {5e-5, 2.5e-5}
+weight_decay_ = {1e-5}
 
 
 ################################################################
@@ -197,7 +197,7 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test,
 training_history = open('./grid_search_history/'+data_dist+'.txt', 'w')
 training_history.write('Learning_Rate  Modes  Width  Weight_Decay --- Train_Loss Test_Loss \n')
 
-for learning_rate in learning_rate_:
+for step_size in step_size_:
     for modes in modes_:
         for width in width_:
             for weight_decay in weight_decay_:
