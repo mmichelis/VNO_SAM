@@ -153,16 +153,16 @@ ntrain = 1000
 ntest = 200
 
 batch_size = 20
-learning_rate_ = {0.00095, 0.0009, 0.0008}
+learning_rate_ = {0.00065, 0.0008, 0.0005}
 
 epochs = 500
 step_size = 50
 gamma = 0.5
 
 modes_ = {64}
-width_ = {32}
+width_ = {64}
 
-weight_decay_ = {2e-5, 2.5e-5}
+weight_decay_ = {5e-5, 2.5e-5}
 
 
 ################################################################
