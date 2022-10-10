@@ -152,7 +152,7 @@ class FNO1d(nn.Module):
 ntrain = 1000
 ntest = 200
 
-batch_size = 10
+batch_size = 20
 learning_rate = 0.001
 
 epochs = 500
