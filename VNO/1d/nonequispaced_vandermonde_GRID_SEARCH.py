@@ -160,7 +160,7 @@ step_size = 50
 gamma = 0.5
 
 modes_ = {64}
-width_ = {64}
+width_ = {32}
 
 weight_decay_ = {2e-5, 2.5e-5}
 
