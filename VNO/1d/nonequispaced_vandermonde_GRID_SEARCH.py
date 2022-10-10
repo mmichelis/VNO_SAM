@@ -159,7 +159,7 @@ epochs = 500
 step_size = 50
 gamma = 0.5
 
-modes_ = {64}
+modes_ = {32}
 width_ = {64}
 
 weight_decay_ = {5e-5, 2.5e-5}
