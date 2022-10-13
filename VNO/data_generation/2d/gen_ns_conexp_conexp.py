@@ -7,23 +7,19 @@ import numpy as np
 import torch
 import pdb
 
-sys.path.append('../../')
+sys.path.append('../../../')
 
 from utilities3 import *
 
-# # import the training data
-print(f'Loading data.')
-train_dataloader = MatReader('../../../data/ns_V1e-3_N5000_T50.mat')
-x_train = train_dataloader.read_field('u')[:,:,:,:]
-print(x_train.shape)
+
 
 
 # 64 points across, so working with two 32 point regions both above and below center
-growth_x = 1.5
-growth_y = 1.2
+growth_x = 1.6
+growth_y = 1.6
 
 # num_samples = int(x_train.shape[0])
-ar_len = 32
+ar_len = 512//2
 
 # the new nonuniform length
 nu_len_x = int(ar_len**(1/growth_x))
@@ -55,6 +51,16 @@ exp_y  = exp_y + exp_y[-1] + 1
 pos_x = torch.cat([con_x, exp_x])
 pos_y = torch.cat([con_y, exp_y])
 
+grid = torch.meshgrid(pos_x, pos_y)
+pdb.set_trace()
+plt.scatter(grid[0], grid[1], 10*np.ones_like(grid[0]))
+plt.show()
+
+# import the training data
+print(f'Loading data.')
+train_dataloader = MatReader('../../../VNO_data/2d/ns_V1e-3_N5000_T50.mat')
+x_train = train_dataloader.read_field('u')[:,:,:,:]
+print(x_train.shape)
 
 # select indices for nonuniform data
 print('Creating nonuniform data.')
