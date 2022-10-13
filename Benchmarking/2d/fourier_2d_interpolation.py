@@ -324,7 +324,7 @@ training_history.close()
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
-
+batch_size=1
 with torch.no_grad():
     for xx, yy in test_loader:
         loss = 0
@@ -333,10 +333,7 @@ with torch.no_grad():
         
         yy = torch.index_select(yy, 1, loc_x)
         yy = torch.index_select(yy, 2, loc_y)
-        # ll: this was already here, but I am going to uncomment it
-        # out = y_normalizer.decode(out)
-        # print(out.shape)
-        # pred[index] = out.reshape(batch_size,-1)
+        
         full_pred = model(xx)
         full_pred = torch.index_select(full_pred, 1, loc_x)
         full_pred = torch.index_select(full_pred, 2, loc_y)
