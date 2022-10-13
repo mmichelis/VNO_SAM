@@ -202,7 +202,7 @@ reader = MatReader(TEST_PATH)
 loc_x = reader.read_field('loc_x').int().flatten().to(device)
 loc_y = reader.read_field('loc_y').int().flatten().to(device)
 
-pdb.set_trace()
+# pdb.set_trace()
 S_x = torch.max(loc_x).item()+1
 S_y = torch.max(loc_y).item()+1
 
@@ -282,7 +282,7 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
-            pdb.set_trace()
+            # pdb.set_trace()
             yy = torch.index_select(yy, 1, loc_x)
             yy = torch.index_select(yy, 2, loc_y)
 
