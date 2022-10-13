@@ -20,7 +20,7 @@ from functools import partial
 
 from timeit import default_timer
 
-sys.path.append('../')
+sys.path.append('../../')
 from utilities3 import *
 from Adam import Adam
 
@@ -155,9 +155,10 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
-
-TRAIN_PATH = '../../VNO_data/full_from_conexp_ns_V1e-3_N1100_T50.mat'
-TEST_PATH = '../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat'
+data_dist = 'conexp_conexp'
+interp = 'cubic'
+TRAIN_PATH = '../../VNO_data/2d/'+interp+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat'
+TEST_PATH = '../../VNO_data/2d/'+interp+'_from_'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 
 ntrain = 1000
 ntest = 100
@@ -175,16 +176,16 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-path = 'cc_interpolation_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = interp+'_from_'+data_dist+'_fourier_2d_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 path_model = '../VNO_models/'+path
 path_train_err = 'results/'+path+'train.txt'
 path_test_err = 'results/'+path+'test.txt'
 path_image = 'image/'+path
 
 sub = 1
-S = 56
-T_in = 25
-T = 25
+
+T_in = 10
+T = 10
 step = 1
 
 ################################################################
@@ -201,13 +202,17 @@ reader = MatReader(TEST_PATH)
 loc_x = reader.read_field('loc_x').int().flatten().to(device)
 loc_y = reader.read_field('loc_y').int().flatten().to(device)
 
+pdb.set_trace()
+S_x = loc_x.shape
+S_y = loc_y.shape
+
 print(train_u.shape)
 print(test_u.shape)
-assert (S == train_u.shape[-2])
+assert (Sy == train_u.shape[-2])
 assert (T == train_u.shape[-1])
 
-train_a = train_a.reshape(ntrain,S,S,T_in)
-test_a = test_a.reshape(ntest,S,S,T_in)
+train_a = train_a.reshape(ntrain,Sx,Sy,T_in)
+test_a = test_a.reshape(ntest,Sx,Sy,T_in)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -224,82 +229,92 @@ model = torch.load(path_model)
 
 
 print(count_params(model))
-# optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
-# scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
+optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
+scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
 
 myloss = LpLoss(size_average=False)
-# for ep in range(epochs):
-#     model.train()
-#     t1 = default_timer()
-#     train_l2_step = 0
-#     train_l2_full = 0
-#     for xx, yy in train_loader:
-#         loss = 0
-#         xx = xx.to(device)
-#         yy = yy.to(device)
 
-#         # pdb.set_trace()
-#         yy = torch.index_select(yy, 1, loc_x)
-#         yy = torch.index_select(yy, 2, loc_y)
+training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
+training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
-#         for t in range(0, T, step):
-#             y = yy[..., t:t + step]
+for ep in range(epochs):
+    model.train()
+    t1 = default_timer()
+    train_l2_step = 0
+    train_l2_full = 0
+    for xx, yy in train_loader:
+        loss = 0
+        xx = xx.to(device)
+        yy = yy.to(device)
 
-#             im = model(xx)
-#             im = torch.index_select(im, 1, loc_x)
-#             im = torch.index_select(im, 2, loc_y)
+        # pdb.set_trace()
+        # yy = torch.index_select(yy, 1, loc_x)
+        # yy = torch.index_select(yy, 2, loc_y)
 
-#             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+        for t in range(0, T, step):
+            y = yy[..., t:t + step]
 
-#             if t == 0:
-#                 pred = im
-#             else:
-#                 pred = torch.cat((pred, im), -1)
+            im = model(xx)
+            # im = torch.index_select(im, 1, loc_x)
+            # im = torch.index_select(im, 2, loc_y)
 
-#             # xx = torch.cat((xx[..., step:], im), dim=-1)
+            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
-#         train_l2_step += loss.item()
-#         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
-#         train_l2_full += l2_full.item()
+            if t == 0:
+                pred = im
+            else:
+                pred = torch.cat((pred, im), -1)
 
-#         optimizer.zero_grad()
-#         loss.backward()
-#         optimizer.step()
+            # xx = torch.cat((xx[..., step:], im), dim=-1)
 
-#     test_l2_step = 0
-#     test_l2_full = 0
-#     with torch.no_grad():
-#         for xx, yy in test_loader:
-#             loss = 0
-#             xx = xx.to(device)
-#             yy = yy.to(device)
+        train_l2_step += loss.item()
+        l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
+        train_l2_full += l2_full.item()
 
-#             yy = torch.index_select(yy, 1, loc_x)
-#             yy = torch.index_select(yy, 2, loc_y)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-#             for t in range(0, T, step):
-#                 y = yy[..., t:t + step]
+    test_l2_step = 0
+    test_l2_full = 0
+    with torch.no_grad():
+        for xx, yy in test_loader:
+            loss = 0
+            xx = xx.to(device)
+            yy = yy.to(device)
 
-#                 im = model(xx)
-#                 im = torch.index_select(im, 1, loc_x)
-#                 im = torch.index_select(im, 2, loc_y)
+            yy = torch.index_select(yy, 1, loc_x)
+            yy = torch.index_select(yy, 2, loc_y)
+
+            for t in range(0, T, step):
+                y = yy[..., t:t + step]
+
+                im = model(xx)
+                im = torch.index_select(im, 1, loc_x)
+                im = torch.index_select(im, 2, loc_y)
                 
-#                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
-#                 if t == 0:
-#                     pred = im
-#                 else:
-#                     pred = torch.cat((pred, im), -1)
+                if t == 0:
+                    pred = im
+                else:
+                    pred = torch.cat((pred, im), -1)
 
-#                 # xx = torch.cat((xx[..., step:], im), dim=-1)
+                # xx = torch.cat((xx[..., step:], im), dim=-1)
 
-#             test_l2_step += loss.item()
-#             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
+            test_l2_step += loss.item()
+            test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
 
-#     t2 = default_timer()
-#     scheduler.step()
-#     print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
-#           test_l2_full / ntest)
+    t2 = default_timer()
+    scheduler.step()
+    print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
+          test_l2_full / ntest)
+    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))\
+                    +' '+ str(train_l2_full / ntrain)\
+                    +' '+ str(test_l2_step / ntest / (T / step))\
+                    +' '+ str(test_l2_full / ntest)\
+                    +'\n')
+training_history.close()
 # torch.save(model, path_model)
 
 
@@ -308,8 +323,8 @@ myloss = LpLoss(size_average=False)
 # pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-# ll: adding this to put y_norm on cuda
-# y_normalizer.cuda()
+prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
+
 with torch.no_grad():
     for xx, yy in test_loader:
         loss = 0
@@ -332,7 +347,7 @@ with torch.no_grad():
             im = torch.index_select(im, 1, loc_x)
             im = torch.index_select(im, 2, loc_y)
 
-            loss = myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
                 pred = im
@@ -345,6 +360,8 @@ with torch.no_grad():
         index = index + 1
         full_pred = torch.cat((full_pred, pred), -1)
 
-# ll: save as .txt instead of .mat
-scipy.io.savemat('../VNO_predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+        prediction_history.write(str(loss)+'\n')
+    prediction_history.close()
 
+# ll: save as .txt instead of .mat
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
