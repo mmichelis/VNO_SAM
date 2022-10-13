@@ -356,11 +356,11 @@ with torch.no_grad():
 
             # xx = torch.cat((xx[..., step:], im), dim=-1)
 
-        print(index, loss.item())
+        print(index, loss.item() / T)
         index = index + 1
         full_pred = torch.cat((full_pred, pred), -1)
 
-        prediction_history.write(str(loss)+'\n')
+        prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
 
 # ll: save as .txt instead of .mat
