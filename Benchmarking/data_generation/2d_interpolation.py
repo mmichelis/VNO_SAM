@@ -32,8 +32,8 @@ sparse_x, sparse_y = np.meshgrid(sparse_x, sparse_y)
 # prepare some flattened tensors for the original (sparse) and new (dense) positions
 sparse_loc = np.stack((sparse_x.flatten(), sparse_y.flatten()), axis=1)
 
-x_max = sparse_x[-1]
-y_max = sparse_y[-1]
+x_max = np.max(sparse_x)
+y_max = np.max(sparse_y)
 x = np.arange(x_max)
 y = np.arange(y_max)
 dx, dy = np.meshgrid(x, y)
