@@ -227,8 +227,8 @@ path_model = '../VNO_models/'+path
 # path_image = 'image/'+path
 
 sub = 1
-T_in = 25
-T = 25
+T_in = 10
+T = 10
 step = 1
 
 ################################################################
