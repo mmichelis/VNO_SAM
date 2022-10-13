@@ -203,8 +203,8 @@ loc_x = reader.read_field('loc_x').int().flatten().to(device)
 loc_y = reader.read_field('loc_y').int().flatten().to(device)
 
 pdb.set_trace()
-S_x = torch.max(loc_x).item()
-S_y = torch.max(loc_y).item()
+S_x = torch.max(loc_x).item()+1
+S_y = torch.max(loc_y).item()+1
 
 assert (S_x == train_u.shape[-3])
 assert (S_y == train_u.shape[-2])
