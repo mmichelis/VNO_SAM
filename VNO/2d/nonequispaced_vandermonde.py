@@ -347,6 +347,7 @@ training_history.close()
 # pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
+prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
 # ll: adding this to put y_norm on cuda
 # y_normalizer.cuda()
 with torch.no_grad():
@@ -372,6 +373,8 @@ with torch.no_grad():
         print(index, loss)
         index = index + 1
         full_pred = torch.cat((full_pred, pred), -1)
+        prediction_history.write(str(loss.item() / T)+'\n')
+prediction_history.close()
 
 # ll: save as .txt instead of .mat
 scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
