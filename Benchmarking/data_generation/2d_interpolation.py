@@ -46,7 +46,8 @@ print('Interpolating on training data.')
 t1 = default_timer()
 # loop through each tensor
 for id in range(1000):
-    
+    if id%100==0:
+        print(f'instance {id}/1000')
     # loop through each time step
     for time in range(50):
 
