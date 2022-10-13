@@ -58,7 +58,7 @@ plt.show()
 
 # import the training data
 print(f'Loading data.')
-train_dataloader = MatReader('../../../VNO_data/2d/ns_V1e-3_N5000_T50.mat')
+train_dataloader = MatReader('../../../../VNO_data/2d/ns_V1e-3_N5000_T50.mat')
 x_train = train_dataloader.read_field('u')[:,:,:,:]
 print(x_train.shape)
 
@@ -68,4 +68,4 @@ x_train_conexp = torch.index_select(torch.index_select(x_train, 2, pos_x), 1, po
 
 
 print('Saving nonuniform data.')
-scipy.io.savemat('../../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat', mdict={'loc_x': pos_x.numpy(), 'loc_y':pos_y.numpy(), 'u': x_train_conexp.numpy()})
+scipy.io.savemat('../../../../VNO_data/conexp_ns_V1e-3_N5000_T50.mat', mdict={'loc_x': pos_x.numpy(), 'loc_y':pos_y.numpy(), 'u': x_train_conexp.numpy()})
