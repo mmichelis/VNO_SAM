@@ -11,12 +11,12 @@ sys.path.append('../../')
 
 from utilities3 import *
 
-data_dist = 'conexp'
+data_dist = 'conexp_conexp'
 interp_kind = 'cubic'
 
 # import the training data
 print(f'Loading data.')
-train_dataloader = MatReader('../../../VNO_data/'+data_dist+'_ns_V1e-3_N5000_T50.mat')
+train_dataloader = MatReader('../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat')
 x_train = train_dataloader.read_field('u')[:,:,:,:]
 loc_x = train_dataloader.read_field('loc_x')
 loc_y = train_dataloader.read_field('loc_y')
@@ -32,13 +32,14 @@ sparse_x, sparse_y = np.meshgrid(sparse_x, sparse_y)
 # prepare some flattened tensors for the original (sparse) and new (dense) positions
 sparse_loc = np.stack((sparse_x.flatten(), sparse_y.flatten()), axis=1)
 
-size = 56
-d = np.arange(size)
-dx, dy = np.meshgrid(d, d)
+x_max = sparse_x[-1]
+y_max = sparse_y[-1]
+x, y = np.arange(x_max), np.arange(y_max)
+dx, dy = np.meshgrid(x, y)
 dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
 
 # the array to hold all the data until ready to port to torch
-full_dense_data = np.zeros([1100, size, size, 50])
+full_dense_data = np.zeros([1100, x_max, y_max, 50])
 
 # loop through each tensor
 for id in range(1000):
@@ -49,7 +50,7 @@ for id in range(1000):
         # flatten the data
         sparse_data = x_train[id, :, :, time].flatten()
         dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc, method=interp_kind)
-        dense_data = dense_data.reshape(size,size)
+        dense_data = dense_data.reshape(x_max,y_max)
         full_dense_data[id, :, :, time] = dense_data
 
         # if time%10 == 0: 
@@ -66,9 +67,9 @@ for id in range(100):
         # flatten the data
         sparse_data = x_train[-(100 - id), :, :, time].flatten()
         dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc)
-        dense_data = dense_data.reshape(size,size)
+        dense_data = dense_data.reshape(x_max,y_max)
         full_dense_data[-(100 - id), :, :, time] = dense_data
 
 pdb.set_trace()
 print('Saving uniform data.')
-scipy.io.savemat('/userdata/llingsch/SAM/VNO_data/'+interp_kind+'_from_conexp_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
+scipy.io.savemat('/userdata/llingsch/SAM/VNO_data/2d/'+interp_kind+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
