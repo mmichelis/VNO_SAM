@@ -169,7 +169,7 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 5
+epochs = 500
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -324,7 +324,7 @@ training_history.close()
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
-batch_size=1
+batch_size=1        # need to set this otherwise the loss outputs are not correct
 with torch.no_grad():
     for xx, yy in test_loader:
         loss = 0
