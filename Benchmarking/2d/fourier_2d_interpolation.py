@@ -199,8 +199,8 @@ test_a = reader.read_field('u')[-ntest:,::sub,::sub,:T_in]
 test_u = reader.read_field('u')[-ntest:,::sub,::sub,T_in:T+T_in]
 
 reader = MatReader(TEST_PATH)
-loc_x = reader.read_field('loc_x').int().to(device)
-loc_y = reader.read_field('loc_y').int().to(device)
+loc_x = reader.read_field('loc_x').int().flatten().to(device)
+loc_y = reader.read_field('loc_y').int().flatten().to(device)
 
 pdb.set_trace()
 S_x = torch.max(loc_x).item()
