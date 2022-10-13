@@ -213,7 +213,7 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 5
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -347,7 +347,7 @@ training_history.close()
 # pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
+prediction_history = open('./training_history/_from_'+data_dist+'_test_loss.txt', 'w')
 # ll: adding this to put y_norm on cuda
 # y_normalizer.cuda()
 with torch.no_grad():
