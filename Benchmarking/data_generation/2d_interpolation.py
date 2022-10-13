@@ -42,6 +42,8 @@ dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
 # the array to hold all the data until ready to port to torch
 full_dense_data = np.zeros([1100, x_max, y_max, 50])
 
+print('Interpolating on training data.')
+t1 = default_timer()
 # loop through each tensor
 for id in range(1000):
     
@@ -58,7 +60,12 @@ for id in range(1000):
         #     plt.contourf(dx, dy, dense_data)
         #     plt.scatter(dx, dy, marker='.')
         #     plt.show()
+t2 = default_timer()
+print(f'Time elapsed: f{t2-t1} s')
 
+
+print('Interpolating on testing data.')
+t1 = default_timer()
 # loop through each tensor
 for id in range(100):
     
@@ -70,6 +77,8 @@ for id in range(100):
         dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc)
         dense_data = dense_data.reshape(x_max,y_max)
         full_dense_data[-(100 - id), :, :, time] = dense_data
+t2 = default_timer()
+print(f'Time elapsed: f{t2-t1} s')
 
 pdb.set_trace()
 print('Saving uniform data.')
