@@ -373,7 +373,7 @@ with torch.no_grad():
         print(index, loss)
         index = index + 1
         full_pred = torch.cat((full_pred, pred), -1)
-        prediction_history.write(str(loss.item() / T)+'\n')
+        prediction_history.write(str(loss / T)+'\n')
 prediction_history.close()
 
 # ll: save as .txt instead of .mat
