@@ -84,4 +84,4 @@ print(f'Time elapsed: f{t2-t1} s')
 
 pdb.set_trace()
 print('Saving uniform data.')
-scipy.io.savemat('/userdata/llingsch/SAM/VNO_data/2d/'+interp_kind+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
+scipy.io.savemat('../../../VNO_data/2d/'+interp_kind+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat', mdict={'u': full_dense_data})
