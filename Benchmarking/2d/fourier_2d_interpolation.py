@@ -156,9 +156,9 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 data_dist = 'conexp_conexp'
-interp = 'linear'
+interp = 'cubic'
 TRAIN_PATH = '../../../VNO_data/2d/'+interp+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat'
-TEST_PATH = '../../../VNO_data/2d/'+interp+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat'
+TEST_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 
 ntrain = 1000
 ntest = 100
@@ -208,11 +208,11 @@ S_y = loc_y.shape
 
 print(train_u.shape)
 print(test_u.shape)
-assert (Sy == train_u.shape[-2])
+assert (S_y == train_u.shape[-2])
 assert (T == train_u.shape[-1])
 
-train_a = train_a.reshape(ntrain,Sx,Sy,T_in)
-test_a = test_a.reshape(ntest,Sx,Sy,T_in)
+train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
+test_a = test_a.reshape(ntest,S_x,S_y,T_in)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
