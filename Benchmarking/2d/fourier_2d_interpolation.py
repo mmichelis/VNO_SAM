@@ -224,7 +224,7 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 ################################################################
 
 model = FNO2d(modes, modes, width).cuda()
-model = torch.load(path_model)
+# model = torch.load(path_model)
 
 
 print(count_params(model))
