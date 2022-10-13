@@ -156,7 +156,7 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 data_dist = 'conexp_conexp'
-interp = 'cubic'
+interp = 'linear'
 TRAIN_PATH = '../../VNO_data/2d/'+interp+'_from_'+data_dist+'_ns_V1e-3_N1100_T50.mat'
 TEST_PATH = '../../VNO_data/2d/'+interp+'_from_'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 
