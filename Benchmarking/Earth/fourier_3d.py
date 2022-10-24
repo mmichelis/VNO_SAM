@@ -173,14 +173,14 @@ TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
 ntrain = 100
 ntest = 100
 
-modes = 32
+modes = 64
 modes_time = 8
 width = 40
 
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 5
+epochs = 500
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
