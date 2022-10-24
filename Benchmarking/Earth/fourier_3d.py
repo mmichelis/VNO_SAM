@@ -173,9 +173,9 @@ TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
 ntrain = 100
 ntest = 100
 
-modes = 16
+modes = 32
 modes_time = 8
-width = 20
+width = 40
 
 batch_size = 1
 batch_size2 = batch_size
@@ -199,7 +199,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 1
+sub = 3
 # S = 64 // sub
 T_in = 12
 T = 12
