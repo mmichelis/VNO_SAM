@@ -219,6 +219,7 @@ test_u = reader.read_field('SPEED')[-ntest:,T_in:T+T_in,::sub,::sub]
 print(train_u.shape)
 print(test_u.shape)
 
+# can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
 S_x = train_u.shape[-1]
 S_y = train_u.shape[-2]
 
@@ -228,14 +229,16 @@ a_normalizer = UnitGaussianNormalizer(train_a)
 train_a = a_normalizer.encode(train_a)
 test_a = a_normalizer.encode(test_a)
 
-y_normalizer = UnitGaussianNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
-
+# reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
 train_a = train_a.reshape(ntrain,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 test_a = test_a.reshape(ntest,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 
 train_u = train_u.reshape(ntrain,S_x,S_y,T)
 test_u = test_u.reshape(ntrain,S_x,S_y,T)
+
+# normalizer must come after reshape
+y_normalizer = UnitGaussianNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
