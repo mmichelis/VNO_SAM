@@ -207,7 +207,7 @@ T = 12
 # load data
 ################################################################
 import pdb
-pdb.set_trace()
+
 reader = MatReader(TRAIN_PATH)
 train_a = reader.read_field('SPEED')[:ntrain,:T_in,::sub,::sub]
 train_u = reader.read_field('SPEED')[:ntrain,T_in:T+T_in,::sub,::sub]
@@ -262,6 +262,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 train_loss = np.zeros(epochs)
 myloss = LpLoss(size_average=False)
 y_normalizer.cuda()
+
+pdb.set_trace()
 
 for ep in range(epochs):
     model.train()
