@@ -101,8 +101,8 @@ class FNO3d(nn.Module):
         self.modes3 = modes3
         self.width = width
         self.padding = 6 # pad the domain if input is non-periodic
-        self.fc0 = nn.Linear(16, self.width)
-        # input channel is 16: the solution of the first 12 timesteps + 3 locations (u(1, x, y), ..., u(10, x, y),  x, y, t)
+        self.fc0 = nn.Linear(15, self.width)
+        # input channel is 15: the solution of the first 12 timesteps + 3 locations (u(1, x, y), ..., u(10, x, y),  x, y, t)
 
         self.conv0 = SpectralConv3d(self.width, self.width, self.modes1, self.modes2, self.modes3)
         self.conv1 = SpectralConv3d(self.width, self.width, self.modes1, self.modes2, self.modes3)
