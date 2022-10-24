@@ -281,7 +281,7 @@ for ep in range(epochs):
         # mse.backward()
         # pull only 1 time step
         y = y_normalizer.decode(y)[:,:,:,:1]
-        out = y_normalizer.decode(out)[:,:,:,:1,:]
+        out = y_normalizer.decode(out)[:,:,:,:1]
 
         mse = F.mse_loss(out, y, reduction='mean')
         l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
@@ -296,7 +296,7 @@ for ep in range(epochs):
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
             out = model(x).view(batch_size, S_x, S_y, T)
-            out = y_normalizer.decode(out)[:,:,:,:1,:]
+            out = y_normalizer.decode(out)[:,:,:,:1]
             y = y_normalizer.decode(y)[:,:,:,:1]
             test_l2 += myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
     train_mse /= len(train_loader)
