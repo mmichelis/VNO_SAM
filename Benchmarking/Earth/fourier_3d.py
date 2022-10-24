@@ -180,7 +180,7 @@ width = 40
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 50
+epochs = 5
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -335,4 +335,4 @@ prediction_history.close()
 
 
 
-# scipy.io.savemat('../pred/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('/predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
