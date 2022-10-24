@@ -209,12 +209,12 @@ T = 12
 import pdb
 pdb.set_trace()
 reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field('u')[:ntrain,:T_in,::sub,::sub]
-train_u = reader.read_field('u')[:ntrain,T_in:T+T_in,::sub,::sub]
+train_a = reader.read_field('SPEED')[:ntrain,:T_in,::sub,::sub]
+train_u = reader.read_field('SPEED')[:ntrain,T_in:T+T_in,::sub,::sub]
 
 reader = MatReader(TEST_PATH)
-test_a = reader.read_field('u')[-ntest:,:T_in,::sub,::sub]
-test_u = reader.read_field('u')[-ntest:,T_in:T+T_in,::sub,::sub]
+test_a = reader.read_field('SPEED')[-ntest:,:T_in,::sub,::sub]
+test_u = reader.read_field('SPEED')[-ntest:,T_in:T+T_in,::sub,::sub]
 
 print(train_u.shape)
 print(test_u.shape)
