@@ -203,7 +203,7 @@ sub = 3
 # S = 64 // sub
 T_in = 12
 T = 12
-T_ = 1
+T_ = 12
 
 ################################################################
 # load data
@@ -280,7 +280,7 @@ for ep in range(epochs):
         optimizer.zero_grad()
         out = model(x).view(batch_size, S_x, S_y, T)
         # mse.backward()
-        # pull only 1 time step
+        # pull only T_ number time steps
         y = y_normalizer.decode(y)[:,:,:,:T_]
         out = y_normalizer.decode(out)[:,:,:,:T_]
 
