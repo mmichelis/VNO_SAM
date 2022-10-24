@@ -335,4 +335,4 @@ prediction_history.close()
 
 
 
-scipy.io.savemat('/predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
