@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 sys.path.append('../../')
 from utilities3 import *
 
-reader = MatReader('./predictions/SPEED_data_100_ep5_m32_w40.mat')
+# reader = MatReader('./predictions/SPEED_data_100_ep5_m32_w40.mat')
+reader = MatReader('../../../VNO_data/EarthData/SPEED_data_0.mat')
 prediction = reader.read_field('pred')
 
 lon = np.arange(prediction.shape[1])
