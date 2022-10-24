@@ -202,6 +202,7 @@ sub = 1
 # S = 64 // sub
 T_in = 12
 T = 12
+T_ = 1
 
 ################################################################
 # load data
@@ -279,8 +280,8 @@ for ep in range(epochs):
         out = model(x).view(batch_size, S_x, S_y, T)
         mse = F.mse_loss(out, y, reduction='mean')
         # mse.backward()
-        y = y_normalizer.decode(y)
-        out = y_normalizer.decode(out)
+        y = y_normalizer.decode(y)[:,:,:,:1,:]
+        out = y_normalizer.decode(out)[:,:,:,:1,:]
         l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
         l2.backward()
         optimizer.step()
