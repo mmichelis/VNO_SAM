@@ -225,7 +225,8 @@ for NUM in range(2, 5):
     train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
     train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
 
-
+# I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
+ntrain = train_a.shape[0]
 
 print(train_u.shape)
 print(test_u.shape)
