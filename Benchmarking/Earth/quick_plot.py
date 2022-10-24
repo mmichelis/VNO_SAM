@@ -12,5 +12,5 @@ prediction = reader.read_field('pred')
 lon = prediction.shape[1]
 lat = prediction.shape[2]
 
-plt.contourf(np.meshgrid(lon,lat), prediction[0,:,:,0], cmap=bone)
+plt.contourf(np.meshgrid(lon,lat), prediction[0,:,:,0], 60, cmap='RdYlBu')
 plt.show()
