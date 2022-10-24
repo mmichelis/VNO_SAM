@@ -185,6 +185,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 # path = 'test'
+DAT = 'QLML'
 path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 # path_model = '../model/'+path
 # path_train_err = 'results/'+path+'train.txt'
@@ -207,7 +208,7 @@ T_ = 12
 ################################################################
 import pdb
 
-DAT = 'QLML'
+
 TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
 reader = MatReader(TEST_PATH)
 test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
