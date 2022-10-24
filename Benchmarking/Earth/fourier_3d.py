@@ -173,8 +173,8 @@ TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
 ntrain = 100
 ntest = 100
 
-modes = 8
-width = 20
+modes = 16
+width = 32
 
 batch_size = 1
 batch_size2 = batch_size
@@ -201,7 +201,7 @@ t1 = default_timer()
 sub = 1
 # S = 64 // sub
 T_in = 12
-T = 12
+T = 1
 
 ################################################################
 # load data
@@ -318,7 +318,7 @@ with torch.no_grad():
         x, y = x.cuda(), y.cuda()
 
         # ll: had to add '.view(1, S, S, T)'... this matches what is above. Hopefully it prevents the size mismatch error I am getting for the decoding.
-        out = model(x).view(1, S, S, T)
+        out = model(x).view(1, S_x, S_y, T)
         out = y_normalizer.decode(out)
         pred[index] = out
 
