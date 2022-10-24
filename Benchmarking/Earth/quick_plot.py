@@ -12,5 +12,7 @@ prediction = reader.read_field('pred')
 lon = np.arange(prediction.shape[1])
 lat = np.arange(prediction.shape[2])
 
-plt.contourf(np.meshgrid(lon,lat), prediction[0,:,:,0], 60, cmap='RdYlBu')
+lat_, lon_ = np.meshgrid(lat, lon)
+
+plt.contourf(lat_, lon_, prediction[0,:,:,0], 60, cmap='RdYlBu')
 plt.show()

@@ -173,7 +173,7 @@ TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
 ntrain = 100
 ntest = 100
 
-modes = 64
+modes = 32
 modes_time = 8
 width = 40
 
