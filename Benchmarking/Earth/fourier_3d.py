@@ -298,7 +298,7 @@ for ep in range(epochs):
             x, y = x.cuda(), y.cuda()
             out = model(x).view(batch_size, S_x, S_y, T)
             out = y_normalizer.decode(out)[:,:,:,:T_]
-            y = y_normalizer.decode(y)[:,:,:,:T_]
+            y = y[:,:,:,:T_]
             test_l2 += myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
     train_mse /= len(train_loader)
     train_l2 /= ntrain
