@@ -1,6 +1,6 @@
 """
 @author*: Levi Lingsch
-This file will compute the wind speed predictions on a global scale, using data from NASA's EarthData Data Set. 
+This file will compute predictions on a global scale, using data from NASA's EarthData Data Set. 
 We are using the MERRA2_401.tavg1_2d_flx_Nx.***.nc4 data sets from approximately 2019 to 2022. 
 
 *This file was originally authored by Zongyi Li for the Fourier Neural Operator for 3D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
@@ -166,9 +166,9 @@ class FNO3d(nn.Module):
 ################################################################
 # configs
 ################################################################
-
-TRAIN_PATH = '../../../VNO_data/EarthData/SPEED_data_0.mat'
-TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
+DAT = 'QLML'
+TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
 
 ntrain = 100
 ntest = 100
@@ -180,7 +180,7 @@ width = 40
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 50
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -188,7 +188,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 # path = 'test'
-path = 'SPEED_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 # path_model = '../model/'+path
 # path_train_err = 'results/'+path+'train.txt'
 # path_test_err = 'results/'+path+'test.txt'
@@ -211,12 +211,12 @@ T_ = 12
 import pdb
 
 reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field('SPEED')[:ntrain,:T_in,::sub,::sub]
-train_u = reader.read_field('SPEED')[:ntrain,T_in:T+T_in,::sub,::sub]
+train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
+train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
 
 reader = MatReader(TEST_PATH)
-test_a = reader.read_field('SPEED')[-ntest:,:T_in,::sub,::sub]
-test_u = reader.read_field('SPEED')[-ntest:,T_in:T+T_in,::sub,::sub]
+test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
+test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
 
 print(train_u.shape)
 print(test_u.shape)
@@ -255,7 +255,7 @@ device = torch.device('cuda')
 ################################################################
 train_model = True
 
-training_history = open('./training_history/SPEED_data.txt', 'w')
+training_history = open(f'./training_history/{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  MSE Train_L2 Test_L2 \n')
 
 model = FNO3d(modes, modes, modes_time, width).cuda()
@@ -314,7 +314,7 @@ pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 
-prediction_history = open('./training_history/SPEED_data_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/{DAT}_data_test_loss.txt', 'w')
 
 with torch.no_grad():
     t1 = default_timer()
