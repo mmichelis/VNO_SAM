@@ -234,6 +234,9 @@ train_u = y_normalizer.encode(train_u)
 train_a = train_a.reshape(ntrain,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 test_a = test_a.reshape(ntest,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 
+train_u = train_u.reshape(ntrain,S_x,S_y,1,T)
+test_u = test_u.reshape(ntrain,S_x,S_y,1,T)
+
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
