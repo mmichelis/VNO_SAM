@@ -203,7 +203,7 @@ sub = 3
 # S = 64 // sub
 T_in = 12
 T = 12
-T_ = 12
+T_ = 1
 
 ################################################################
 # load data
@@ -256,7 +256,7 @@ device = torch.device('cuda')
 train_model = True
 
 training_history = open('./training_history/SPEED_data.txt', 'w')
-training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
+training_history.write('Epoch  Time  MSE Train_L2 Test_L2 \n')
 
 model = FNO3d(modes, modes, modes_time, width).cuda()
 print(count_params(model))
