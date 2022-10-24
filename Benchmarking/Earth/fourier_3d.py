@@ -166,9 +166,6 @@ class FNO3d(nn.Module):
 ################################################################
 # configs
 ################################################################
-DAT = 'QLML'
-TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
-TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
 
 ntrain = 100
 ntest = 100
@@ -210,13 +207,24 @@ T_ = 12
 ################################################################
 import pdb
 
+DAT = 'QLML'
+TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+reader = MatReader(TEST_PATH)
+test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
+test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
+
+TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
 reader = MatReader(TRAIN_PATH)
 train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
 train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
 
-reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
+for NUM in range(2, 5):
+    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+    reader = MatReader(TRAIN_PATH)
+    torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
+    torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
+
+
 
 print(train_u.shape)
 print(test_u.shape)
