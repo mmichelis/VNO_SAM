@@ -7,8 +7,9 @@ sys.path.append('../../')
 from utilities3 import *
 
 # reader = MatReader('./predictions/SPEED_data_100_ep5_m32_w40.mat')
+# prediction = reader.read_field('pred')
 reader = MatReader('../../../VNO_data/EarthData/SPEED_data_0.mat')
-prediction = reader.read_field('pred')
+prediction = reader.read_field('SPEED')
 
 lon = np.arange(prediction.shape[1])
 lat = np.arange(prediction.shape[2])
