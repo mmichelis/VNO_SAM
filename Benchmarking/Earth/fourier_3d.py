@@ -173,7 +173,7 @@ TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
 ntrain = 100
 ntest = 100
 
-modes = 9
+modes = 12
 width = 20
 
 batch_size = 1
@@ -280,8 +280,8 @@ for ep in range(epochs):
         out = model(x).view(batch_size, S_x, S_y, T)
         # mse.backward()
         # pull only 1 time step
-        y = y_normalizer.decode(y)[:,:,:,:1]
-        out = y_normalizer.decode(out)[:,:,:,:1]
+        y = y_normalizer.decode(y)[:,:,:,:T_]
+        out = y_normalizer.decode(out)[:,:,:,:T_]
 
         mse = F.mse_loss(out, y, reduction='mean')
         l2 = myloss(out.view(batch_size, -1), y.view(batch_size, -1))
@@ -296,8 +296,8 @@ for ep in range(epochs):
         for x, y in test_loader:
             x, y = x.cuda(), y.cuda()
             out = model(x).view(batch_size, S_x, S_y, T)
-            out = y_normalizer.decode(out)[:,:,:,:1]
-            y = y_normalizer.decode(y)[:,:,:,:1]
+            out = y_normalizer.decode(out)[:,:,:,:T_]
+            y = y_normalizer.decode(y)[:,:,:,:T_]
             test_l2 += myloss(out.view(batch_size, -1), y.view(batch_size, -1)).item()
     train_mse /= len(train_loader)
     train_l2 /= ntrain
