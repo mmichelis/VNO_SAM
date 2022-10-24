@@ -174,7 +174,7 @@ ntrain = 100
 ntest = 100
 
 modes = 16
-width = 32
+width = 20
 
 batch_size = 1
 batch_size2 = batch_size
