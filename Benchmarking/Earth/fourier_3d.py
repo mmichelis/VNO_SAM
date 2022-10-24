@@ -173,7 +173,8 @@ TEST_PATH = '../../../VNO_data/EarthData/SPEED_data_1.mat'
 ntrain = 100
 ntest = 100
 
-modes = 12
+modes = 16
+modes_time = 8
 width = 20
 
 batch_size = 1
@@ -257,7 +258,7 @@ train_model = True
 training_history = open('./training_history/SPEED_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
-model = FNO3d(modes, modes, modes, width).cuda()
+model = FNO3d(modes, modes, modes_time, width).cuda()
 print(count_params(model))
 
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -267,7 +268,7 @@ train_loss = np.zeros(epochs)
 myloss = LpLoss(size_average=False)
 y_normalizer.cuda()
 
-pdb.set_trace()
+# pdb.set_trace()
 
 for ep in range(epochs):
     model.train()
