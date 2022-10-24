@@ -246,7 +246,7 @@ train_a = train_a.reshape(ntrain,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 test_a = test_a.reshape(ntest,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 
 train_u = train_u.reshape(ntrain,S_x,S_y,T)
-test_u = test_u.reshape(ntrain,S_x,S_y,T)
+test_u = test_u.reshape(ntest,S_x,S_y,T)
 
 # normalizer must come after reshape
 y_normalizer = UnitGaussianNormalizer(train_u)
