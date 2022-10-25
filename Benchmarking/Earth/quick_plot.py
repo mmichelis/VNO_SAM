@@ -20,7 +20,7 @@ plt.contourf(lon_, lat_, prediction[0,:,:,0], 60, cmap='RdYlBu')
 plt.show()
 
 
-
+# save an animation
 
 fig = plt.figure()
 cont = plt.contourf(lat_, lon_, prediction[0,:,:,0],  60, cmap='RdYlBu')
@@ -30,7 +30,7 @@ def update(frame_num):
     frame_num = int(frame_num)
     fig.clf()
     u = prediction[0,:,:,frame_num]
-    cont = plt.contourf(lat_, lon_, u, 60, cmap='RdYlBu')
+    cont = plt.contourf(lon_, lat_, u, 60, cmap='RdYlBu')
     plt.title('t=%i:' % frame_num)
     return cont
     
@@ -38,16 +38,6 @@ def init():
     ax = plt.axes(xlim=(-180,180), ylim=(-90, 90))
     return cont
 
-ani = animation.FuncAnimation(fig, update, frames=12, interval = 100, init_func=init)
+ani = animation.FuncAnimation(fig, update, frames=np.arange(12), interval = 100, init_func=init)
 ani.save('animation.gif', writer=animation.FFMpegWriter())
 
-# reader = MatReader('../../../VNO_data/EarthData/SPEED_data_0.mat')
-# prediction = reader.read_field('SPEED')[:2,:2,::3,::3]
-
-# lon = np.arange(prediction.shape[3])
-# lat = np.arange(prediction.shape[2])
-
-# lon_, lat_ = np.meshgrid(lon, lat)
-
-# plt.contourf(lon_, lat_, prediction[0,0,:,:], 60, cmap='RdYlBu')
-# plt.show()
