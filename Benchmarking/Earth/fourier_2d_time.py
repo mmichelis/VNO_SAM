@@ -220,6 +220,9 @@ assert (T == train_u.shape[1])
 train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
 test_a = test_a.reshape(ntest,S_x,S_y,T_in)
 
+train_u = train_u.reshape(ntrain,S_x,S_y,T)
+test_u = test_u.reshape(ntest,S_x,S_y,T)
+
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
