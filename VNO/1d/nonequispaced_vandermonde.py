@@ -273,4 +273,3 @@ prediction_history.close()
 # save predictions
 ################################################################
 scipy.io.savemat('./predictions/'+data_dist+'_burger_test.mat', mdict={'pred': pred.cpu().numpy()})
-

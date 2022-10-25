@@ -177,7 +177,7 @@ width = 40
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 50
+epochs = 100
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 3
+sub = 6
 # S = 64 // sub
 T_in = 12
 T = 12
