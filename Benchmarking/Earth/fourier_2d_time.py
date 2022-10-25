@@ -215,7 +215,7 @@ print(test_u.shape)
 S_x = train_u.shape[-1]
 S_y = train_u.shape[-2]
 
-assert (T == train_u.shape[-1])
+assert (T == train_u.shape[1])
 
 train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
 test_a = test_a.reshape(ntest,S_x,S_y,T_in)
