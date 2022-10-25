@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 
 sys.path.append('../../')
 from utilities3 import *
-
-reader = MatReader('./predictions/SPEED_data_100_ep5_m32_w40.mat')
+file = input('file name: ')
+reader = MatReader(f'./predictions/{file}.mat')
 prediction = reader.read_field('pred')
-
+print(prediction.shape)
 lon = np.arange(prediction.shape[1])
 lat = np.arange(prediction.shape[2])
 
