@@ -170,9 +170,9 @@ class FNO3d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 64
+modes = 16
 modes_time = 8
-width = 10
+width = 20
 
 batch_size = 1
 batch_size2 = batch_size
@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 1
+sub = 64
 # S = 64 // sub
 T_in = 12
 T = 12
@@ -211,19 +211,19 @@ import pdb
 
 TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
 reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
+test_a = reader.read_field(DAT)[-ntest:,:T_in,:sub,:sub]
+test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:sub,:sub]
 
 TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
 reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
-train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
+train_a = reader.read_field(DAT)[:ntrain,:T_in,:sub,:sub]
+train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:sub,:sub]
 
 for NUM in range(2, 5):
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
-    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
+    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:sub,:sub]))
+    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:sub,:sub]))
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
