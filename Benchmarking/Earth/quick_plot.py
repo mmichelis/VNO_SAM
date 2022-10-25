@@ -38,7 +38,7 @@ def init():
     ax = plt.axes(xlim=(-180,180), ylim=(-90, 90))
     return cont
 
-ani = animation.FuncAnimation(fig, update, frames=np.arange(12), interval = 100, init_func=init)
+ani = animation.FuncAnimation(fig, update, frames=12, interval = 100, init_func=init)
 ani.save('animation.gif', writer=animation.FFMpegWriter())
 
 # reader = MatReader('../../../VNO_data/EarthData/SPEED_data_0.mat')
