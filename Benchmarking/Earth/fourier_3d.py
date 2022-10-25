@@ -170,14 +170,14 @@ class FNO3d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 32
+modes = 160
 modes_time = 8
-width = 40
+width = 20
 
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 100
+epochs = 15
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 6
+sub = 1
 # S = 64 // sub
 T_in = 12
 T = 12
