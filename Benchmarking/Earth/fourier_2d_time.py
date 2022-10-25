@@ -172,38 +172,49 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-path = interp+'_from_'+data_dist+'_fourier_2d_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-path_model = '../VNO_models/'+path
-path_train_err = 'results/'+path+'train.txt'
-path_test_err = 'results/'+path+'test.txt'
-path_image = 'image/'+path
+DAT = 'QLML'
+path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+# path_model = '../VNO_models/'+path
+# path_train_err = 'results/'+path+'train.txt'
+# path_test_err = 'results/'+path+'test.txt'
+# path_image = 'image/'+path
+t1 = default_timer()
 
 sub = 1
-
-T_in = 10
-T = 10
+T_in = 12
+T = 12
 step = 1
 
 ################################################################
 # load data
 ################################################################
 
-reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field('u')[:ntrain,::sub,::sub,:T_in]
-train_u = reader.read_field('u')[:ntrain,::sub,::sub,T_in:T+T_in]
-test_a = reader.read_field('u')[-ntest:,::sub,::sub,:T_in]
-test_u = reader.read_field('u')[-ntest:,::sub,::sub,T_in:T+T_in]
-
+TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
 reader = MatReader(TEST_PATH)
-loc_x = reader.read_field('loc_x').int().flatten().to(device)
-loc_y = reader.read_field('loc_y').int().flatten().to(device)
+test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
+test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
 
-# pdb.set_trace()
-S_x = torch.max(loc_x).item()+1
-S_y = torch.max(loc_y).item()+1
+TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
+reader = MatReader(TRAIN_PATH)
+train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
+train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
 
-assert (S_x == train_u.shape[-3])
-assert (S_y == train_u.shape[-2])
+for NUM in range(2, 5):
+    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+    reader = MatReader(TRAIN_PATH)
+    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
+    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
+
+# I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
+ntrain = train_a.shape[0]
+
+print(train_u.shape)
+print(test_u.shape)
+
+# can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
+S_x = train_u.shape[-1]
+S_y = train_u.shape[-2]
+
 assert (T == train_u.shape[-1])
 
 train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
@@ -212,9 +223,9 @@ test_a = test_a.reshape(ntest,S_x,S_y,T_in)
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
-# ll: adding y_normalizer to fix size discrepency
-# y_normalizer = UnitGaussianNormalizer(test_u)
-
+t2 = default_timer()
+print('preprocessing finished, time used:', t2-t1)
+device = torch.device('cuda')
 ################################################################
 # training and evaluation
 ################################################################
@@ -229,7 +240,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
+training_history = open(f'./training_history/{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
 for ep in range(epochs):
@@ -242,16 +253,10 @@ for ep in range(epochs):
         xx = xx.to(device)
         yy = yy.to(device)
 
-        # pdb.set_trace()
-        # yy = torch.index_select(yy, 1, loc_x)
-        # yy = torch.index_select(yy, 2, loc_y)
-
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
             im = model(xx)
-            # im = torch.index_select(im, 1, loc_x)
-            # im = torch.index_select(im, 2, loc_y)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -278,16 +283,11 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
-            # pdb.set_trace()
-            yy = torch.index_select(yy, 1, loc_x)
-            yy = torch.index_select(yy, 2, loc_y)
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
 
                 im = model(xx)
-                im = torch.index_select(im, 1, loc_x)
-                im = torch.index_select(im, 2, loc_y)
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -319,7 +319,7 @@ training_history.close()
 # pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
 with torch.no_grad():
     for xx, yy in test_loader:
@@ -327,18 +327,12 @@ with torch.no_grad():
         xx = xx.to(device)
         yy = yy.to(device)
         
-        yy = torch.index_select(yy, 1, loc_x)
-        yy = torch.index_select(yy, 2, loc_y)
         
         full_pred = model(xx)
-        full_pred = torch.index_select(full_pred, 1, loc_x)
-        full_pred = torch.index_select(full_pred, 2, loc_y)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
             im = model(xx)
-            im = torch.index_select(im, 1, loc_x)
-            im = torch.index_select(im, 2, loc_y)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -356,5 +350,4 @@ with torch.no_grad():
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
 
-# ll: save as .txt instead of .mat
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
