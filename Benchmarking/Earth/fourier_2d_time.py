@@ -257,7 +257,7 @@ for ep in range(epochs):
             y = yy[..., t:t + step]
 
             im = model(xx)
-
+            pdb.set_trace()
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
