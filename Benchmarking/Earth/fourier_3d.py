@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 64
+sub = 1
 # S = 64 // sub
 T_in = 12
 T = 12
@@ -211,19 +211,19 @@ import pdb
 
 TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
 reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,:sub,:sub]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:sub,:sub]
+test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
+test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
 
 TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
 reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field(DAT)[:ntrain,:T_in,:sub,:sub]
-train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:sub,:sub]
+train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
+train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
 
 for NUM in range(2, 5):
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:sub,:sub]))
-    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:sub,:sub]))
+    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
+    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
@@ -279,7 +279,9 @@ train_loss = np.zeros(epochs)
 myloss = LpLoss(size_average=False)
 y_normalizer.cuda()
 
-# pdb.set_trace()
+lon = np.arange(S_x)
+lat = np.arange(S_y)
+lon_, lat_ = np.meshgrid(lat, lon)
 
 for ep in range(epochs):
     model.train()
@@ -318,6 +320,10 @@ for ep in range(epochs):
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
     training_history.write(f'{ep} {t2-t1} {train_mse} {train_l2} {test_l2} \n')
+    plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    plt.show()
+    plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    plt.show()
 training_history.close()
 
 

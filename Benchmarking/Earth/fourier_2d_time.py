@@ -371,8 +371,9 @@ with torch.no_grad():
             # xx = torch.cat((xx[..., step:], im), dim=-1)
 
         print(index, loss.item() / T)
-        index = index + 1
         full_pred[index] = pred
+
+        index = index + 1
 
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
