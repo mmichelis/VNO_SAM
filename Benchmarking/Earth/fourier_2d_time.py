@@ -242,6 +242,9 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
+pdb.set_trace()
+plt.contourf(lon_, lat_, train_u[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
+plt.show()
 ################################################################
 # training and evaluation
 ################################################################
