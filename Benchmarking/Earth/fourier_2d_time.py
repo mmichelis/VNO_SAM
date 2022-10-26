@@ -137,13 +137,13 @@ class FNO2d(nn.Module):
         # x2 = self.w3(x)
         # x = x1 + x2
 
-        x2 = self.conv0(x)
+        x2 = self.w0(x)
         x = F.gelu(x2)
-        x2 = self.conv1(x)
+        x2 = self.w1(x)
         x = F.gelu(x2)
-        x2 = self.conv2(x)
+        x2 = self.w2(x)
         x = F.gelu(x2)
-        x2 = self.conv3(x)
+        x2 = self.w3(x)
         x = F.gelu(x2)
 
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
@@ -168,8 +168,8 @@ class FNO2d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 32
-width = 1
+modes = 8
+width = 40
 
 batch_size = 2
 batch_size2 = batch_size
@@ -327,8 +327,8 @@ for ep in range(epochs):
                     +' '+ str(test_l2_step / ntest / (T / step))\
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
-    pdb.set_trace()
-    plt.contourf(lon_, lat_, im[0,:,:,0].cpu().numpy())
+
+    plt.contourf(lon_, lat_, im[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
     plt.show()
 training_history.close()
 # torch.save(model, path_model)
