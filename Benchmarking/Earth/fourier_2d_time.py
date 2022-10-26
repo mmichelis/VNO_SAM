@@ -330,6 +330,8 @@ for ep in range(epochs):
 
     plt.contourf(lon_, lat_, im[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
     plt.show()
+    plt.contourf(lon_, lat_, yy[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
+    plt.show()
 training_history.close()
 # torch.save(model, path_model)
 
