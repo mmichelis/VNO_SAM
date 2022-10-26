@@ -174,7 +174,7 @@ width = 40
 batch_size = 2
 batch_size2 = batch_size
 
-epochs = 1
+epochs = 3
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -262,7 +262,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open(f'./training_history/{DAT}_data.txt', 'w')
+training_history = open(f'./training_history/2d_{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
 for ep in range(epochs):
@@ -347,7 +347,7 @@ training_history.close()
 # pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open(f'./training_history/{DAT}_data_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/2d_{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
 full_pred = torch.zeros(test_u.shape)
 with torch.no_grad():
@@ -379,4 +379,4 @@ with torch.no_grad():
     prediction_history.close()
 print(full_pred.shape)
 
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})

@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 1
+sub = 8
 # S = 64 // sub
 T_in = 12
 T = 12
@@ -266,7 +266,7 @@ device = torch.device('cuda')
 ################################################################
 train_model = True
 
-training_history = open(f'./training_history/{DAT}_data.txt', 'w')
+training_history = open(f'./training_history/3d_{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  MSE Train_L2 Test_L2 \n')
 
 model = FNO3d(modes, modes, modes_time, width).cuda()
@@ -320,9 +320,9 @@ for ep in range(epochs):
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
     training_history.write(f'{ep} {t2-t1} {train_mse} {train_l2} {test_l2} \n')
-    plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
     plt.show()
-    plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
     plt.show()
 training_history.close()
 
@@ -331,7 +331,7 @@ pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 
-prediction_history = open(f'./training_history/{DAT}_data_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/3d_{DAT}_data_test_loss.txt', 'w')
 
 with torch.no_grad():
     t1 = default_timer()
@@ -352,4 +352,4 @@ prediction_history.close()
 
 
 
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/3d'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
