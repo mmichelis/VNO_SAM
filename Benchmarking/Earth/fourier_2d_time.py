@@ -230,11 +230,14 @@ lon_, lat_ = np.meshgrid(lat, lon)
 
 assert (T == train_u.shape[1])
 
-train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
-test_a = test_a.reshape(ntest,S_x,S_y,T_in)
-
-train_u = train_u.reshape(ntrain,S_x,S_y,T)
-test_u = test_u.reshape(ntest,S_x,S_y,T)
+# NOTE: using reshape will severely alter the data. Use torch. swapaxes instead to get it into the correct format.
+# go from (0, 1, 2, 3) to (0, 3, 2, 1)
+# train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
+# test_a = test_a.reshape(ntest,S_x,S_y,T_in)
+train_a = torch.swapaxes(train_a, 1, 3)
+test_a = torch.swapaxes(test_a, 1, 3)
+train_u = torch.swapaxes(train_u, 1, 3)
+test_u = torch.swapaxes(test_u, 1, 3)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -243,7 +246,7 @@ t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
 pdb.set_trace()
-plt.contourf(lon_, lat_, train_u[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
+plt.contourf(lon_, lat_, train_a[100,:,:,0].cpu().numpy(), cmap='RdYlBu')
 plt.show()
 ################################################################
 # training and evaluation
