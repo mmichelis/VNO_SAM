@@ -170,8 +170,8 @@ class FNO3d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 16
-modes_time = 8
+modes = 8
+modes_time = 3
 width = 20
 
 batch_size = 1
