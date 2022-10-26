@@ -168,8 +168,8 @@ class FNO2d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 16
-width = 80
+modes = 32
+width = 1
 
 batch_size = 2
 batch_size2 = batch_size
