@@ -315,7 +315,7 @@ for ep in range(epochs):
 
     t2 = default_timer()
     scheduler.step()
-    plt.contourf(np.arange(S_x), np.arange(S_y), im)
+    plt.contourf(np.arange(S_x), np.arange(S_y), im.cpu().numpy())
     print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
           test_l2_full / ntest)
     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))\
