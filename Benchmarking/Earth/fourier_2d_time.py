@@ -174,7 +174,7 @@ width = 40
 batch_size = 2
 batch_size2 = batch_size
 
-epochs = 100
+epochs = 50
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -191,7 +191,7 @@ t1 = default_timer()
 
 sub = 1
 T_in = 12
-T = 1
+T = 12
 step = 1
 
 ################################################################
