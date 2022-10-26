@@ -208,7 +208,7 @@ reader = MatReader(TRAIN_PATH)
 train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
 train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
 
-for NUM in range(2, 5):
+for NUM in range(2, 3):
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
