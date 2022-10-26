@@ -174,7 +174,7 @@ width = 40
 batch_size = 2
 batch_size2 = batch_size
 
-epochs = 50
+epochs = 1
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -349,14 +349,13 @@ index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open(f'./training_history/{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
+full_pred = torch.zeros(test_u.shape)
 with torch.no_grad():
     for xx, yy in test_loader:
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
         
-        
-        full_pred = model(xx)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
@@ -373,9 +372,10 @@ with torch.no_grad():
 
         print(index, loss.item() / T)
         index = index + 1
-        full_pred = torch.cat((full_pred, pred), -1)
+        full_pred[index] = pred
 
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
+print(full_pred.shape)
 
 scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
