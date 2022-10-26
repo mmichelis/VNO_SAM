@@ -137,13 +137,13 @@ class FNO2d(nn.Module):
         # x2 = self.w3(x)
         # x = x1 + x2
 
-        x2 = self.w0(x)
+        x2 = self.conv0(x)
         x = F.gelu(x2)
-        x2 = self.w1(x)
+        x2 = self.conv1(x)
         x = F.gelu(x2)
-        x2 = self.w2(x)
+        x2 = self.conv2(x)
         x = F.gelu(x2)
-        x2 = self.w3(x)
+        x2 = self.conv3(x)
         x = F.gelu(x2)
 
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
@@ -362,4 +362,4 @@ with torch.no_grad():
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
 
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
