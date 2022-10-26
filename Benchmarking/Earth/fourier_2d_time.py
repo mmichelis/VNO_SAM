@@ -245,9 +245,9 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
-pdb.set_trace()
-plt.contourf(lon_, lat_, train_a[100,:,:,0].cpu().numpy(), cmap='RdYlBu')
-plt.show()
+# pdb.set_trace()
+# plt.contourf(lat_, lon_, train_a[100,:,:,0].cpu().numpy(), cmap='RdYlBu')
+# plt.show()
 ################################################################
 # training and evaluation
 ################################################################
@@ -334,9 +334,9 @@ for ep in range(epochs):
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
 
-    plt.contourf(lon_, lat_, im[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
+    plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
     plt.show()
-    plt.contourf(lon_, lat_, yy[0,:,:,0].cpu().numpy(), cmap='RdYlBu')
+    plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
     plt.show()
 training_history.close()
 # torch.save(model, path_model)
