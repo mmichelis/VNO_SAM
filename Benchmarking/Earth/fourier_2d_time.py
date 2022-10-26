@@ -223,6 +223,10 @@ print(test_u.shape)
 # can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
 S_x = train_u.shape[-1]
 S_y = train_u.shape[-2]
+lon = np.arange(S_x)
+lat = np.arange(S_y)
+
+lon_, lat_ = np.meshgrid(lat, lon)
 
 assert (T == train_u.shape[1])
 
@@ -315,8 +319,7 @@ for ep in range(epochs):
 
     t2 = default_timer()
     scheduler.step()
-    plt.contourf(np.arange(S_x), np.arange(S_y), im[0,:,:,0].cpu().numpy())
-    plt.show()
+    
     print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
           test_l2_full / ntest)
     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))\
@@ -324,6 +327,9 @@ for ep in range(epochs):
                     +' '+ str(test_l2_step / ntest / (T / step))\
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
+    pdb.set_trace()
+    plt.contourf(lon_, lat_, im[0,:,:,0].cpu().numpy())
+    plt.show()
 training_history.close()
 # torch.save(model, path_model)
 
