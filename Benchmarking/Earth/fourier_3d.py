@@ -348,6 +348,6 @@ with torch.no_grad():
         prediction_history.write(f'{test_l2} \n')
 prediction_history.close()
 
-
-pdb.set_trace()
-scipy.io.savemat('llingsch@euler.ethz.ch:/cluster/scratch/llingsch/predictions/3d'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('predictions/3d'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+# pdb.set_trace()
+# scipy.io.savemat('llingsch@euler.ethz.ch:/cluster/scratch/llingsch/predictions/3d'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
