@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 2
+sub = 1
 # S = 64 // sub
 T_in = 12
 T = 12
