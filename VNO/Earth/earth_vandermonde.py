@@ -245,8 +245,8 @@ central_lat = torch.arange(250+1, 310)
 central_lon = torch.arange(256+1, 320)
 
 # fix positions together
-lat = torch.concatenate((south_pos, central_lat, north_pos))
-lon = torch.concatenate((west_pos, central_lon, east_pos))
+lat = torch.cat((south_pos, central_lat, north_pos))
+lon = torch.cat((west_pos, central_lon, east_pos))
 ##############################################################
 # load data
 ################################################################
