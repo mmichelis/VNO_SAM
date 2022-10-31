@@ -247,7 +247,7 @@ test_a = a_normalizer.encode(test_a)
 pdb.set_trace()
 train_a = torch.swapaxes(train_a, 1, 3).reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
 train_u = torch.swapaxes(train_u, 1, 3)
-test_a = torch.swapaxes(test_a, 1, 3).reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
+test_a = torch.swapaxes(test_a, 1, 3).reshape(ntest, S_x, S_y, 1, T).repeat([1,1,1,T,1])
 test_u = torch.swapaxes(test_u, 1, 3)
 
 # normalizer must come after reshape
