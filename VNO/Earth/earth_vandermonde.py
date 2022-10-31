@@ -186,10 +186,10 @@ class FNO2d(nn.Module):
     def get_grid(self, shape, device):
         batchsize, size_x, size_y = shape[0], shape[2], shape[1]
         # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
-        gridx = pos_x
+        gridx = lon
         gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
         # gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
-        gridy = pos_y
+        gridy = lat
         gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
 
@@ -236,9 +236,9 @@ east = 576-320
 
 # positions in cardinal directions with nonequispaced distributions
 south_pos = torch.flip(south - torch.round(torch.arange(torch.floor(south**(1/growth))+1)**growth))
-north_pos = 310 + torch.round(torch.arange(torch.floor(north**(1/growth))+1)**growth)
+north_pos = 310 + torch.round(torch.arange(np.floor(north**(1/growth))+1)**growth)
 west_pos = torch.flip(west - torch.round(torch.arange(torch.floor(south**(1/growth))+1)**growth))
-east_pos = 320 + torch.round(torch.arange(torch.floor(south**(1/growth))+1)**growth)
+east_pos = 320 + torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth)
 
 # positions with equispaced distributions
 central_lat = torch.arange(250+1, 310)
