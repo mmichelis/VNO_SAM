@@ -290,6 +290,7 @@ for ep in range(epochs):
     train_l2 = 0
     for x, y in train_loader:
         x, y = x.cuda(), y.cuda()
+        pdb.set_trace()
         optimizer.zero_grad()
         out = model(x).view(batch_size, S_x, S_y, T)
         # mse.backward()
