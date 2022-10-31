@@ -235,9 +235,9 @@ west = 256
 east = 576-320
 
 # positions in cardinal directions with nonequispaced distributions
-south_pos = torch.flip(south - torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth),0)
+south_pos = torch.flip(south - torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth),[0])
 north_pos = 310 + torch.round(torch.arange(np.floor(north**(1/growth))+1)**growth)
-west_pos = torch.flip(west - torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth),0)
+west_pos = torch.flip(west - torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth),[0])
 east_pos = 320 + torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth)
 
 # positions with equispaced distributions
