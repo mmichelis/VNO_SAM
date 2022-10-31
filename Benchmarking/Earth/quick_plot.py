@@ -16,7 +16,7 @@ lat = np.arange(prediction.shape[2])
 
 lon_, lat_ = np.meshgrid(lat, lon)
 
-plt.contourf(lat_, lon_, prediction[0,:,:,0], 60, cmap='RdYlBu')
+plt.contourf(lat_, lon_, prediction[0,:,:,0], 60, cmap='RdYlBu_r')
 plt.show()
 
 
@@ -24,7 +24,7 @@ plt.show()
 import pdb
 pdb.set_trace()
 fig = plt.figure()
-cont = plt.contourf(lat_, lon_, prediction[0,:,:,0],  60, cmap='RdYlBu')
+cont = plt.contourf(lat_, lon_, prediction[0,:,:,0],  60, cmap='RdYlBu_r')
 ax = plt.axes(xlim=(-180, 180), ylim=(-90, 90))
 
 def update(frame_num):
@@ -40,5 +40,5 @@ def init():
     return cont
 
 ani = animation.FuncAnimation(fig, update, frames=12, interval = 100, init_func=init)
-ani.save('animation.gif', writer=animation.FFMpegWriter())
+ani.save(file[:-4]+'.gif', writer=animation.FFMpegWriter())
 

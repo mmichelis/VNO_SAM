@@ -318,10 +318,10 @@ for ep in range(epochs):
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
     training_history.write(f'{ep} {t2-t1} {train_mse} {train_l2} {test_l2} \n')
-    plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    plt.show()
-    plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    plt.show()
+    # plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    # plt.show()
+    # plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    # plt.show()
 training_history.close()
 
 
