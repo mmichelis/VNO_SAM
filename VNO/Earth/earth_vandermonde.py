@@ -223,60 +223,88 @@ T_in = 12
 T = 12
 T_ = 12
 
-################################################################
-# nonequispaced point distribution
-################################################################
-# perhaps, focus on area around switzerland [250,310]x[216,272]
-# there are a lot of values here it just makes more sense to hard code because they are not going to be reused
-growth = 1.5
-south = 250
-north = 360-310
-west = 256
-east = 576-320
-
-# positions in cardinal directions with nonequispaced distributions
-south_pos = torch.flip(south - torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth),[0])
-north_pos = 310 + torch.round(torch.arange(np.floor(north**(1/growth))+1)**growth)
-west_pos = torch.flip(west - torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth),[0])
-east_pos = 320 + torch.round(torch.arange(np.floor(south**(1/growth))+1)**growth)
-
-# positions with equispaced distributions
-central_lat = torch.arange(250+1, 310)
-central_lon = torch.arange(256+1, 320)
-
-# fix positions together
-lat = torch.cat((south_pos, central_lat, north_pos))
-lon = torch.cat((west_pos, central_lon, east_pos))
 ##############################################################
 # load data
 ################################################################
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
+def load_data():
+    TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+    reader = MatReader(TEST_PATH)
+    test_a = reader.read_field(DAT)[-ntest:,:T_in,:,:]
+    test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:,:]
 
-TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
-reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,:,:]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:,:]
-
-TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
-reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field(DAT)[:ntrain,:T_in,:,:]
-train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]
-
-for NUM in range(2, 5):
-    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:,:]))
-    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]))
+    train_a = reader.read_field(DAT)[:ntrain,:T_in,:,:]
+    train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]
 
-pdb.set_trace()
-# select the positions from the desired distribution
-test_a = torch.index_select(torch.index_select(test_a, 2, lat), 3, lon)
-# test_u = torch.index_select(torch.index_select(test_u, 2, lat), 3, lon)
-# train_a = torch.index_select(torch.index_select(train_a, 2, lat), 3, lon)
-# train_u = torch.index_select(torch.index_select(train_u, 2, lat), 3, lon)
+    for NUM in range(2, 5):
+        TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]))
 
-# flip the and concatenate the data to itself
-test_a = torch.cat((test_a, torch.flip(test_a, [-2,-1])), -1)
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = load_data()
+
+# the data must be centered longitudinally so that it stays on a lattice when doubled
+def center_longitutude(data, center):
+    lon_pts = data.shape[-1]
+    return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
+center_lon = 188 * 1.6
+test_a = center_longitutude(test_a, center_lon)
+test_u = center_longitutude(test_u, center_lon)
+train_a = center_longitutude(train_a, center_lon)
+train_u = center_longitutude(train_u, center_lon)
+
+# define the lattice of points to select for the simulation
+def define_positions(center_lat, growth, offset):
+    # the bottom and left boundaries are both at 0, but not the top or right boundaries
+    top = 180 * 2
+    right = 360 * 1.6
+
+    # the data should already be centered longitudinally
+    center_lon = right//2
+
+    # define the bounds of the equispaced region
+    side_s = center_lat - offset
+    side_n = center_lat + offset
+    side_w = center_lon - offset
+    side_e = center_lon + offset
+
+    # calculate the number of points in each side of the nonequispaced region
+    num_s = np.floor(side_s**(1/growth))+1
+    num_n = np.floor((top - side_n)**(1/growth))+1
+    num_w = np.floor(side_w**(1/growth))+1
+    num_e = np.floor((right - side_e)**(1/growth))+1
+
+    # define the positions of points to each side
+    points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
+    points_n = side_n + torch.round(torch.arange(num_n)**growth)
+    points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
+    points_e = side_e + torch.round(torch.arange(num_e)**growth)
+
+    # positions with equispaced distributions
+    central_lat = torch.arange(side_s+1, side_n)
+    central_lon = torch.arange(side_w+1, side_e)
+
+    # fix positions together
+    lat = torch.cat((points_s, central_lat, points_n))
+    lon = torch.cat((points_w, central_lon, points_e))
+    return lon.int(), lat.int()
+center_lat = 137 * 2
+lon, lat = define_positions(center_lat, 1.5, 20)
+
+# select the positions from the desired distribution and double accordingly
+def double_data(data, lon, lat):
+    sparse_data = torch.index_select(torch.index_select(data, 2, lat), 3, lon)
+    double_data = torch.cat((sparse_data, torch.flip(sparse_data, [-2,-1])), -2)
+    return double_data
+test_a = double_data(test_a, lon, lat)
+test_u = double_data(test_u, lon, lat)
+train_a = double_data(train_a, lon, lat)
+train_u = double_data(train_u, lon, lat)
+
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
@@ -309,6 +337,8 @@ t2 = default_timer()
 
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
+
+
 
 ################################################################
 # training and evaluation
