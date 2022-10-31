@@ -177,7 +177,7 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 3
+epochs = 1
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -219,7 +219,7 @@ reader = MatReader(TRAIN_PATH)
 train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
 train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
 
-for NUM in range(2, 5):
+for NUM in range(2, 3):
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
@@ -320,10 +320,10 @@ for ep in range(epochs):
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
     training_history.write(f'{ep} {t2-t1} {train_mse} {train_l2} {test_l2} \n')
-    plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    plt.show()
-    plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    plt.show()
+    # plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    # plt.show()
+    # plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    # plt.show()
 training_history.close()
 
 
