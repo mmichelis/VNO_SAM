@@ -177,7 +177,7 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 1
+epochs = 15
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -197,7 +197,7 @@ runtime = np.zeros(2, )
 t1 = default_timer()
 
 
-sub = 8
+sub = 2
 # S = 64 // sub
 T_in = 12
 T = 12
@@ -242,9 +242,6 @@ train_a = a_normalizer.encode(train_a)
 test_a = a_normalizer.encode(test_a)
 
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
-# train_a = train_a.reshape(ntrain,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
-# test_a = test_a.reshape(ntest,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
-pdb.set_trace()
 train_a = torch.swapaxes(train_a, 1, 3).reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
 train_u = torch.swapaxes(train_u, 1, 3)
 test_a = torch.swapaxes(test_a, 1, 3).reshape(ntest, S_x, S_y, 1, T).repeat([1,1,1,T,1])
@@ -321,10 +318,10 @@ for ep in range(epochs):
     t2 = default_timer()
     print(ep, t2-t1, train_mse, train_l2, test_l2)
     training_history.write(f'{ep} {t2-t1} {train_mse} {train_l2} {test_l2} \n')
-    # plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
-    # plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
+    plt.contourf(lat_, lon_, out[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    plt.show()
+    plt.contourf(lat_, lon_, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    plt.show()
 training_history.close()
 
 
