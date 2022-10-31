@@ -11,8 +11,8 @@ file = input('file name: ')
 reader = MatReader(f'./predictions/{file}')
 prediction = reader.read_field('pred')
 print(prediction.shape)
-lon = np.arange(prediction.shape[1])
-lat = np.arange(prediction.shape[2])
+lon = np.arange(prediction.shape[0])
+lat = np.arange(prediction.shape[1])
 
 lon_, lat_ = np.meshgrid(lat, lon)
 
@@ -21,8 +21,7 @@ plt.show()
 
 
 # save an animation
-import pdb
-# pdb.set_trace()
+
 fig = plt.figure()
 cont = plt.contourf(lat_, lon_, prediction[:,:,0],  60, cmap='RdYlBu_r')
 ax = plt.axes(xlim=(-180, 180), ylim=(-90, 90))
