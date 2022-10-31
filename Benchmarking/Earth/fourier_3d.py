@@ -172,7 +172,7 @@ ntest = 100
 
 modes = 16
 modes_time = 10
-width = 20
+width = 32
 
 batch_size = 2
 batch_size2 = batch_size
