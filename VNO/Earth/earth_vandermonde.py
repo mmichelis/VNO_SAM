@@ -235,18 +235,18 @@ west = 256
 east = 576-320
 
 # positions in cardinal directions with nonequispaced distributions
-south_pos = np.flip(south - np.round(np.arange(np.floor(south**(1/growth))+1)**growth))
-north_pos = 310 + np.round(np.arange(np.floor(north**(1/growth))+1)**growth)
-west_pos = np.flip(west - np.round(np.arange(np.floor(south**(1/growth))+1)**growth))
-east_pos = 320 + np.round(np.arange(np.floor(south**(1/growth))+1)**growth)
+south_pos = torch.flip(south - torch.round(torch.arange(torch.floor(south**(1/growth))+1)**growth))
+north_pos = 310 + torch.round(torch.arange(torch.floor(north**(1/growth))+1)**growth)
+west_pos = torch.flip(west - torch.round(torch.arange(torch.floor(south**(1/growth))+1)**growth))
+east_pos = 320 + torch.round(torch.arange(torch.floor(south**(1/growth))+1)**growth)
 
 # positions with equispaced distributions
-central_lat = np.arange(250+1, 310)
-central_lon = np.arange(256+1, 320)
+central_lat = torch.arange(250+1, 310)
+central_lon = torch.arange(256+1, 320)
 
 # fix positions together
-lat = np.concatenate((south_pos, central_lat, north_pos))
-lon = np.concatenate((west_pos, central_lon, east_pos))
+lat = torch.concatenate((south_pos, central_lat, north_pos))
+lon = torch.concatenate((west_pos, central_lon, east_pos))
 ##############################################################
 # load data
 ################################################################
