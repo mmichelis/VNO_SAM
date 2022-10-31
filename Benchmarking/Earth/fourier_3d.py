@@ -244,9 +244,10 @@ test_a = a_normalizer.encode(test_a)
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
 # train_a = train_a.reshape(ntrain,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
 # test_a = test_a.reshape(ntest,S_x,S_y,1,T_in).repeat([1,1,1,T,1])
+pdb.set_trace()
 train_a = torch.swapaxes(train_a, 1, 3).reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
-train_u = torch.swapaxes(train_u, 1, 3).reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
-test_a = torch.swapaxes(test_a, 1, 3)
+train_u = torch.swapaxes(train_u, 1, 3)
+test_a = torch.swapaxes(test_a, 1, 3).reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
 test_u = torch.swapaxes(test_u, 1, 3)
 
 # normalizer must come after reshape
@@ -290,7 +291,6 @@ for ep in range(epochs):
     train_l2 = 0
     for x, y in train_loader:
         x, y = x.cuda(), y.cuda()
-        pdb.set_trace()
         optimizer.zero_grad()
         out = model(x).view(batch_size, S_x, S_y, T)
         # mse.backward()
