@@ -177,7 +177,7 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 15
+epochs = 1
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -349,5 +349,5 @@ with torch.no_grad():
 prediction_history.close()
 
 
-
-scipy.io.savemat('./predictions/3d'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+pdb.set_trace()
+scipy.io.savemat('llingsch@euler.ethz.ch:/cluster/scratch/llingsch/predictions/3d'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
