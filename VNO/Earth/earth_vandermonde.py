@@ -221,11 +221,12 @@ t1 = default_timer()
 
 T_in = 12
 T = 12
-T_ = 12
+step = 1
 
 ##############################################################
 # load data
 ################################################################
+pdb.set_trace()
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
     TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
@@ -339,11 +340,10 @@ print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
 
 
-
 ################################################################
 # training and evaluation
 ################################################################
-training_history = open('./training_history/'+data_dist+'.txt', 'w')
+training_history = open('./training_history/2d_vandermonde.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 model = FNO2d(modes, modes, width).cuda()
@@ -424,7 +424,7 @@ training_history.close()
 # pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open('./training_history/'+data_dist+'_test_loss.txt', 'w')
+prediction_history = open('./training_history/2d_vandermonde_test_loss.txt', 'w')
 # ll: adding this to put y_norm on cuda
 # y_normalizer.cuda()
 with torch.no_grad():
