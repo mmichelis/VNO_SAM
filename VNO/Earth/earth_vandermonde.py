@@ -371,9 +371,11 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
-            # pdb.set_trace()
+            pdb.set_trace()
             y = yy[..., t:t + step]
+
             im = model(xx)
+
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
@@ -381,7 +383,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            # xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
@@ -399,9 +401,12 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
+
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
+
                 im = model(xx)
+                
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
@@ -409,21 +414,27 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im), dim=-1)
+                # xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
-            # print(loss.item(), test_l2_full, ntest)
+
     t2 = default_timer()
     scheduler.step()
+    
     print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
           test_l2_full / ntest)
-    
-    # print(f'epoch: {ep}, train loss: {train_l2_full / ntrain}, test loss: {test_l2_full / ntest}')
-    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))+' '+ 
-    str(train_l2_full / ntrain)+' '+ str(test_l2_step / ntest / (T / step))+' '+ str(test_l2_full / ntest) +'\n')
+    training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))\
+                    +' '+ str(train_l2_full / ntrain)\
+                    +' '+ str(test_l2_step / ntest / (T / step))\
+                    +' '+ str(test_l2_full / ntest)\
+                    +'\n')
+
+    # plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    # plt.show()
+    # plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
+    # plt.show()
 training_history.close()
-# torch.save(model, path_model)
 
 
 
