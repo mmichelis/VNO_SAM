@@ -309,10 +309,10 @@ train_u = double_data(train_u, lon, lat)
 lat = lat * np.pi / 180 / 2
 lon = lon * np.pi / 180 / 1.6
 lat = torch.cat((lat, -torch.flipud(lat)))
-# lat_, lon_ = torch.meshgrid(lat, lon)
-# plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
-# plt.scatter(lon_, lat_, marker='.')
-# plt.show()
+lat_, lon_ = torch.meshgrid(lat, lon)
+plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
+plt.scatter(lon_, lat_, marker='.')
+plt.show()
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
@@ -330,10 +330,10 @@ test_a = a_normalizer.encode(test_a)
 pdb.set_trace()
 
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
-train_a.permute(0,2,3,1) #= torch.swapaxes(train_a, 1, 3)#.reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
-train_u.permute(0,2,3,1) # = torch.swapaxes(train_u, 1, 3)
-test_a.permute(0,2,3,1) # = torch.swapaxes(test_a, 1, 3)#.reshape(ntest, S_x, S_y, 1, T).repeat([1,1,1,T,1])
-test_u.permute(0,2,3,1) # = torch.swapaxes(test_u, 1, 3)
+train_a = torch.swapaxes(torch.swapaxes(train_a, 1, 3), 1, 2)
+train_u = torch.swapaxes(torch.swapaxes(train_u, 1, 3), 1, 2)
+test_a = torch.swapaxes(torch.swapaxes(test_a, 1, 3), 1, 2)
+test_u = torch.swapaxes(torch.swapaxes(test_u, 1, 3), 1, 2)
 # shape at this point: [ntrain/ntest, 123, 194, 12]
 
 # normalizer must come after reshape
