@@ -288,7 +288,8 @@ def define_positions(center_lat, growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 center_lat = 137 * 2
-lon, lat = define_positions(center_lat, 1.5, 20)
+growth = 1.0
+lon, lat = define_positions(center_lat, growth, 20)
 
 
 # select the positions from the desired distribution and double accordingly
