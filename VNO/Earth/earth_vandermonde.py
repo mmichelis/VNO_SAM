@@ -226,7 +226,7 @@ step = 1
 ##############################################################
 # load data
 ################################################################
-pdb.set_trace()
+
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
     TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
@@ -252,12 +252,13 @@ test_a, test_u, train_a, train_u = load_data()
 def center_longitutude(data, center):
     lon_pts = data.shape[-1]
     return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
-center_lon = (188 * 1.6).int()
+center_lon = int(188 * 1.6)
 test_a = center_longitutude(test_a, center_lon)
 test_u = center_longitutude(test_u, center_lon)
 train_a = center_longitutude(train_a, center_lon)
 train_u = center_longitutude(train_u, center_lon)
 
+pdb.set_trace()
 # define the lattice of points to select for the simulation
 def define_positions(center_lat, growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
