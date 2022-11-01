@@ -83,9 +83,9 @@ class SpectralConv2d_fast(nn.Module):
         pdb.set_trace()
         x_ft = torch.matmul(
                     torch.transpose(
-                        torch.matmul(x.cfloat(), self.Vx)
+                        torch.matmul(x.cfloat(), self.Vy)
                     , 2, 3)
-                , self.Vy)
+                , self.Vx)
 
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
@@ -104,9 +104,9 @@ class SpectralConv2d_fast(nn.Module):
                 torch.transpose(
                     torch.matmul(
                         torch.transpose(out_ft, 2, 3),
-                    self.Vx_ct),
+                    self.Vy_ct),
                 2, 3),
-            self.Vy_ct).real
+            self.Vx_ct).real
         x = torch.transpose(x, 2, 3)
         return x
 
