@@ -295,7 +295,8 @@ lon, lat = define_positions(center_lat, growth, 20)
 # select the positions from the desired distribution and double accordingly
 def double_data(data, lon, lat):
     sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
-    double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+    double_data = sparse_data
+    # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
     return double_data
 test_a = double_data(test_a, lon, lat)
 test_u = double_data(test_u, lon, lat)
@@ -305,7 +306,7 @@ train_u = double_data(train_u, lon, lat)
 
 lon = lon * np.pi / 180 / 1.6
 lat = np.pi - lat * np.pi / 180 / 2
-lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
+# lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
 # lat_, lon_ = torch.meshgrid(lat, lon)
 # plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
 # plt.scatter(lon_, lat_, marker='.')
