@@ -7,16 +7,17 @@ from matplotlib import cm
 
 sys.path.append('../../')
 from utilities3 import *
+
 file = input('file name: ')
 reader = MatReader(f'./predictions/{file}')
 prediction = reader.read_field('pred')
 print(prediction.shape)
-lon = np.arange(prediction.shape[0])
-lat = np.arange(prediction.shape[1])
+lon = np.arange(prediction.shape[1])
+lat = np.arange(prediction.shape[2])
 
 lon_, lat_ = np.meshgrid(lat, lon)
 
-plt.contourf(lat_, lon_, prediction[:,:,0], 60, cmap='RdYlBu_r')
+plt.contourf(lat_, lon_, prediction[0,:,:,0], 60, cmap='RdYlBu_r')
 plt.show()
 
 
