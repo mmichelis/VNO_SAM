@@ -81,9 +81,9 @@ class SpectralConv2d_fast(nn.Module):
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = torch.matmul(
                     torch.transpose(
-                        torch.matmul(x.cfloat(), self.Vy)
+                        torch.matmul(x.cfloat(), self.Vx)
                     , 2, 3)
-                , self.Vx)
+                , self.Vy)
 
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
@@ -102,9 +102,9 @@ class SpectralConv2d_fast(nn.Module):
                 torch.transpose(
                     torch.matmul(
                         torch.transpose(out_ft, 2, 3),
-                    self.Vy_ct),
+                    self.Vx_ct),
                 2, 3),
-            self.Vx_ct).real
+            self.Vy_ct).real
         x = torch.transpose(x, 2, 3)
         return x
 
@@ -184,10 +184,10 @@ class FNO2d(nn.Module):
     def get_grid(self, shape, device):
         batchsize, size_x, size_y = shape[0], shape[2], shape[1]
         # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
-        gridx = lat
+        gridx = lon
         gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
         # gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
-        gridy = lon
+        gridy = lat
         gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
 
@@ -224,7 +224,6 @@ step = 1
 ##############################################################
 # load data
 ################################################################
-pdb.set_trace()
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
     TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
@@ -245,6 +244,7 @@ def load_data():
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
+# shape at this point: [ntrain/ntest, 12, 361, 576]
 
 # the data must be centered longitudinally so that it stays on a lattice when doubled
 def center_longitutude(data, center):
@@ -294,6 +294,7 @@ def define_positions(center_lat, growth, offset):
 center_lat = 137 * 2
 lon, lat = define_positions(center_lat, 1.5, 20)
 
+
 # select the positions from the desired distribution and double accordingly
 def double_data(data, lon, lat):
     sparse_data = torch.index_select(torch.index_select(data, 2, lat), 3, lon)
@@ -303,7 +304,10 @@ test_a = double_data(test_a, lon, lat)
 test_u = double_data(test_u, lon, lat)
 train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
+# shape at this point: [ntrain/ntest, 12, 194, 123]
 
+lat = lat * np.pi / 180 / 2
+lon = lon * np.pi / 180 / 1.6
 lat = torch.cat((lat, -torch.flipud(lat)))
 # lat_, lon_ = torch.meshgrid(lat, lon)
 # plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
@@ -323,12 +327,14 @@ assert (T == train_u.shape[1])
 a_normalizer = UnitGaussianNormalizer(train_a)
 train_a = a_normalizer.encode(train_a)
 test_a = a_normalizer.encode(test_a)
+pdb.set_trace()
 
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
-train_a = torch.swapaxes(train_a, 1, 3)#.reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
-train_u = torch.swapaxes(train_u, 1, 3)
-test_a = torch.swapaxes(test_a, 1, 3)#.reshape(ntest, S_x, S_y, 1, T).repeat([1,1,1,T,1])
-test_u = torch.swapaxes(test_u, 1, 3)
+train_a.permute(0,2,3,1) #= torch.swapaxes(train_a, 1, 3)#.reshape(ntrain, S_x, S_y, 1, T).repeat([1,1,1,T,1])
+train_u.permute(0,2,3,1) # = torch.swapaxes(train_u, 1, 3)
+test_a.permute(0,2,3,1) # = torch.swapaxes(test_a, 1, 3)#.reshape(ntest, S_x, S_y, 1, T).repeat([1,1,1,T,1])
+test_u.permute(0,2,3,1) # = torch.swapaxes(test_u, 1, 3)
+# shape at this point: [ntrain/ntest, 123, 194, 12]
 
 # normalizer must come after reshape
 y_normalizer = UnitGaussianNormalizer(train_u)
