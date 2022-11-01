@@ -79,8 +79,6 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         batchsize = x.shape[0]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        # x_ft = torch.fft.rfft2(x)
-        pdb.set_trace()
         x_ft = torch.matmul(
                     torch.transpose(
                         torch.matmul(x.cfloat(), self.Vy)
