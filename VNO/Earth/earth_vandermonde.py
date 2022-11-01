@@ -252,7 +252,7 @@ test_a, test_u, train_a, train_u = load_data()
 def center_longitutude(data, center):
     lon_pts = data.shape[-1]
     return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
-center_lon = 188 * 1.6
+center_lon = (188 * 1.6).int()
 test_a = center_longitutude(test_a, center_lon)
 test_u = center_longitutude(test_u, center_lon)
 train_a = center_longitutude(train_a, center_lon)
@@ -306,6 +306,9 @@ test_u = double_data(test_u, lon, lat)
 train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
 
+lon_, lat_ = torch.meshgrid(lon, lat)
+plt.contourf(lon_, lat_, test_a)
+plt.show()
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
