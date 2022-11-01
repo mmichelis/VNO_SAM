@@ -92,7 +92,7 @@ class SpectralConv2d_fast(nn.Module):
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft, self.weights1)
 
-        x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct))
+        x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
         # x = torch.matmul(
         #         torch.transpose(
         #             torch.matmul(
