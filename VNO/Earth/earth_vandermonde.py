@@ -184,7 +184,7 @@ class FNO2d(nn.Module):
         return x
 
     def get_grid(self, shape, device):
-        batchsize, size_x, size_y = shape[0], shape[2], shape[1]
+        batchsize, size_x, size_y = shape[0], shape[1], shape[2]
         # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
         gridx = lon
         gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
@@ -258,7 +258,6 @@ test_u = center_longitutude(test_u, center_lon)
 train_a = center_longitutude(train_a, center_lon)
 train_u = center_longitutude(train_u, center_lon)
 
-pdb.set_trace()
 # define the lattice of points to select for the simulation
 def define_positions(center_lat, growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
