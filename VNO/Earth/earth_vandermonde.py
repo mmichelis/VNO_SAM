@@ -307,9 +307,11 @@ test_u = double_data(test_u, lon, lat)
 train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
 
-lon_, lat_ = torch.meshgrid(lon, lat)
-plt.contourf(lon_, lat_, test_a)
-plt.show()
+lat = torch.cat((lat, -torch.flipud(lat)))
+# lat_, lon_ = torch.meshgrid(lat, lon)
+# plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
+# plt.scatter(lon_, lat_, marker='.')
+# plt.show()
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
