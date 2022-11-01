@@ -87,7 +87,7 @@ class SpectralConv2d_fast(nn.Module):
         #                 torch.matmul(x.cfloat(), self.Vx)
         #             , 2, 3)
         #         , self.Vy)
-        x_ft = torch.matmul(self.V_y, torch.matmul(x.cfloat(), self.Vx))
+        x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
 
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft, self.weights1)
@@ -323,7 +323,7 @@ assert (T == train_u.shape[1])
 a_normalizer = UnitGaussianNormalizer(train_a)
 train_a = a_normalizer.encode(train_a)
 test_a = a_normalizer.encode(test_a)
-pdb.set_trace()
+# pdb.set_trace()
 
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
 train_a = torch.swapaxes(torch.swapaxes(train_a, 1, 3), 1, 2)
