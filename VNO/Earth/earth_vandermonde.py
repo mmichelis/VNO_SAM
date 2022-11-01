@@ -360,6 +360,8 @@ optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
 
 myloss = LpLoss(size_average=False)
+
+
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
@@ -371,7 +373,7 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
-            pdb.set_trace()
+            # pdb.set_trace()
             y = yy[..., t:t + step]
 
             im = model(xx)
