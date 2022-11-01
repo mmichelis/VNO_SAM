@@ -62,6 +62,7 @@ class SpectralConv2d_fast(nn.Module):
                 V_x[row, col] = np.exp(-1j * row *  lon[col]) 
         V_x = torch.divide(V_x, np.sqrt(S_x))
 
+
         V_y = torch.zeros([self.modes1, S_y], dtype=torch.cfloat).cuda()
         for row in range(self.modes1):
              for col in range(S_y):
@@ -69,7 +70,8 @@ class SpectralConv2d_fast(nn.Module):
         V_y = torch.divide(V_y, np.sqrt(S_y))
 
 
-        return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
+        # return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
+        return torch.transpose(V_x, 0, 1), torch.conj(V_x), V_y, torch.conj(torch.transpose(V_y, 0, 1))
 
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -78,34 +80,27 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         batchsize = x.shape[0]
-        #Compute Fourier coeffcients up to factor of e^(- something constant)
-        x_ft = torch.matmul(
-                    torch.transpose(
-                        torch.matmul(x.cfloat(), self.Vx)
-                    , 2, 3)
-                , self.Vy)
 
-        # Multiply relevant Fourier modes
-        # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-        # out_ft[:, :, :self.modes1, :self.modes2] = \
-        #     self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # out_ft[:, :, -self.modes1:, :self.modes2] = \
-        #     self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        #Compute Fourier coeffcients up to factor of e^(- something constant)
+        # x_ft = torch.matmul(
+        #             torch.transpose(
+        #                 torch.matmul(x.cfloat(), self.Vx)
+        #             , 2, 3)
+        #         , self.Vy)
+        x_ft = torch.matmul(self.V_y, torch.matmul(x.cfloat(), self.Vx))
+
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft, self.weights1)
-        # out_ft
 
-        #Return to physical space
-        # x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
-
-        x = torch.matmul(
-                torch.transpose(
-                    torch.matmul(
-                        torch.transpose(out_ft, 2, 3),
-                    self.Vx_ct),
-                2, 3),
-            self.Vy_ct).real
-        x = torch.transpose(x, 2, 3)
+        x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct))
+        # x = torch.matmul(
+        #         torch.transpose(
+        #             torch.matmul(
+        #                 torch.transpose(out_ft, 2, 3),
+        #             self.Vx_ct),
+        #         2, 3),
+        #     self.Vy_ct).real
+        # x = torch.transpose(x, 2, 3)
         return x
 
 class FNO2d(nn.Module):
@@ -198,10 +193,9 @@ ntrain = 100
 ntest = 100
 
 modes = 16
-modes_time = 10
 width = 32
 
-batch_size = 2
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 15
@@ -274,14 +268,16 @@ def define_positions(center_lat, growth, offset):
     # calculate the number of points in each side of the nonequispaced region
     num_s = np.floor(side_s**(1/growth))+1
     num_n = np.floor((top - side_n)**(1/growth))+1
-    num_w = np.floor(side_w**(1/growth))+1
-    num_e = np.floor((right - side_e)**(1/growth))+1
+    num_w = np.floor(side_w**(1/growth))
+    num_e = num_w #np.floor((right - side_e)**(1/growth))
 
     # define the positions of points to each side
     points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
     points_n = side_n + torch.round(torch.arange(num_n)**growth)
     points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
     points_e = side_e + torch.round(torch.arange(num_e)**growth)
+
+    # print(f"east {num_e} west {num_w}")
 
     # positions with equispaced distributions
     central_lat = torch.arange(side_s+1, side_n)
@@ -297,8 +293,8 @@ lon, lat = define_positions(center_lat, 1.5, 20)
 
 # select the positions from the desired distribution and double accordingly
 def double_data(data, lon, lat):
-    sparse_data = torch.index_select(torch.index_select(data, 2, lat), 3, lon)
-    double_data = torch.cat((sparse_data, torch.flip(sparse_data, [-2,-1])), -2)
+    sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
+    double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
     return double_data
 test_a = double_data(test_a, lon, lat)
 test_u = double_data(test_u, lon, lat)
@@ -306,13 +302,13 @@ train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
 
-lat = lat * np.pi / 180 / 2
 lon = lon * np.pi / 180 / 1.6
-lat = torch.cat((lat, -torch.flipud(lat)))
-lat_, lon_ = torch.meshgrid(lat, lon)
-plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
-plt.scatter(lon_, lat_, marker='.')
-plt.show()
+lat = np.pi - lat * np.pi / 180 / 2
+lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
+# lat_, lon_ = torch.meshgrid(lat, lon)
+# plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
+# plt.scatter(lon_, lat_, marker='.')
+# plt.show()
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
