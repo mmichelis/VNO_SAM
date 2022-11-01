@@ -224,7 +224,7 @@ step = 1
 ##############################################################
 # load data
 ################################################################
-
+pdb.set_trace()
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
     TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
