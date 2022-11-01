@@ -80,7 +80,7 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         batchsize = x.shape[0]
-
+        pdb.set_trace()
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         # x_ft = torch.matmul(
         #             torch.transpose(
@@ -192,7 +192,7 @@ class FNO2d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 16
+modes = 8
 width = 32
 
 batch_size = 1
