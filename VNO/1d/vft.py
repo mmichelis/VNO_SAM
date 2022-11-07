@@ -16,8 +16,8 @@ class vft1d:
         self.Vt, self.Vc = self.make_matrix()
 
     def make_matrix(self):
-        V = torch.zeros([self.modes1, self.l], dtype=torch.cfloat).cuda()
-        for row in range(self.modes1):
+        V = torch.zeros([self.modes, self.l], dtype=torch.cfloat).cuda()
+        for row in range(self.modes):
              for col in range(self.l):
                 V[row, col] = np.exp(-1j * row *  self.positions[col]) 
         V = torch.divide(V, np.sqrt(self.l))
