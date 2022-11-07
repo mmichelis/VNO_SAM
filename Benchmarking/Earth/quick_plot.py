@@ -4,6 +4,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from matplotlib import cm
+import pdb
 
 sys.path.append('../../')
 from utilities3 import *
