@@ -20,7 +20,7 @@ class vft1d:
         V = torch.zeros([self.modes, self.l], dtype=torch.cfloat).cuda()
         for row in range(self.modes):
              for col in range(self.l):
-                V[row, col] = np.exp(-1j * row *  self.positions[col]) 
+                V[row, col] = np.exp(-1j * row *  self.positions[0,col,0]) 
         V = torch.divide(V, np.sqrt(self.l))
 
         return torch.transpose(V, 0, 1), torch.conj(V)
