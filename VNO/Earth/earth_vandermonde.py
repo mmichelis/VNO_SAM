@@ -488,5 +488,5 @@ prediction_history.close()
 
 
 # only save one prediction to keep space low
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy(), 'lat': lat.cpu().nupy(), 'lon': lon.cpu().nupy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy(), 'lat': lat.cpu().numpy(), 'lon': lon.cpu().numpy()})
 
