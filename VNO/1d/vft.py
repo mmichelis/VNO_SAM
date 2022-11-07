@@ -6,7 +6,7 @@ This code contains the classes and structures to initialize the Vandermonde matr
 
 import torch
 import numpy as np
-
+import pdb
 class vft1d:
     def __init__(self, positions, modes):
         self.positions = positions
