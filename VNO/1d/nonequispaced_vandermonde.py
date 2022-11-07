@@ -63,7 +63,6 @@ class SpectralConv1d(nn.Module):
         return torch.transpose(V, 0, 1), torch.conj(V)
 
     def forward(self, x):
-        pdb.set_trace()
         # x_ft = torch.matmul(x.cfloat(), self.V)
         x_ft = transformer.forward(x.cfloat())
 
@@ -198,7 +197,6 @@ train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_trai
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
 # model
-pdb.set_trace()
 transformer = vft1d(p_data, modes)
 model = FNO1d(modes, width).cuda()
 print(count_params(model))
