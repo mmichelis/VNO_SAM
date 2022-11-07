@@ -12,8 +12,10 @@ file = input('file name: ')
 reader = MatReader(f'./predictions/{file}')
 prediction = reader.read_field('pred')
 print(prediction.shape)
-lon = np.arange(prediction.shape[1])
-lat = np.arange(prediction.shape[2])
+lat = reader.read_field('lat')
+lon = reader.read_field('lon')
+# lon = np.arange(prediction.shape[1])
+# lat = np.arange(prediction.shape[2])
 
 lat_, lon_ = np.meshgrid(lat, lon)
 
