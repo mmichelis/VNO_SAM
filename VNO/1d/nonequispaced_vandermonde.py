@@ -26,6 +26,8 @@ from Adam import Adam
 torch.manual_seed(0)
 np.random.seed(0)
 
+from vft import *
+
 ################################################################
 #  1d fourier layer
 ################################################################
@@ -43,7 +45,7 @@ class SpectralConv1d(nn.Module):
 
         self.scale = (1 / (in_channels*out_channels))
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, dtype=torch.cfloat))
-        self.V, self.V_ct = self.internal_vandermonde()
+        # self.V, self.V_ct = self.internal_vandermonde()
 
 
     # Complex multiplication and complex batched multiplications
@@ -61,13 +63,15 @@ class SpectralConv1d(nn.Module):
         return torch.transpose(V, 0, 1), torch.conj(V)
 
     def forward(self, x):
-        x_ft = torch.matmul(x.cfloat(), self.V)
-        # x_ft -= torch.min(x_ft.real)
+        pdb.set_trace()
+        # x_ft = torch.matmul(x.cfloat(), self.V)
+        x_ft = transformer.forward(x.cfloat())
 
         # Multiply relevant Fourier modes
         out_ft = self.compl_mul1d(x_ft, self.weights1)
 
-        x = torch.matmul(out_ft, self.V_ct).real
+        # x = torch.matmul(out_ft, self.V_ct).real
+        x = transformer.inverse(out_ft).real
 
         return x
 
@@ -194,6 +198,7 @@ train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_trai
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
 # model
+transformer = vft1d(p_data, modes)
 model = FNO1d(modes, width).cuda()
 print(count_params(model))
 
