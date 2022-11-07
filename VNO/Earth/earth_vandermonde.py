@@ -192,12 +192,12 @@ class FNO2d(nn.Module):
 
     def get_grid(self, shape, device):
         batchsize, size_x, size_y = shape[0], shape[2], shape[1]
-        gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
-        # gridx = lon
-        gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
-        gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
-        # gridy = lat
-        gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
+        # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
+        gridx = lon
+        # gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
+        # gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
+        gridy = lat
+        # gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
 
 ################################################################
