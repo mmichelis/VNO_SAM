@@ -208,13 +208,13 @@ class FNO2d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 16
+modes = 32
 width = 40
 
 batch_size = 2
 batch_size2 = batch_size
 
-epochs = 30
+epochs = 500
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
