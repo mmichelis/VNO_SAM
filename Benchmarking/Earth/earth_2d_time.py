@@ -283,6 +283,7 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
+            pdb.set_trace()
             y = yy[:,left:right, bottom:top, t:t + step]
 
             im = model(xx)[:,left:right, bottom:top,:]
