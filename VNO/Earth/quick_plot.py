@@ -40,5 +40,5 @@ def init():
     return cont
 
 ani = animation.FuncAnimation(fig, update, frames=12, interval = 100, init_func=init)
-ani.save(file[:-4]+'.mp4', writer=animation.FFMpegWriter())
+ani.save(file[:-4]+'.gif', writer=animation.FFMpegWriter())
 
