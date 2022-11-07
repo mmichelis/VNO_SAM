@@ -11,7 +11,7 @@ class vft1d:
     def __init__(self, positions, modes):
         self.positions = positions
         self.modes = modes
-        self.l = positions.shape[0]
+        self.l = positions.shape[1]
 
         self.Vt, self.Vc = self.make_matrix()
 
