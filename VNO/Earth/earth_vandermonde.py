@@ -255,67 +255,67 @@ test_a, test_u, train_a, train_u = load_data()
 # shape at this point: [ntrain/ntest, 12, 361, 576]
 
 # the data must be centered longitudinally so that it stays on a lattice when doubled
-# def center_longitutude(data, center):
-#     lon_pts = data.shape[-1]
-#     return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
-# center_lon = int(188 * 1.6)
-# test_a = center_longitutude(test_a, center_lon)
-# test_u = center_longitutude(test_u, center_lon)
-# train_a = center_longitutude(train_a, center_lon)
-# train_u = center_longitutude(train_u, center_lon)
+def center_longitutude(data, center):
+    lon_pts = data.shape[-1]
+    return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
+center_lon = int(188 * 1.6)
+test_a = center_longitutude(test_a, center_lon)
+test_u = center_longitutude(test_u, center_lon)
+train_a = center_longitutude(train_a, center_lon)
+train_u = center_longitutude(train_u, center_lon)
 
 # define the lattice of points to select for the simulation
-# def define_positions(center_lat, growth, offset):
-#     # the bottom and left boundaries are both at 0, but not the top or right boundaries
-#     top = 180 * 2
-#     right = 360 * 1.6
+def define_positions(center_lat, growth, offset):
+    # the bottom and left boundaries are both at 0, but not the top or right boundaries
+    top = 180 * 2
+    right = 360 * 1.6
 
-#     # the data should already be centered longitudinally
-#     center_lon = right//2
+    # the data should already be centered longitudinally
+    center_lon = right//2
 
-#     # define the bounds of the equispaced region
-#     side_s = center_lat - offset
-#     side_n = center_lat + offset
-#     side_w = center_lon - offset
-#     side_e = center_lon + offset
+    # define the bounds of the equispaced region
+    side_s = center_lat - offset
+    side_n = center_lat + offset
+    side_w = center_lon - offset
+    side_e = center_lon + offset
 
-#     # calculate the number of points in each side of the nonequispaced region
-#     num_s = np.floor(side_s**(1/growth))+1
-#     num_n = np.floor((top - side_n)**(1/growth))+1
-#     num_w = np.floor(side_w**(1/growth))
-#     num_e = num_w #np.floor((right - side_e)**(1/growth))
+    # calculate the number of points in each side of the nonequispaced region
+    num_s = np.floor(side_s**(1/growth))+1
+    num_n = np.floor((top - side_n)**(1/growth))+1
+    num_w = np.floor(side_w**(1/growth))
+    num_e = num_w #np.floor((right - side_e)**(1/growth))
 
-#     # define the positions of points to each side
-#     points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
-#     points_n = side_n + torch.round(torch.arange(num_n)**growth)
-#     points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
-#     points_e = side_e + torch.round(torch.arange(num_e)**growth)
+    # define the positions of points to each side
+    points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
+    points_n = side_n + torch.round(torch.arange(num_n)**growth)
+    points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
+    points_e = side_e + torch.round(torch.arange(num_e)**growth)
 
-#     # print(f"east {num_e} west {num_w}")
+    # print(f"east {num_e} west {num_w}")
 
-#     # positions with equispaced distributions
-#     central_lat = torch.arange(side_s+1, side_n)
-#     central_lon = torch.arange(side_w+1, side_e)
+    # positions with equispaced distributions
+    central_lat = torch.arange(side_s+1, side_n)
+    central_lon = torch.arange(side_w+1, side_e)
 
-#     # fix positions together
-#     lat = torch.cat((points_s, central_lat, points_n))
-#     lon = torch.cat((points_w, central_lon, points_e))
-#     return lon.int(), lat.int()
-# center_lat = 137 * 2
-# growth = 1.0
-# lon, lat = define_positions(center_lat, growth, 20)
+    # fix positions together
+    lat = torch.cat((points_s, central_lat, points_n))
+    lon = torch.cat((points_w, central_lon, points_e))
+    return lon.int(), lat.int()
+center_lat = 137 * 2
+growth = 1.0
+lon, lat = define_positions(center_lat, growth, 20)
 
 
 # select the positions from the desired distribution and double accordingly
-# def double_data(data, lon, lat):
-#     sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
-#     double_data = sparse_data
-#     # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
-#     return double_data
-# test_a = double_data(test_a, lon, lat)
-# test_u = double_data(test_u, lon, lat)
-# train_a = double_data(train_a, lon, lat)
-# train_u = double_data(train_u, lon, lat)
+def double_data(data, lon, lat):
+    sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
+    double_data = sparse_data
+    # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+    return double_data
+test_a = double_data(test_a, lon, lat)
+test_u = double_data(test_u, lon, lat)
+train_a = double_data(train_a, lon, lat)
+train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
 
 # lon = lon * np.pi / 180 / 1.6
@@ -336,9 +336,9 @@ S_x = train_u.shape[-1]
 S_y = train_u.shape[-2]
 assert (T == train_u.shape[1])
 
-a_normalizer = UnitGaussianNormalizer(train_a)
-train_a = a_normalizer.encode(train_a)
-test_a = a_normalizer.encode(test_a)
+# a_normalizer = UnitGaussianNormalizer(train_a)
+# train_a = a_normalizer.encode(train_a)
+# test_a = a_normalizer.encode(test_a)
 # pdb.set_trace()
 
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
@@ -348,9 +348,6 @@ test_a = torch.swapaxes(torch.swapaxes(test_a, 1, 3), 1, 2)
 test_u = torch.swapaxes(torch.swapaxes(test_u, 1, 3), 1, 2)
 # shape at this point: [ntrain/ntest, 123, 194, 12]
 
-# normalizer must come after reshape
-y_normalizer = UnitGaussianNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
