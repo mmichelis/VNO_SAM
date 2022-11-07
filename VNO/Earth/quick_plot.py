@@ -18,23 +18,23 @@ lon = reader.read_field('lon')
 # lat = np.arange(prediction.shape[2])
 import pdb
 pdb.set_trace()
-lat_, lon_ = np.meshgrid(lat, lon)
+lon_, lat_ = np.meshgrid(lon, lat)
 
-plt.contourf(lat_, lon_, prediction[0,:,:,0], 60, cmap='RdYlBu_r')
+plt.contourf(lon_, lat_, prediction[0,:,:,0], 60, cmap='RdYlBu_r')
 plt.show()
 
 
 # save an animation
 
 fig = plt.figure()
-cont = plt.contourf(lat_, lon_, prediction[0,:,:,0],  60, cmap='RdYlBu_r')
+cont = plt.contourf(lon_, lat_, prediction[0,:,:,0],  60, cmap='RdYlBu_r')
 ax = plt.axes(xlim=(-180, 180), ylim=(-90, 90))
 
 def update(frame_num):
     frame_num = int(frame_num)
     fig.clf()
     u = prediction[0,:,:,frame_num]
-    cont = plt.contourf(lat_, lon_, u, 60, cmap='RdYlBu_r')
+    cont = plt.contourf(lon_, lat_, u, 60, cmap='RdYlBu_r')
     plt.title('t=%i:' % frame_num)
     return cont
     
