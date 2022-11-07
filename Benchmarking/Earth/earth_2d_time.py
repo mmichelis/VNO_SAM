@@ -315,7 +315,7 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                y = yy[:,left:right, bottom:top, t:t + step]
+                y = yy[..., t:t + step]
 
                 im = model(xx)[:,left:right, bottom:top,:]
                 
