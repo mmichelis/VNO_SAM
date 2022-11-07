@@ -52,7 +52,7 @@ class SpectralConv2d_fast(nn.Module):
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
 
-        self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
+        # self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
 
     def internal_vandermonde(self):
         
@@ -88,12 +88,10 @@ class SpectralConv2d_fast(nn.Module):
         #             , 2, 3)
         #         , self.Vy)
         # x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
-        x_ft = torch.fft.rfft2(x)
-
-        out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
-        out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         
-        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+        # out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
+        # out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+                
         # x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
         
         # x = torch.matmul(
@@ -104,6 +102,19 @@ class SpectralConv2d_fast(nn.Module):
         #         2, 3),
         #     self.Vy_ct).real
         # x = torch.transpose(x, 2, 3)
+
+
+        x_ft = torch.fft.rfft2(x)
+        # Multiply relevant Fourier modes
+        out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
+        out_ft[:, :, :self.modes1, :self.modes2] = \
+            self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        out_ft[:, :, -self.modes1:, :self.modes2] = \
+            self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+
+
+
         return x
 
 class FNO2d(nn.Module):
@@ -181,11 +192,11 @@ class FNO2d(nn.Module):
 
     def get_grid(self, shape, device):
         batchsize, size_x, size_y = shape[0], shape[2], shape[1]
-        # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
-        gridx = lon
+        gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
+        # gridx = lon
         gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
-        # gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
-        gridy = lat
+        gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
+        # gridy = lat
         gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
 
@@ -198,10 +209,10 @@ ntest = 100
 modes = 8
 width = 32
 
-batch_size = 1
+batch_size = 2
 batch_size2 = batch_size
 
-epochs = 15
+epochs = 3
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -244,71 +255,71 @@ test_a, test_u, train_a, train_u = load_data()
 # shape at this point: [ntrain/ntest, 12, 361, 576]
 
 # the data must be centered longitudinally so that it stays on a lattice when doubled
-def center_longitutude(data, center):
-    lon_pts = data.shape[-1]
-    return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
-center_lon = int(188 * 1.6)
-test_a = center_longitutude(test_a, center_lon)
-test_u = center_longitutude(test_u, center_lon)
-train_a = center_longitutude(train_a, center_lon)
-train_u = center_longitutude(train_u, center_lon)
+# def center_longitutude(data, center):
+#     lon_pts = data.shape[-1]
+#     return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
+# center_lon = int(188 * 1.6)
+# test_a = center_longitutude(test_a, center_lon)
+# test_u = center_longitutude(test_u, center_lon)
+# train_a = center_longitutude(train_a, center_lon)
+# train_u = center_longitutude(train_u, center_lon)
 
 # define the lattice of points to select for the simulation
-def define_positions(center_lat, growth, offset):
-    # the bottom and left boundaries are both at 0, but not the top or right boundaries
-    top = 180 * 2
-    right = 360 * 1.6
+# def define_positions(center_lat, growth, offset):
+#     # the bottom and left boundaries are both at 0, but not the top or right boundaries
+#     top = 180 * 2
+#     right = 360 * 1.6
 
-    # the data should already be centered longitudinally
-    center_lon = right//2
+#     # the data should already be centered longitudinally
+#     center_lon = right//2
 
-    # define the bounds of the equispaced region
-    side_s = center_lat - offset
-    side_n = center_lat + offset
-    side_w = center_lon - offset
-    side_e = center_lon + offset
+#     # define the bounds of the equispaced region
+#     side_s = center_lat - offset
+#     side_n = center_lat + offset
+#     side_w = center_lon - offset
+#     side_e = center_lon + offset
 
-    # calculate the number of points in each side of the nonequispaced region
-    num_s = np.floor(side_s**(1/growth))+1
-    num_n = np.floor((top - side_n)**(1/growth))+1
-    num_w = np.floor(side_w**(1/growth))
-    num_e = num_w #np.floor((right - side_e)**(1/growth))
+#     # calculate the number of points in each side of the nonequispaced region
+#     num_s = np.floor(side_s**(1/growth))+1
+#     num_n = np.floor((top - side_n)**(1/growth))+1
+#     num_w = np.floor(side_w**(1/growth))
+#     num_e = num_w #np.floor((right - side_e)**(1/growth))
 
-    # define the positions of points to each side
-    points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
-    points_n = side_n + torch.round(torch.arange(num_n)**growth)
-    points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
-    points_e = side_e + torch.round(torch.arange(num_e)**growth)
+#     # define the positions of points to each side
+#     points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
+#     points_n = side_n + torch.round(torch.arange(num_n)**growth)
+#     points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
+#     points_e = side_e + torch.round(torch.arange(num_e)**growth)
 
-    # print(f"east {num_e} west {num_w}")
+#     # print(f"east {num_e} west {num_w}")
 
-    # positions with equispaced distributions
-    central_lat = torch.arange(side_s+1, side_n)
-    central_lon = torch.arange(side_w+1, side_e)
+#     # positions with equispaced distributions
+#     central_lat = torch.arange(side_s+1, side_n)
+#     central_lon = torch.arange(side_w+1, side_e)
 
-    # fix positions together
-    lat = torch.cat((points_s, central_lat, points_n))
-    lon = torch.cat((points_w, central_lon, points_e))
-    return lon.int(), lat.int()
-center_lat = 137 * 2
-growth = 1.0
-lon, lat = define_positions(center_lat, growth, 20)
+#     # fix positions together
+#     lat = torch.cat((points_s, central_lat, points_n))
+#     lon = torch.cat((points_w, central_lon, points_e))
+#     return lon.int(), lat.int()
+# center_lat = 137 * 2
+# growth = 1.0
+# lon, lat = define_positions(center_lat, growth, 20)
 
 
 # select the positions from the desired distribution and double accordingly
-def double_data(data, lon, lat):
-    sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
-    double_data = sparse_data
-    # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
-    return double_data
-test_a = double_data(test_a, lon, lat)
-test_u = double_data(test_u, lon, lat)
-train_a = double_data(train_a, lon, lat)
-train_u = double_data(train_u, lon, lat)
+# def double_data(data, lon, lat):
+#     sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
+#     double_data = sparse_data
+#     # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+#     return double_data
+# test_a = double_data(test_a, lon, lat)
+# test_u = double_data(test_u, lon, lat)
+# train_a = double_data(train_a, lon, lat)
+# train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
 
-lon = lon * np.pi / 180 / 1.6
-lat = np.pi - lat * np.pi / 180 / 2
+# lon = lon * np.pi / 180 / 1.6
+# lat = np.pi - lat * np.pi / 180 / 2
 # lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
 # lat_, lon_ = torch.meshgrid(lat, lon)
 # plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
@@ -338,8 +349,8 @@ test_u = torch.swapaxes(torch.swapaxes(test_u, 1, 3), 1, 2)
 # shape at this point: [ntrain/ntest, 123, 194, 12]
 
 # normalizer must come after reshape
-y_normalizer = UnitGaussianNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
+# y_normalizer = UnitGaussianNormalizer(train_u)
+# train_u = y_normalizer.encode(train_u)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -353,8 +364,6 @@ device = torch.device('cuda')
 ################################################################
 # training and evaluation
 ################################################################
-training_history = open('./training_history/2d_vandermonde.txt', 'w')
-training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 model = FNO2d(modes, modes, width).cuda()
 
@@ -364,6 +373,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
+training_history = open('./training_history/2d_vandermonde.txt', 'w')
+training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 for ep in range(epochs):
     model.train()
@@ -456,7 +467,7 @@ with torch.no_grad():
         xx = xx.to(device)
         yy = yy.to(device)
         
-        full_pred = model(xx)
+        # full_pred = model(xx)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
             im = model(xx)
@@ -472,10 +483,13 @@ with torch.no_grad():
 
         print(index, loss)
         index = index + 1
-        full_pred = torch.cat((full_pred, pred), -1)
+
+        # full_pred = torch.cat((full_pred, pred), -1)
+        
         prediction_history.write(str(loss / T)+'\n')
 prediction_history.close()
 
-# ll: save as .txt instead of .mat
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+
+# only save one prediction to keep space low
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
 
