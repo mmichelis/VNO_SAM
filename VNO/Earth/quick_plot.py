@@ -24,7 +24,7 @@ plt.show()
 # save an animation
 
 fig = plt.figure()
-cont = plt.contourf(lat_, lon_, prediction[:,:,0],  60, cmap='RdYlBu_r')
+cont = plt.contourf(lat_, lon_, prediction[0,:,:,0],  60, cmap='RdYlBu_r')
 ax = plt.axes(xlim=(-180, 180), ylim=(-90, 90))
 
 def update(frame_num):
