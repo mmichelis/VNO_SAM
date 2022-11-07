@@ -82,11 +82,11 @@ class SpectralConv2d_fast(nn.Module):
         batchsize = x.shape[0]
         # pdb.set_trace()
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        x_ft = torch.matmul(
-                    torch.transpose(
-                        torch.matmul(x.cfloat(), self.Vx)
-                    , 2, 3)
-                , self.Vy)
+        # x_ft = torch.matmul(
+        #             torch.transpose(
+        #                 torch.matmul(x.cfloat(), self.Vx)
+        #             , 2, 3)
+        #         , self.Vy)
         x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
         
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
@@ -94,14 +94,14 @@ class SpectralConv2d_fast(nn.Module):
                 
         x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
         
-        x = torch.matmul(
-                torch.transpose(
-                    torch.matmul(
-                        torch.transpose(out_ft, 2, 3),
-                    self.Vx_ct),
-                2, 3),
-            self.Vy_ct).real
-        x = torch.transpose(x, 2, 3)
+        # x = torch.matmul(
+        #         torch.transpose(
+        #             torch.matmul(
+        #                 torch.transpose(out_ft, 2, 3),
+        #             self.Vx_ct),
+        #         2, 3),
+        #     self.Vy_ct).real
+        # x = torch.transpose(x, 2, 3)
 
 
         # x_ft = torch.fft.rfft2(x)
@@ -209,7 +209,7 @@ ntest = 100
 modes = 16
 width = 40
 
-batch_size = 2
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 3
