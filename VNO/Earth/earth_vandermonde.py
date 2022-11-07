@@ -206,8 +206,8 @@ class FNO2d(nn.Module):
 ntrain = 100
 ntest = 100
 
-modes = 8
-width = 32
+modes = 16
+width = 40
 
 batch_size = 2
 batch_size2 = batch_size
@@ -349,8 +349,8 @@ test_u = torch.swapaxes(torch.swapaxes(test_u, 1, 3), 1, 2)
 # shape at this point: [ntrain/ntest, 123, 194, 12]
 
 # normalizer must come after reshape
-# y_normalizer = UnitGaussianNormalizer(train_u)
-# train_u = y_normalizer.encode(train_u)
+y_normalizer = UnitGaussianNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
