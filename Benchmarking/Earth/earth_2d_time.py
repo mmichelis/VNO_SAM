@@ -174,7 +174,7 @@ width = 40
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 10
+epochs = 3
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -384,6 +384,6 @@ with torch.no_grad():
 
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
-print(full_pred.shape)
+print(pred.shape)
 
 scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
