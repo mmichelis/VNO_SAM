@@ -71,7 +71,7 @@ class SpectralConv2d_fast(nn.Module):
 
 
         # return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
-        return torch.transpose(V_x, 0, 1), torch.conj(V_x), V_y, torch.conj(torch.transpose(V_y, 0, 1))
+        return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
 
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -80,28 +80,30 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         batchsize = x.shape[0]
-        # pdb.set_trace()
+        pdb.set_trace()
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        # x_ft = torch.matmul(
-        #             torch.transpose(
-        #                 torch.matmul(x.cfloat(), self.Vx)
-        #             , 2, 3)
-        #         , self.Vy)
-        x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
+        x_ft = torch.transpose(
+                torch.matmul(
+                    torch.transpose(
+                        torch.matmul(x.cfloat(), self.Vx)
+                    , 2, 3)
+                , self.Vy)
+                , 2,3)
+        # x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
         
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
                 
-        x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
+        # x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
         
-        # x = torch.matmul(
-        #         torch.transpose(
-        #             torch.matmul(
-        #                 torch.transpose(out_ft, 2, 3),
-        #             self.Vx_ct),
-        #         2, 3),
-        #     self.Vy_ct).real
-        # x = torch.transpose(x, 2, 3)
+        x = torch.transpose(torch.matmul(
+                torch.transpose(
+                    torch.matmul(
+                        out_ft,
+                    self.Vx_ct),
+                2, 3),
+            self.Vy_ct),
+            2, 3).real
 
 
         # x_ft = torch.fft.rfft2(x)
