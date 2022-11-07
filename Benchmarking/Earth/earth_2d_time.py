@@ -197,6 +197,13 @@ step = 1
 ################################################################
 # load data
 ################################################################
+center_lon = int(188 * 1.6)
+center_lat = 137 * 2
+offset = 20
+left = center_lon - offset
+right = center_lon + offset
+bottom = center_lat - offset
+top = center_lat + offset
 
 TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
 reader = MatReader(TEST_PATH)

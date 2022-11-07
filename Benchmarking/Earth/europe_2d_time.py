@@ -193,7 +193,7 @@ step = 1
 ################################################################
 # load data
 ################################################################
-center_lon = 188 * 1.6
+center_lon = int(188 * 1.6)
 center_lat = 137 * 2
 offset = 20
 left = center_lon - offset
@@ -201,6 +201,7 @@ right = center_lon + offset
 bottom = center_lat - offset
 top = center_lat + offset
 pdb.set_trace()
+
 TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
 reader = MatReader(TEST_PATH)
 test_a = reader.read_field(DAT)[-ntest:,:T_in,bottom:top, left:right]
@@ -382,4 +383,4 @@ with torch.no_grad():
     prediction_history.close()
 print(full_pred.shape)
 
-scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
