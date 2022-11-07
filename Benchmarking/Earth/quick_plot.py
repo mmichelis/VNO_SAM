@@ -15,7 +15,7 @@ lon = np.arange(prediction.shape[0])
 lat = np.arange(prediction.shape[1])
 
 lon_, lat_ = np.meshgrid(lat, lon)
-
+pdb.set_trace()
 plt.contourf(lat_, lon_, prediction[:,:,0], 60, cmap='RdYlBu_r')
 plt.show()
 
