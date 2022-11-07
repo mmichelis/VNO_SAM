@@ -10,7 +10,7 @@ sys.path.append('../../')
 from utilities3 import *
 file = input('file name: ')
 reader = MatReader(f'./predictions/{file}')
-prediction = reader.read_field('pred')
+prediction = reader.read_field('pred')[0,...]
 print(prediction.shape)
 lon = np.arange(prediction.shape[0])
 lat = np.arange(prediction.shape[1])
