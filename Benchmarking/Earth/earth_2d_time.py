@@ -283,9 +283,9 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
-            y = yy[..., t:t + step]
+            y = yy[:,left:right, bottom:top, t:t + step]
 
-            im = model(xx)
+            im = model(xx)[:,left:right, bottom:top,:]
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -314,9 +314,9 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                y = yy[..., t:t + step]
+                y = yy[:,left:right, bottom:top, t:t + step]
 
-                im = model(xx)
+                im = model(xx)[:,left:right, bottom:top,:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -364,9 +364,9 @@ with torch.no_grad():
         yy = yy.to(device)
         
         for t in range(0, T, step):
-            y = yy[..., t:t + step]
+            y = yy[:,left:right, bottom:top, t:t + step]
 
-            im = model(xx)
+            im = model(xx)[:,left:right, bottom:top,:]
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -386,4 +386,4 @@ with torch.no_grad():
     prediction_history.close()
 print(full_pred.shape)
 
-scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
