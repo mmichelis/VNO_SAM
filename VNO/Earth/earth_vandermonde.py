@@ -52,7 +52,7 @@ class SpectralConv2d_fast(nn.Module):
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
 
-        # self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
+        self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
 
     def internal_vandermonde(self):
         
@@ -82,36 +82,36 @@ class SpectralConv2d_fast(nn.Module):
         batchsize = x.shape[0]
         # pdb.set_trace()
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        # x_ft = torch.matmul(
-        #             torch.transpose(
-        #                 torch.matmul(x.cfloat(), self.Vx)
-        #             , 2, 3)
-        #         , self.Vy)
-        # x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
+        x_ft = torch.matmul(
+                    torch.transpose(
+                        torch.matmul(x.cfloat(), self.Vx)
+                    , 2, 3)
+                , self.Vy)
+        x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
         
-        # out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
-        # out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
+        out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
                 
-        # x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
+        x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
         
-        # x = torch.matmul(
-        #         torch.transpose(
-        #             torch.matmul(
-        #                 torch.transpose(out_ft, 2, 3),
-        #             self.Vx_ct),
-        #         2, 3),
-        #     self.Vy_ct).real
-        # x = torch.transpose(x, 2, 3)
+        x = torch.matmul(
+                torch.transpose(
+                    torch.matmul(
+                        torch.transpose(out_ft, 2, 3),
+                    self.Vx_ct),
+                2, 3),
+            self.Vy_ct).real
+        x = torch.transpose(x, 2, 3)
 
 
-        x_ft = torch.fft.rfft2(x)
-        # Multiply relevant Fourier modes
-        out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-        out_ft[:, :, :self.modes1, :self.modes2] = \
-            self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        out_ft[:, :, -self.modes1:, :self.modes2] = \
-            self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
-        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+        # x_ft = torch.fft.rfft2(x)
+        # # Multiply relevant Fourier modes
+        # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
+        # out_ft[:, :, :self.modes1, :self.modes2] = \
+        #     self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        # out_ft[:, :, -self.modes1:, :self.modes2] = \
+        #     self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        # x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
 
 
 
@@ -318,9 +318,9 @@ train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
 
-# lon = lon * np.pi / 180 / 1.6
-# lat = np.pi - lat * np.pi / 180 / 2
-# lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
+lon = lon * np.pi / 180 / 1.6
+lat = np.pi - lat * np.pi / 180 / 2
+lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
 # lat_, lon_ = torch.meshgrid(lat, lon)
 # plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
 # plt.scatter(lon_, lat_, marker='.')
