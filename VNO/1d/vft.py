@@ -13,7 +13,7 @@ class vft1d:
         self.modes = modes
         self.l = positions.shape[0]
 
-        self.Vt, self.Vc = make_matrix()
+        self.Vt, self.Vc = self.make_matrix()
 
     def make_matrix(self):
         V = torch.zeros([self.modes1, self.l], dtype=torch.cfloat).cuda()
