@@ -310,7 +310,7 @@ lon, lat = define_positions(center_lat, growth, 20)
 def double_data(data, lon, lat):
     sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
     double_data = sparse_data
-    # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+    double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
     return double_data
 test_a = double_data(test_a, lon, lat)
 test_u = double_data(test_u, lon, lat)
@@ -488,5 +488,5 @@ prediction_history.close()
 
 
 # only save one prediction to keep space low
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy(), 'lat': lat.cpu().nupy(), 'lon': lon.cpu().nupy()})
 
