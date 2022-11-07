@@ -16,6 +16,7 @@ class vft1d:
         self.Vt, self.Vc = self.make_matrix()
 
     def make_matrix(self):
+        pdb.set_trace()
         V = torch.zeros([self.modes, self.l], dtype=torch.cfloat).cuda()
         for row in range(self.modes):
              for col in range(self.l):
