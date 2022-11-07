@@ -174,7 +174,7 @@ width = 40
 batch_size = 2
 batch_size2 = batch_size
 
-epochs = 3
+epochs = 10
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -212,7 +212,7 @@ reader = MatReader(TRAIN_PATH)
 train_a = reader.read_field(DAT)[:ntrain,:T_in,bottom:top, left:right]
 train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,bottom:top, left:right]
 
-for NUM in range(2, 3):
+for NUM in range(2, 5):
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,bottom:top, left:right]))
