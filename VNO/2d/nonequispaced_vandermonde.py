@@ -176,8 +176,8 @@ class FNO2d(nn.Module):
 data_dist = 'conexp_conexp'
 
 
-TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
-TEST_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
+# TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
+TRAIN_PATH = '/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4.mat'
 
 ntrain = 800
 ntest = 100
