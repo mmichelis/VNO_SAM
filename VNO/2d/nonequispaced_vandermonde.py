@@ -221,7 +221,11 @@ def load_data():
     test_a = reader.read_field('vorticity')[:,:T_in,:,:]
     test_u = reader.read_field('vorticity')[:,T_in:T+T_in,:,:]
 
-    for NUM in range(1, 16):
+    TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{1}.mat'
+    reader = MatReader(TRAIN_PATH)
+    train_a = reader.read_field('vorticity')[:,:T_in,:,:]
+    train_u = reader.read_field('vorticity')[:,T_in:T+T_in,:,:]
+    for NUM in range(2, 16):
         TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:T_in,:,:]))
