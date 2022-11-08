@@ -381,13 +381,13 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 prediction_history = open('./training_history/'+data_dist+'_test_loss.txt', 'w')
 # ll: adding this to put y_norm on cuda
 # y_normalizer.cuda()
+full_pred = torch.zeros_like(test_u)
 with torch.no_grad():
     for xx, yy in test_loader:
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
         
-        full_pred = model(xx)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
             im = model(xx)
@@ -402,8 +402,8 @@ with torch.no_grad():
         loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
 
         print(index, loss)
+        full_pred[index,...] = pred
         index = index + 1
-        full_pred = torch.cat((full_pred, pred), -1)
         prediction_history.write(str(loss / T)+'\n')
 prediction_history.close()
 

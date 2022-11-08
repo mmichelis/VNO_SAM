@@ -44,6 +44,7 @@ subsets = 16
 sub_len = num_samples//subsets
 
 vorticity_field = np.zeros((sub_len, num_points, num_points, num_timesteps))
+pdb.set_trace()
 for s in range(subsets):
     for index, sample in enumerate(range(s*sub_len, (s+1)*sub_len)):
         for time in range(num_timesteps):
