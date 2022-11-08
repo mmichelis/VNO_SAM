@@ -23,9 +23,9 @@ from timeit import default_timer
 
 import sys
 sys.path.append('../../')
+from vft import *
 from Adam import Adam
 from utilities3 import *
-from vft import *
 import pdb
 
 torch.manual_seed(0)
