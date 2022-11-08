@@ -23,6 +23,7 @@ from timeit import default_timer
 
 import sys
 sys.path.append('../../')
+from vft import vft2d
 from Adam import Adam
 from utilities3 import *
 import pdb
@@ -52,24 +53,6 @@ class SpectralConv2d_fast(nn.Module):
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
 
-        self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
-
-    def internal_vandermonde(self):
-        
-        V_x = torch.zeros([self.modes1, S_x], dtype=torch.cfloat).cuda()
-        for row in range(self.modes1):
-             for col in range(S_x):
-                V_x[row, col] = np.exp(-1j * row *  pos_x[0, col]) 
-        V_x = torch.divide(V_x, np.sqrt(S_x))
-
-        V_y = torch.zeros([self.modes1, S_y], dtype=torch.cfloat).cuda()
-        for row in range(self.modes1):
-             for col in range(S_y):
-                V_y[row, col] = np.exp(-1j * row *  pos_y[0, col]) 
-        V_y = torch.divide(V_y, np.sqrt(S_y))
-
-
-        return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
 
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -79,35 +62,16 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         batchsize = x.shape[0]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        # x_ft = torch.fft.rfft2(x)
-        # pdb.set_trace()
-        x_ft = torch.matmul(
-                    torch.transpose(
-                        torch.matmul(x.cfloat(), self.Vx)
-                    , 2, 3)
-                , self.Vy)
+        x_ft = transformer.forward(x.cfloat())
 
         # Multiply relevant Fourier modes
-        # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-        # out_ft[:, :, :self.modes1, :self.modes2] = \
-        #     self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # out_ft[:, :, -self.modes1:, :self.modes2] = \
-        #     self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft, self.weights1)
-        # out_ft
+
 
         #Return to physical space
-        # x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+        x = transformer.inverse(out_ft).real
 
-        x = torch.matmul(
-                torch.transpose(
-                    torch.matmul(
-                        torch.transpose(out_ft, 2, 3),
-                    self.Vx_ct),
-                2, 3),
-            self.Vy_ct).real
-        x = torch.transpose(x, 2, 3)
         return x
 
 class FNO2d(nn.Module):
@@ -197,10 +161,10 @@ class FNO2d(nn.Module):
     def get_grid(self, shape, device):
         batchsize, size_x, size_y = shape[0], shape[2], shape[1]
         # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
-        gridx = pos_x
+        gridx = x_pos
         gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
         # gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
-        gridy = pos_y
+        gridy = y_pos
         gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
 
@@ -215,7 +179,7 @@ data_dist = 'conexp_conexp'
 TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 TEST_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 
-ntrain = 1000
+ntrain = 800
 ntest = 100
 
 modes = 12
@@ -247,22 +211,61 @@ step = 1
 ################################################################
 
 reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field('u')[:ntrain,::sub,::sub,:T_in]
-train_u = reader.read_field('u')[:ntrain,::sub,::sub,T_in:T+T_in]
+train_a = reader.read_field('u')[:ntrain,:,:,:T_in]
+train_u = reader.read_field('u')[:ntrain,:,:,T_in:T+T_in]
+test_a = reader.read_field('u')[-ntest:,:,:,:T_in]
+test_u = reader.read_field('u')[-ntest:,:,:,T_in:T+T_in]
 
-pos_x = reader.read_field('loc_x')
-pos_x = pos_x / pos_x[0,-1] * np.pi * 2
-pos_y = reader.read_field('loc_y')
-pos_y  = pos_y / pos_y[0,-1] * np.pi * 2
+# define the lattice of points to select for the simulation
+def define_positions(center_y, growth, offset):
+    # the bottom and left boundaries are both at 0, but not the top or right boundaries
+    top = 512
+    right = 512
 
-reader = MatReader(TEST_PATH)
-test_a = reader.read_field('u')[-ntest:,::sub,::sub,:T_in]
-test_u = reader.read_field('u')[-ntest:,::sub,::sub,T_in:T+T_in]
+    # the data should already be centered longitudinally
+    center_x = right//2
+
+    # define the bounds of the equispaced region
+    side_s = center_y - offset
+    side_n = center_y + offset
+    side_w = center_x - offset
+    side_e = center_x + offset
+
+    # calculate the number of points in each side of the nonequispaced region
+    num_s = np.floor(side_s**(1/growth))+1
+    num_n = np.floor((top - side_n)**(1/growth))+1
+    num_w = np.floor(side_w**(1/growth))
+    num_e = num_w #np.floor((right - side_e)**(1/growth))
+
+    # define the positions of points to each side
+    points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
+    points_n = side_n + torch.round(torch.arange(num_n)**growth)
+    points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
+    points_e = side_e + torch.round(torch.arange(num_e)**growth)
+
+    # print(f"east {num_e} west {num_w}")
+
+    # positions with equispaced distributions
+    central_lat = torch.arange(side_s+1, side_n)
+    central_lon = torch.arange(side_w+1, side_e)
+
+    # fix positions together
+    lat = torch.cat((points_s, central_lat, points_n))
+    lon = torch.cat((points_w, central_lon, points_e))
+    return lon.int(), lat.int()
+center_y = 512//3
+growth = 1.5
+x_pos, y_pos = define_positions(center_y, growth, 20)
+
+train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
+train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
+test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
+test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
 
 print(train_u.shape)
 print(test_u.shape)
-S_x = train_u.shape[-2]
-S_y = train_u.shape[-3]
+S_x = train_u.shape[1]
+S_y = train_u.shape[2]
 assert (T == train_u.shape[-1])
 
 train_a = train_a.reshape(ntrain,S_y,S_x,T_in)
@@ -271,9 +274,6 @@ test_a = test_a.reshape(ntest,S_y,S_x,T_in)
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
-# ll: adding y_normalizer to fix size discrepency
-# y_normalizer = UnitGaussianNormalizer(test_u)
-
 ################################################################
 # training and evaluation
 ################################################################
@@ -281,6 +281,7 @@ training_history = open('./training_history/'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 model = FNO2d(modes, modes, width).cuda()
+transformer = vft2d(x_pos, y_pos, modes, modes)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
