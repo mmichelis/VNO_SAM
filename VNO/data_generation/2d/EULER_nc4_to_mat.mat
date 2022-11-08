@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt
 # For Euler
 ##########################################################
 file_path = '/cluster/scratch/llingsch/NS/bm_H50_N512/'
-num_samples = 2
+num_samples = 1024
 num_timesteps = 21
 num_points = 512
 
