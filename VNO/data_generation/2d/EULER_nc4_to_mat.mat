@@ -45,7 +45,7 @@ sub_len = num_samples//subsets
 
 vorticity_field = np.zeros((sub_len, num_points, num_points, num_timesteps))
 for s in range(subsets):
-    for sample in range(s*sub_len, (s+1)*sub_len):
+    for index, sample in enumerate(range(s*sub_len, (s+1)*sub_len)):
         for time in range(num_timesteps):
             name = f'sample_{sample}_time_{time}.nc'
             ds = nc.Dataset(file_path + name)
@@ -62,7 +62,7 @@ for s in range(subsets):
             jacobian = np.stack(partials).reshape(*(j := (dims,) * 2), *shape)
             curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
             curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
-            vorticity_field[sample, :,:, time] = curl
+            vorticity_field[index, :,:, time] = curl
 
     scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s}.mat', mdict={'vorticity':vorticity_field})
 ##########################################################
