@@ -53,22 +53,22 @@ class SpectralConv2d_fast(nn.Module):
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
         self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
 
-        self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
+    #     self.Vx, self.Vx_ct, self.Vy, self.Vy_ct = self.internal_vandermonde()
 
-    def internal_vandermonde(self):
+    # def internal_vandermonde(self):
         
-        V_x = torch.zeros([self.modes1, S_x], dtype=torch.cfloat).cuda()
-        for row in range(self.modes1):
-             for col in range(S_x):
-                V_x[row, col] = np.exp(-1j * row *  lon[col]) 
-        V_x = torch.divide(V_x, np.sqrt(S_x))
+    #     V_x = torch.zeros([self.modes1, S_x], dtype=torch.cfloat).cuda()
+    #     for row in range(self.modes1):
+    #          for col in range(S_x):
+    #             V_x[row, col] = np.exp(-1j * row *  lon[col]) 
+    #     V_x = torch.divide(V_x, np.sqrt(S_x))
 
 
-        V_y = torch.zeros([self.modes1, S_y], dtype=torch.cfloat).cuda()
-        for row in range(self.modes1):
-             for col in range(S_y):
-                V_y[row, col] = np.exp(-1j * row *  lat[col]) 
-        V_y = torch.divide(V_y, np.sqrt(S_y))
+    #     V_y = torch.zeros([self.modes1, S_y], dtype=torch.cfloat).cuda()
+    #     for row in range(self.modes1):
+    #          for col in range(S_y):
+    #             V_y[row, col] = np.exp(-1j * row *  lat[col]) 
+    #     V_y = torch.divide(V_y, np.sqrt(S_y))
 
 
         # return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
@@ -91,13 +91,13 @@ class SpectralConv2d_fast(nn.Module):
         #         , self.Vy)
         #         , 2,3)
         # x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
-        x_ft = transformer.forward(x)
+        x_ft = transformer.forward(x.cfloat())
         
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
                 
         # x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
-        x = transformer.inverse(out_ft)
+        x = transformer.inverse(out_ft).real
         # x = torch.transpose(torch.matmul(
         #         torch.transpose(
         #             torch.matmul(
