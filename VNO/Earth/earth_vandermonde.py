@@ -25,7 +25,7 @@ import sys
 sys.path.append('../../')
 from Adam import Adam
 from utilities3 import *
-from vft import vft2d
+from vft import *
 import pdb
 
 torch.manual_seed(0)
