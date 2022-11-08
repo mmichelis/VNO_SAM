@@ -40,7 +40,7 @@ file_path = '/cluster/scratch/llingsch/NS/bm_H50_N512/'
 num_samples = 1024
 num_timesteps = 21
 num_points = 512
-subsets = 8
+subsets = 16
 sub_len = num_samples//subsets
 
 vorticity_field = np.zeros((sub_len, num_points, num_points, num_timesteps))
