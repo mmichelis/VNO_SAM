@@ -25,6 +25,7 @@ import sys
 sys.path.append('../../')
 from Adam import Adam
 from utilities3 import *
+from vft import vft2d
 import pdb
 
 torch.manual_seed(0)
@@ -82,28 +83,29 @@ class SpectralConv2d_fast(nn.Module):
         batchsize = x.shape[0]
 
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        x_ft = torch.transpose(
-                torch.matmul(
-                    torch.transpose(
-                        torch.matmul(x.cfloat(), self.Vx)
-                    , 2, 3)
-                , self.Vy)
-                , 2,3)
+        # x_ft = torch.transpose(
+        #         torch.matmul(
+        #             torch.transpose(
+        #                 torch.matmul(x.cfloat(), self.Vx)
+        #             , 2, 3)
+        #         , self.Vy)
+        #         , 2,3)
         # x_ft = torch.matmul(self.Vy, torch.matmul(x.cfloat(), self.Vx))
+        x_ft = transformer.forward(x)
         
         out_ft = torch.zeros(batchsize, self.out_channels,  self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
                 
         # x = torch.matmul(self.Vy_ct, torch.matmul(out_ft, self.Vx_ct)).real
-        
-        x = torch.transpose(torch.matmul(
-                torch.transpose(
-                    torch.matmul(
-                        out_ft,
-                    self.Vx_ct),
-                2, 3),
-            self.Vy_ct),
-            2, 3).real
+        x = transformer.inverse(out_ft)
+        # x = torch.transpose(torch.matmul(
+        #         torch.transpose(
+        #             torch.matmul(
+        #                 out_ft,
+        #             self.Vx_ct),
+        #         2, 3),
+        #     self.Vy_ct),
+        #     2, 3).real
 
 
         # x_ft = torch.fft.rfft2(x)
@@ -214,7 +216,7 @@ width = 40
 batch_size = 2
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 5
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -365,6 +367,7 @@ device = torch.device('cuda')
 ################################################################
 
 model = FNO2d(modes, modes, width).cuda()
+transformer = vft2d(lon, lat, modes, modes)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)

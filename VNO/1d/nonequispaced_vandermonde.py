@@ -20,13 +20,13 @@ from timeit import default_timer
 
 import sys
 sys.path.append('../../')
+from vft import *
 from utilities3 import *
 from Adam import Adam
 
 torch.manual_seed(0)
 np.random.seed(0)
 
-from vft import *
 
 ################################################################
 #  1d fourier layer
@@ -158,7 +158,7 @@ ntest = 200
 batch_size = 20
 learning_rate = 0.001
 
-epochs = 500
+epochs = 50
 step_size = 50
 gamma = 0.5
 
@@ -197,7 +197,7 @@ train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_trai
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x_test, y_test), batch_size=batch_size, shuffle=False)
 
 # model
-transformer = vft1d(p_data, modes)
+transformer = vft1d(p_data.reshape(s), modes)
 model = FNO1d(modes, width).cuda()
 print(count_params(model))
 
