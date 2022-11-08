@@ -235,6 +235,7 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 
 # define the lattice of points to select for the simulation
+pdb.set_trace()
 def define_positions(center_y, growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
     top = 512
