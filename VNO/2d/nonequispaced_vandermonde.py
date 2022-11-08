@@ -177,7 +177,7 @@ data_dist = 'conexp_conexp'
 
 
 # TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
-TRAIN_PATH = '/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4.mat'
+file_path = '/cluster/scratch/llingsch/NS/'
 
 ntrain = 800
 ntest = 100
@@ -210,11 +210,25 @@ step = 1
 # load data
 ################################################################
 
-reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field('u')[:ntrain,:,:,:T_in]
-train_u = reader.read_field('u')[:ntrain,:,:,T_in:T+T_in]
-test_a = reader.read_field('u')[-ntest:,:,:,:T_in]
-test_u = reader.read_field('u')[-ntest:,:,:,T_in:T+T_in]
+# reader = MatReader(TRAIN_PATH)
+# train_a = reader.read_field('u')[:ntrain,:,:,:T_in]
+# train_u = reader.read_field('u')[:ntrain,:,:,T_in:T+T_in]
+# test_a = reader.read_field('u')[-ntest:,:,:,:T_in]
+# test_u = reader.read_field('u')[-ntest:,:,:,T_in:T+T_in]
+def load_data():
+    TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
+    reader = MatReader(TRAIN_PATH)
+    test_a = reader.read_field('vorticity')[:,:T_in,:,:]
+    test_u = reader.read_field('vorticity')[:,T_in:T+T_in,:,:]
+
+    for NUM in range(1, 16):
+        TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field('vorticity')[:,T_in:T+T_in,:,:]))
+
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = load_data()
 
 # define the lattice of points to select for the simulation
 def define_positions(center_y, growth, offset):
@@ -390,4 +404,3 @@ prediction_history.close()
 
 # ll: save as .txt instead of .mat
 scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
-
