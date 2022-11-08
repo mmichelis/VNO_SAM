@@ -72,7 +72,7 @@ class SpectralConv2d_fast(nn.Module):
 
 
         # return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
-        return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
+        # return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
 
     # Complex multiplication
     def compl_mul2d(self, input, weights):
