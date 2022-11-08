@@ -45,7 +45,7 @@ vorticity_field = np.zeros((num_samples, num_points, num_points, num_timesteps))
 for sample in range(num_samples):
     for time in range(num_timesteps):
         name = f'sample_{sample}_time_{time}.nc'
-        ds = nc.Dataset(file_path + file_name)
+        ds = nc.Dataset(file_path + name)
 
         u = ds['u'][:].data
         v = ds['v'][:].data
