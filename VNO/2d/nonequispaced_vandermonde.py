@@ -262,14 +262,14 @@ def define_positions(growth, offset):
     points_e = side_e + torch.round(torch.arange(num_e)**growth)
 
     # positions with equispaced distributions
-    central_lat = torch.arange(side_s, side_n)
-    central_lon = torch.arange(side_w, side_e)
+    central_lat = torch.arange(side_s-1, side_n)
+    central_lon = torch.arange(side_w-1, side_e)
 
     # fix positions together
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
-growth = 1.1
+growth = 1.0
 x_pos, y_pos = define_positions(growth, 20)
 
 train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
