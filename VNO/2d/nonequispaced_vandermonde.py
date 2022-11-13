@@ -186,7 +186,7 @@ ntest = 100
 modes = 12
 width = 20
 
-batch_size = 3
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 5
@@ -365,7 +365,7 @@ for ep in range(epochs):
             # print(loss.item(), test_l2_full, ntest)
     t2 = default_timer()
     scheduler.step()
-    print(ep, t2 - t1, train_l2_step / ntrain / (T / step), train_l2_full / ntrain, test_l2_step / ntest / (T / step),
+    print(ep, t2 - t1, train_l2_step / ntrain / T, train_l2_full / ntrain, test_l2_step / ntest / T,
           test_l2_full / ntest)
     
     # print(f'epoch: {ep}, train loss: {train_l2_full / ntrain}, test loss: {test_l2_full / ntest}')
