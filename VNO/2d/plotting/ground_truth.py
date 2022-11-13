@@ -11,7 +11,7 @@ from utilities3 import *
 
 import numpy as np
 import pdb
-pdb.set_trace()
+
 
 # read in the prediction
 path_pred = '../predictions/'
@@ -21,8 +21,8 @@ DATA_PATH_TRAIN = path_pred + pred_file
 pred_reader = MatReader(DATA_PATH_TRAIN)
 
 # create grid
-pos_x = pred_reader.read_field('x_pos')
-pos_y = pred_reader.read_field('y_pos')
+pos_x = pred_reader.read_field('x_pos')[0,:].numpy()
+pos_y = pred_reader.read_field('y_pos')[0,:].numpy()
 x, y = np.meshgrid(pos_x, pos_y)
 
 # import the test data
@@ -32,7 +32,8 @@ DATA_PATH_TEST = path_test + training_test
 
 # read the ground_truth data
 test_reader = MatReader(DATA_PATH_TEST)
-data = test_reader.read_field('vorticity')[:, pos_x, pos_y, -10:]
+data = test_reader.read_field('vorticity')[:, :, pos_y, -10:]
+data = data[:,pos_x,:,:]
 
 # plot the prediction data
 s = 10

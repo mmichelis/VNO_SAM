@@ -11,7 +11,7 @@ from utilities3 import *
 
 import numpy as np
 import pdb
-pdb.set_trace()
+
 
 # read in the prediction
 path_pred = '../predictions/'
