@@ -60,34 +60,36 @@ for time in range(num_timesteps):
     velocity_field[0,:,:,time] = u
     velocity_field[1,:,:,time] = v
 
-    plt.streamplot(x, y, u, v)
+    # plt.streamplot(x, y, u, v)
+    # plt.show()
+
+scipy.io.savemat(f'../../../../VNO_data/2d/sample/velocity.mat', mdict={'u':u, 'v':v})
+##########################################################
+##########################################################
+file_path = '../../../../VNO_data/2d/sample/'
+num_samples = 1
+num_timesteps = 21
+num_points = 512
+
+vorticity_field = np.zeros((1, num_points, num_points, num_timesteps))
+
+
+for time in range(num_timesteps):
+    name = f'sample_0_time_{time}.nc'
+    ds = nc.Dataset(file_path + name)
+    u = ds['u'][:].data
+    v = ds['v'][:].data
+    shape = u.shape
+    x,y = np.mgrid[0:shape[0],0:shape[1]]
+    dims = len(shape)
+    field = np.stack((u,v))
+    partials = tuple(np.gradient(i) for i in field)
+    jacobian = np.stack(partials).reshape(*(j := (dims,) * 2), *shape)
+    curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
+    curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
+    vorticity_field[0, :,:, time] = curl
+
+    plt.quiver(*field[:,:], angles='xy')
     plt.show()
-    
-scipy.io.savemat(f'../../../../VNO_data/2d/sample/navierstokes_512_512_v1e-4_{0}.mat', mdict={'u':velocity_field})
-##########################################################
-##########################################################
-# file_path = '../../../../VNO_data/2d/sample/'
-# num_samples = 1
-# num_timesteps = 21
-# num_points = 512
-
-# vorticity_field = np.zeros((1, num_points, num_points, num_timesteps))
-# pdb.set_trace()
-
-
-# for time in range(num_timesteps):
-#     name = f'sample_0_time_{time}.nc'
-#     ds = nc.Dataset(file_path + name)
-#     u = ds['u'][:].data
-#     v = ds['v'][:].data
-#     shape = u.shape
-    # x,y = np.mgrid[0:shape[0],0:shape[1]]
-    # dims = len(shape)
-    # field = np.stack((u,v))
-    # partials = tuple(np.gradient(i) for i in field)
-    # jacobian = np.stack(partials).reshape(*(j := (dims,) * 2), *shape)
-    # curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
-    # curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
-    # vorticity_field[index, :,:, time] = curl
-# scipy.io.savemat(f'../../../../VNO_data/2d/sample/navierstokes_512_512_v1e-4_{0}.mat', mdict={'u':vorticity_field})
+scipy.io.savemat(f'../../../../VNO_data/2d/sample/vorticity.mat', mdict={'u':vorticity_field})
 ##########################################################
