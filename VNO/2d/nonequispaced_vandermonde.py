@@ -256,9 +256,9 @@ def define_positions(growth, offset):
     num_e = num_w #np.floor((right - side_e)**(1/growth))
     pdb.set_trace()
     # define the positions of points to each side
-    points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
+    points_s = torch.flip(side_s - torch.round(torch.arange(num_s+1)**growth), [0])
     points_n = side_n + torch.round(torch.arange(num_n)**growth)
-    points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
+    points_w = torch.flip(side_w - torch.round(torch.arange(num_w+1)**growth),[0])
     points_e = side_e + torch.round(torch.arange(num_e)**growth)
     print(points_s)
     # positions with equispaced distributions
