@@ -173,7 +173,7 @@ class FNO2d(nn.Module):
 ################################################################
 # define which (nonequispaced) data to work with
 # options are 'conexp_conexp', 'exp_conexp', 'rand_rand'
-data_dist = 'conexp_conexp'
+data_dist = 'cc'
 
 
 # TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
@@ -196,7 +196,10 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-path = data_dist+'_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+growth = 1.5
+offset = 20 # rip takeoff
+
+path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
 # path_model = '../VNO_models/'+path
 # path_train_err = 'results/'+path+'train.txt'
 # path_test_err = 'results/'+path+'test.txt'
@@ -268,8 +271,7 @@ def define_positions(growth, offset):
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
-growth = 1.5
-x_pos, y_pos = define_positions(growth, 20)
+x_pos, y_pos = define_positions(growth, offset)
 
 train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
 train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)

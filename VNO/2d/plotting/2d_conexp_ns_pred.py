@@ -6,7 +6,7 @@ from matplotlib import cm
 from mpl_toolkits.mplot3d import Axes3D
 
 import sys
-sys.path.append('../')
+sys.path.append('../../../')
 from utilities3 import *
 
 import numpy as np
