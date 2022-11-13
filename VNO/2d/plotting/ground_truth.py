@@ -33,7 +33,7 @@ DATA_PATH_TEST = path_test + training_test
 # read the ground_truth data
 test_reader = MatReader(DATA_PATH_TEST)
 data = test_reader.read_field('vorticity')[0,...].numpy()
-data = np.take(np.take(data, pos_x, axis=0), pos_y, axis=1)
+# data = np.take(np.take(data, pos_x, axis=0), pos_y, axis=1)
 
 # plot the prediction data
 s = 21
