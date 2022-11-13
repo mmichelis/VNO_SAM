@@ -216,26 +216,22 @@ print('Preprocessing Data...')
 def load_data():
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
-    test_a = reader.read_field('vorticity')[:,:,:,:T_in]
-    test_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
+    test_a = reader.read_field('vorticity')[:10,:,:,:T_in]
+    test_u = reader.read_field('vorticity')[:10,:,:,T_in:T+T_in]
 
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{1}.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = reader.read_field('vorticity')[:,:,:,:T_in]
-    train_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
-    for NUM in range(2, 2):
-        TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
-        reader = MatReader(TRAIN_PATH)
-        train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
-        train_u = torch.cat((train_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
+    train_a = reader.read_field('vorticity')[:10,:,:,:T_in]
+    train_u = reader.read_field('vorticity')[:10,:,:,T_in:T+T_in]
+    # for NUM in range(2, 2):
+    #     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
+    #     reader = MatReader(TRAIN_PATH)
+    #     train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
+    #     train_u = torch.cat((train_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
 
-test_a = test_a[:10,...]
-test_u = test_u[:10,...]
-train_a = train_a[:10,...]
-train_u = train_u[:10,...]
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
