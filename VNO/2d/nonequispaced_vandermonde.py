@@ -271,7 +271,7 @@ def define_positions(center_y, growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 center_y = 512//3
-growth = 1.0
+growth = 1.1
 x_pos, y_pos = define_positions(center_y, growth, 20)
 
 train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
