@@ -316,9 +316,9 @@ for ep in range(epochs):
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
-        pdb.set_trace()
+
+        batch_size = xx.shape[0]
         for t in range(0, T, step):
-            # pdb.set_trace()
             y = yy[..., t:t + step]
             im = model(xx)
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
@@ -347,6 +347,7 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
+            batch_size = xx.shape[0]
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
                 im = model(xx)
