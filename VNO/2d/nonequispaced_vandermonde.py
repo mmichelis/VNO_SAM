@@ -184,7 +184,7 @@ ntrain = 800
 ntest = 100
 
 modes = 12
-width = 16
+width = 20
 
 batch_size = 10
 batch_size2 = batch_size
@@ -232,6 +232,8 @@ def load_data():
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
 
+test_a = test_a[:10,...]
+test_u = test_u[:10,...]
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
