@@ -15,7 +15,7 @@ import os
 
 # read in the prediction
 path_pred = '../predictions/'
-os.listdir('path_pred')
+os.listdir(path_pred)
 pred_file = input('file name: ')
 
 DATA_PATH_TRAIN = path_pred + pred_file
