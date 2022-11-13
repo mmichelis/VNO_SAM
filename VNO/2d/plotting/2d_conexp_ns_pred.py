@@ -39,7 +39,7 @@ s = 10
 fig = plt.figure()
 u = data[0,:,:,0]
 cont = plt.contourf(x, y, u,  60, cmap='RdYlBu', marker='.')
-cont = plt.scatter(x, y, marker='.', color='k')
+# cont = plt.scatter(x, y, marker='.', color='k')
 # plt.scatter(x, y, marker)
 # make an animation from the contourf plots as they evolve in time
 # define the update and init functions for the animation, call FuncAnimation and save
@@ -49,7 +49,7 @@ def update(frame):
     print(frame)
     u = data[0,:,:,frame]
     cont = plt.contourf(x, y, u, 60, cmap='RdYlBu', marker='.')
-    cont = plt.scatter(x, y, marker='.', color='k')
+    # cont = plt.scatter(x, y, marker='.', color='k')
     plt.title('t=%i:' % frame)
     return cont
 def init():

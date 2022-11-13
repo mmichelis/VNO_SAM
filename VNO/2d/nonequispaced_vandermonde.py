@@ -200,10 +200,6 @@ growth = 1.5
 offset = 20 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
-# path_model = '../VNO_models/'+path
-# path_train_err = 'results/'+path+'train.txt'
-# path_test_err = 'results/'+path+'test.txt'
-# path_image = 'image/'+path
 
 sub = 1
 T_in = 10
