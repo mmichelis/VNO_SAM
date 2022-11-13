@@ -14,12 +14,12 @@ import pdb
 import os
 
 # read in the prediction
-path_pred = '../predictions/'
-os.listdir('path_pred')
-pred_file = input('file name: ')
+# path_pred = '../predictions/'
+# os.listdir('path_pred')
+# pred_file = input('file name: ')
 
-DATA_PATH_TRAIN = path_pred + pred_file
-pred_reader = MatReader(DATA_PATH_TRAIN)
+# DATA_PATH_TRAIN = path_pred + pred_file
+# pred_reader = MatReader(DATA_PATH_TRAIN)
 
 # create grid
 # pos_x = pred_reader.read_field('x_pos')[0,:].numpy().astype(int)
