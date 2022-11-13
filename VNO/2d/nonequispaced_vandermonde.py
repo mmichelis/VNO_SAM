@@ -216,13 +216,13 @@ print('Preprocessing Data...')
 def load_data():
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
-    test_a = reader.read_field('vorticity')[:10,:,:,:T_in]
-    test_u = reader.read_field('vorticity')[:10,:,:,T_in:T+T_in]
+    test_a = reader.read_field('vorticity')[:,:,:,:T_in]
+    test_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
 
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{1}.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = reader.read_field('vorticity')[:10,:,:,:T_in]
-    train_u = reader.read_field('vorticity')[:10,:,:,T_in:T+T_in]
+    train_a = reader.read_field('vorticity')[:,:,:,:T_in]
+    train_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
     # for NUM in range(2, 2):
     #     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
     #     reader = MatReader(TRAIN_PATH)
@@ -403,10 +403,10 @@ with torch.no_grad():
 
         loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
 
-        print(index, loss)
+        print(index, loss/T)
         full_pred[index,...] = pred
         index = index + 1
-        prediction_history.write(str(loss)+'\n')
+        prediction_history.write(str(loss/T)+'\n')
 prediction_history.close()
 
 # ll: save as .txt instead of .mat
