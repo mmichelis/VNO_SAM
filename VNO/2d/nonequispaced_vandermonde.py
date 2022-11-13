@@ -377,7 +377,7 @@ training_history.close()
 
 # pred = torch.zeros(test_u.shape)
 index = 0
-test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
+test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/'+data_dist+'_test_loss.txt', 'w')
 # ll: adding this to put y_norm on cuda
 # y_normalizer.cuda()
