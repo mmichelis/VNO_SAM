@@ -261,11 +261,9 @@ def define_positions(growth, offset):
     points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
     points_e = side_e + torch.round(torch.arange(num_e)**growth)
 
-    # print(f"east {num_e} west {num_w}")
-
     # positions with equispaced distributions
-    central_lat = torch.arange(side_s+1, side_n)
-    central_lon = torch.arange(side_w+1, side_e)
+    central_lat = torch.arange(side_s, side_n)
+    central_lon = torch.arange(side_w, side_e)
 
     # fix positions together
     lat = torch.cat((points_s, central_lat, points_n))
