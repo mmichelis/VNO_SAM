@@ -36,7 +36,7 @@ data = test_reader.read_field('vorticity')[0,...].numpy()
 data = np.take(np.take(data, pos_x, axis=0), pos_y, axis=1)
 
 # plot the prediction data
-s = 10
+s = 21
 fig = plt.figure()
 u = data[:,:,0]
 cont = plt.contourf(x, y, u,  60, cmap='RdYlBu', marker='.')
