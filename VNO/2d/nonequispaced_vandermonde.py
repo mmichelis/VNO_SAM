@@ -311,7 +311,7 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
-    pdb.set_trace()
+    
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
@@ -328,6 +328,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
+            pdb.set_trace()
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
