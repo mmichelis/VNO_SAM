@@ -38,7 +38,7 @@ data = np.take(np.take(data, pos_x, axis=0), pos_y, axis=1)
 # plot the prediction data
 s = 10
 fig = plt.figure()
-u = data[0,:,:,0]
+u = data[:,:,0]
 cont = plt.contourf(x, y, u,  60, cmap='RdYlBu', marker='.')
 # cont = plt.scatter(x, y, marker='.', color='k')
 # plt.scatter(x, y, marker)
@@ -48,7 +48,7 @@ def update(frame):
     frame = int(frame)
     fig.clf()
     print(frame)
-    u = data[0,:,:,frame]
+    u = data[:,:,frame]
     cont = plt.contourf(x, y, u, 60, cmap='RdYlBu', marker='.')
     # cont = plt.scatter(x, y, marker='.', color='k')
     plt.title('t=%i:' % frame)
