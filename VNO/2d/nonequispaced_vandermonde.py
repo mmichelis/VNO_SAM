@@ -178,7 +178,7 @@ data_dist = 'conexp_conexp'
 
 # TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
 # file_path = '/cluster/scratch/llingsch/NS/'
-file_path = '~/VNO_data/2d/'
+file_path = '../../../VNO_data/2d/'
 
 ntrain = 800
 ntest = 100
@@ -197,7 +197,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 path = data_dist+'_ns_fourier_2d_rnn_V10000_T20_N'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-path_model = '../VNO_models/'+path
+# path_model = '../VNO_models/'+path
 # path_train_err = 'results/'+path+'train.txt'
 # path_test_err = 'results/'+path+'test.txt'
 # path_image = 'image/'+path
