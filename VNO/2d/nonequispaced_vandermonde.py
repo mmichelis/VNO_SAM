@@ -234,13 +234,14 @@ test_a, test_u, train_a, train_u = load_data()
 
 # define the lattice of points to select for the simulation
 pdb.set_trace()
-def define_positions(center_y, growth, offset):
+def define_positions(growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
     top = 512
     right = 512
 
     # the data should already be centered longitudinally
     center_x = right//2
+    center_y = top//2
 
     # define the bounds of the equispaced region
     side_s = center_y - offset
@@ -249,8 +250,8 @@ def define_positions(center_y, growth, offset):
     side_e = center_x + offset
 
     # calculate the number of points in each side of the nonequispaced region
-    num_s = np.floor(side_s**(1/growth))+1
-    num_n = np.floor((top - side_n)**(1/growth))+1
+    num_s = np.floor(side_s**(1/growth))
+    num_n = num_s
     num_w = np.floor(side_w**(1/growth))
     num_e = num_w #np.floor((right - side_e)**(1/growth))
 
@@ -270,9 +271,8 @@ def define_positions(center_y, growth, offset):
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
-center_y = 512//3
 growth = 1.1
-x_pos, y_pos = define_positions(center_y, growth, 20)
+x_pos, y_pos = define_positions(growth, 20)
 
 train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
 train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
