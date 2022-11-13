@@ -254,7 +254,7 @@ def define_positions(growth, offset):
     num_n = num_s
     num_w = np.floor(side_w**(1/growth))
     num_e = num_w #np.floor((right - side_e)**(1/growth))
-
+    pdb.set_trace()
     # define the positions of points to each side
     points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
     points_n = side_n + torch.round(torch.arange(num_n)**growth)
