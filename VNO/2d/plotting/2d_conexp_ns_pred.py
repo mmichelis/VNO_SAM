@@ -14,8 +14,8 @@ import pdb
 pdb.set_trace()
 
 # read in the prediction
-path_pred = 'VNO_predictions/'
-pred_file = 'conexp_ns_fourier_2d_rnn_V10000_T20_N1000_ep500_m12_w20.mat'
+path_pred = '../predictions/'
+pred_file = input('file name: ')
 
 DATA_PATH_TRAIN = path_pred + pred_file
 pred_reader = MatReader(DATA_PATH_TRAIN)
