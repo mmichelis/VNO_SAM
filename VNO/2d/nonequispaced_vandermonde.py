@@ -268,7 +268,7 @@ def define_positions(growth, offset):
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
-growth = 1.5
+growth = 1.0
 x_pos, y_pos = define_positions(growth, 20)
 
 train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
@@ -389,7 +389,7 @@ with torch.no_grad():
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
-        
+
         for t in range(0, T, step):
             y = yy[..., t:t + step]
             im = model(xx)
@@ -406,7 +406,7 @@ with torch.no_grad():
         print(index, loss)
         full_pred[index,...] = pred
         index = index + 1
-        prediction_history.write(str(loss / T)+'\n')
+        prediction_history.write(str(loss)+'\n')
 prediction_history.close()
 
 # ll: save as .txt instead of .mat
