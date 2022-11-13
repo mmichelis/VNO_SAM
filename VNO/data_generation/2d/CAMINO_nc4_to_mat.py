@@ -89,7 +89,7 @@ for time in range(num_timesteps):
     curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
     vorticity_field[0, :,:, time] = curl
 
-    plt.quiver(*field[:,:], angles='xy')
+    plt.contourf(x,y,curl, cmap = 'RdYlBu')
     plt.show()
 scipy.io.savemat(f'../../../../VNO_data/2d/sample/vorticity.mat', mdict={'u':vorticity_field})
 ##########################################################
