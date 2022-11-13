@@ -233,7 +233,6 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 
 # define the lattice of points to select for the simulation
-pdb.set_trace()
 def define_positions(growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
     top = 512
@@ -260,7 +259,7 @@ def define_positions(growth, offset):
     points_n = side_n + torch.round(torch.arange(num_n)**growth)
     points_w = torch.flip(side_w - torch.round(torch.arange(num_w+1)**growth),[0])
     points_e = side_e + torch.round(torch.arange(num_e)**growth)
-    print(points_s)
+
     # positions with equispaced distributions
     central_lat = torch.arange(side_s+1, side_n)
     central_lon = torch.arange(side_w+1, side_e)
@@ -312,6 +311,7 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
+    pdb.set_trace()
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
