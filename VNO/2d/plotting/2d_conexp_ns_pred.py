@@ -13,32 +13,29 @@ import numpy as np
 import pdb
 pdb.set_trace()
 
-###
-# import the test data
-path_test = '../../../VNO_data/'
-training_test =  'conexp_ns_V1e-3_N5000_T50.mat'
-DATA_PATH_TEST = path_test + training_test
-
-
-# read using the utilities3 data reader
-test_reader = MatReader(DATA_PATH_TEST)
-
-# create grid
-pos_x = test_reader.read_field('loc_x')
-pos_y = test_reader.read_field('loc_y')
-x, y = np.meshgrid(pos_x, pos_y)
-
 # read in the prediction
-path_pred = '../VNO_predictions/'
+path_pred = 'VNO_predictions/'
 pred_file = 'conexp_ns_fourier_2d_rnn_V10000_T20_N1000_ep500_m12_w20.mat'
 
 DATA_PATH_TRAIN = path_pred + pred_file
 pred_reader = MatReader(DATA_PATH_TRAIN)
 data = pred_reader.read_field('pred')[:,:,:,:]
-print(data.shape)
+
+# create grid
+pos_x = pred_reader.read_field('x_pos')
+pos_y = pred_reader.read_field('y_pos')
+x, y = np.meshgrid(pos_x, pos_y)
+
+# import the test data
+# path_test = '../../../../VNO_data/2d/'
+# training_test =  'navierstokes_512_512_v1e-4_0.mat'
+# DATA_PATH_TEST = path_test + training_test
+
+# # read using the utilities3 data reader
+# test_reader = MatReader(DATA_PATH_TEST)[:, pos_x, pos_y, :]
 
 # plot the prediction data
-s = 25
+s = 10
 fig = plt.figure()
 u = data[0,:,:,0]
 cont = plt.contourf(x, y, u,  60, cmap='RdYlBu', marker='.')
@@ -56,7 +53,7 @@ def update(frame):
     plt.title('t=%i:' % frame)
     return cont
 def init():
-    ax = plt.axes(xlim=(0, 63), ylim=(0, 63))
+    ax = plt.axes(xlim=(0, 511), ylim=(0, 511))
     return cont
-ani = animation.FuncAnimation(fig, update, frames=np.arange(s), interval = 100, init_func=init)
-ani.save('../../../Report_Images/2d_time_Vandermonde_predictions.mp4', writer=animation.FFMpegWriter())
+ani = animation.FuncAnimation(fig, update, frames=s, interval = 100, init_func=init)
+ani.save('ani.gif', writer=animation.FFMpegWriter())
