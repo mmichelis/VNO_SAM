@@ -189,7 +189,7 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 5
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -210,12 +210,9 @@ step = 1
 ################################################################
 # load data
 ################################################################
+t1 = default_timer()
+print('Preprocessing Data...')
 
-# reader = MatReader(TRAIN_PATH)
-# train_a = reader.read_field('u')[:ntrain,:,:,:T_in]
-# train_u = reader.read_field('u')[:ntrain,:,:,T_in:T+T_in]
-# test_a = reader.read_field('u')[-ntest:,:,:,:T_in]
-# test_u = reader.read_field('u')[-ntest:,:,:,T_in:T+T_in]
 def load_data():
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
@@ -293,6 +290,10 @@ assert (T == train_u.shape[-1])
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
+
+t2 = default_timer()
+
+print(f'Processing finished in {t2-t1} seconds.')
 
 ################################################################
 # training and evaluation
