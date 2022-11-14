@@ -200,8 +200,8 @@ def load_data():
     for NUM in range(1, ntrain):
         TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
-        test_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
-        test_u = torch.cat((train_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
+        test_a = torch.cat((test_a, reader.read_field('vorticity')[:,:,:,:T_in]))
+        test_u = torch.cat((test_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
 
 
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{ntrain}.mat'
