@@ -351,24 +351,23 @@ for ep in range(epochs):
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
-            im = model(xx)
+            im_full = model(xx)
+            im = im_full
+
+            im = y_normalizer.decode(im)[...,0]
+            im = torch.unsqueeze(im, dim=-1)
+
             # im = torch.index_select(im, 1, x_pos)
             # im = torch.index_select(im, 2, y_pos)
 
-            # decode normalization
-            y = y_normalizer.decode(y)[...,0]
-            im = y_normalizer.decode(im)[...,0]
-            
-            loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
+            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
-                pred = torch.unsqueeze(im, dim=-1)
-                # pred = im
+                pred = im
             else:
-                pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
-                # pred = torch.cat((pred, im), -1)
+                pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im_full), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1))
@@ -394,22 +393,23 @@ for ep in range(epochs):
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
                 
-                im_ = model(xx)
-                im_ = y_normalizer.decode(im_)[...,0]
+                im_full = model(xx)
+                im = im_full
 
-                im = torch.index_select(im_, 1, x_pos)
+                im = y_normalizer.decode(im)[...,0]
+                im = torch.unsqueeze(im, dim=-1)
+
+                im = torch.index_select(im, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
-                
-                loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
+
+                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
-                    pred = torch.unsqueeze(im, dim=-1)
-                    # pred = im
+                    pred = im
                 else:
-                    pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
-                    # pred = torch.cat((pred, im), -1)
+                    pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im_), dim=-1)
+                xx = torch.cat((xx[..., step:], im_full), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1)).item()
@@ -449,22 +449,23 @@ with torch.no_grad():
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
-            im_ = model(xx)
-            im_ = y_normalizer.decode(im_)[...,0]
+            im_full = model(xx)
+            im = im_full
 
-            im = torch.index_select(im_, 1, x_pos)
+            im = y_normalizer.decode(im)[...,0]
+            im = torch.unsqueeze(im, dim=-1)
+
+            im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
-                pred = torch.unsqueeze(im, dim=-1)
-                # pred = im
+                pred = im
             else:
-                pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
-                # pred = torch.cat((pred, im), -1)
+                pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im_), dim=-1)
+            xx = torch.cat((xx[..., step:], im_full), dim=-1)
 
         print(index, loss.item() / T)
         index = index + 1
