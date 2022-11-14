@@ -180,7 +180,7 @@ file_path = '../../../VNO_data/2d/'
 ntrain = 64 * 1
 ntest = 64 * 1
 
-modes = 12
+modes = 32
 width = 20
 
 batch_size = 20
@@ -394,6 +394,8 @@ with torch.no_grad():
             y = yy[..., t:t + step]
             im = model(xx)
 
+            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+
             if t == 0:
                 pred = im
             else:
@@ -401,9 +403,9 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
-        loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
+        # loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
 
-        print(index, loss/T)
+        print(index, loss.item() / T)
         full_pred[index,...] = pred
         index = index + 1
         prediction_history.write(str(loss/T)+'\n')

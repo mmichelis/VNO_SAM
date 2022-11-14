@@ -397,6 +397,8 @@ with torch.no_grad():
             y = yy[..., t:t + step]
             im = model(xx)
 
+            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            
             if t == 0:
                 pred = im
             else:
@@ -404,7 +406,6 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
-        loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
 
         print(index, loss/T)
         full_pred[index,...] = pred
