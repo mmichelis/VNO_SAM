@@ -252,8 +252,8 @@ x_pos, y_pos = define_positions(growth, offset)
 # pdb.set_trace()
 S_x = torch.max(x_pos)
 S_y = torch.max(y_pos)
-
-assert (S_x == train_u.shape[-3])
+pdb.set_trace()
+assert (S_x == train_u.shape[3])
 assert (S_y == train_u.shape[-2])
 assert (T == train_u.shape[-1])
 
