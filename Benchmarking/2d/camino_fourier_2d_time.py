@@ -300,14 +300,14 @@ assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 
-# a_normalizer = RangeNormalizer(train_a)
-# train_a = a_normalizer.encode(train_a)
-# test_a = a_normalizer.encode(test_a)
+a_normalizer = UnitGaussianNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
 
-# y_normalizer = RangeNormalizer(train_u)
-# train_u = y_normalizer.encode(train_u)
+y_normalizer = UnitGaussianNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
 # send y normalizer to the device
-# y_normalizer.cuda()
+y_normalizer.cuda()
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -356,17 +356,17 @@ for ep in range(epochs):
             # im = torch.index_select(im, 2, y_pos)
 
             # decode normalization
-            # y = y_normalizer.decode(y)[...,0]
-            # im = y_normalizer.decode(im)[...,0]
+            y = y_normalizer.decode(y)[...,0]
+            im = y_normalizer.decode(im)[...,0]
             
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
             if t == 0:
-                # pred = torch.unsqueeze(im, dim=-1)
-                pred = im
+                pred = torch.unsqueeze(im, dim=-1)
+                # pred = im
             else:
-                # pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
-                pred = torch.cat((pred, im), -1)
+                pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                # pred = torch.cat((pred, im), -1)
 
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
@@ -395,7 +395,7 @@ for ep in range(epochs):
                 y = yy[..., t:t + step]
                 
                 im_ = model(xx)
-                # im = y_normalizer.decode(im)[...,0]
+                im_ = y_normalizer.decode(im_)[...,0]
 
                 im = torch.index_select(im_, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
@@ -403,11 +403,11 @@ for ep in range(epochs):
                 loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
                 if t == 0:
-                    # pred = torch.unsqueeze(im, dim=-1)
-                    pred = im
+                    pred = torch.unsqueeze(im, dim=-1)
+                    # pred = im
                 else:
-                    # pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
-                    pred = torch.cat((pred, im), -1)
+                    pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                    # pred = torch.cat((pred, im), -1)
 
                 xx = torch.cat((xx[..., step:], im_), dim=-1)
 
@@ -450,7 +450,7 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             im_ = model(xx)
-            # im = y_normalizer.decode(im)[...,0]
+            im_ = y_normalizer.decode(im_)[...,0]
 
             im = torch.index_select(im_, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
@@ -458,11 +458,11 @@ with torch.no_grad():
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
-                # pred = torch.unsqueeze(im, dim=-1)
-                pred = im
+                pred = torch.unsqueeze(im, dim=-1)
+                # pred = im
             else:
-                # pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
-                pred = torch.cat((pred, im), -1)
+                pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                # pred = torch.cat((pred, im), -1)
 
             xx = torch.cat((xx[..., step:], im_), dim=-1)
 
@@ -473,5 +473,4 @@ with torch.no_grad():
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
 
-# ll: save as .txt instead of .mat
 scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
