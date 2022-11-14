@@ -180,8 +180,8 @@ data_dist = 'cc'
 # file_path = '/cluster/scratch/llingsch/NS/'
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 800
-ntest = 100
+ntrain = 64 * 1
+ntest = 64 * 1
 
 modes = 12
 width = 20
@@ -189,14 +189,14 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 100
+epochs = 25
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.5
+growth = 1.75
 offset = 20 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
@@ -230,6 +230,8 @@ def load_data():
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
+print(f'Data loaded with shape {test_a.shape}.')
+
 
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
@@ -268,16 +270,21 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
+print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 
-train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
-train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
-test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
-test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
+def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
+    test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
+    test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
+    train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
+    train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
 
-print(train_u.shape)
-print(test_u.shape)
-S_x = train_u.shape[1]
-S_y = train_u.shape[2]
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
+print(f'Data made sparse with new shape {test_a.shape}.')
+
+# assert same number of samples with same shapes, not necessarily same times
+assert (train_a.shape[:-1] == train_u.shape[:-1])
+assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 # train_a = train_a.reshape(ntrain,S_y,S_x,T_in)
@@ -293,9 +300,6 @@ print(f'Processing finished in {t2-t1} seconds.')
 ################################################################
 # training and evaluation
 ################################################################
-training_history = open('./training_history/'+data_dist+'.txt', 'w')
-training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
-
 model = FNO2d(modes, modes, width).cuda()
 transformer = vft2d(x_pos, y_pos, modes, modes)
 
@@ -304,22 +308,25 @@ optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
 
 myloss = LpLoss(size_average=False)
+
+training_history = open('./training_history/'+data_dist+'.txt', 'w')
+training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
+
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
-    
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
 
-        batch_size = xx.shape[0]
+        this_batch_size = xx.shape[0]
         for t in range(0, T, step):
             y = yy[..., t:t + step]
             im = model(xx)
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
             if t == 0:
                 pred = im
@@ -330,7 +337,7 @@ for ep in range(epochs):
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
-        l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
+        l2_full = myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1))
         train_l2_full += l2_full.item()
 
         optimizer.zero_grad()
@@ -345,11 +352,11 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
-            batch_size = xx.shape[0]
+            this_batch_size = xx.shape[0]
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
                 im = model(xx)
-                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+                loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
                 if t == 0:
                     pred = im
@@ -359,14 +366,12 @@ for ep in range(epochs):
                 xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
-            test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
-            # print(loss.item(), test_l2_full, ntest)
+            test_l2_full += myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1)).item()
+            
     t2 = default_timer()
     scheduler.step()
     print(ep, t2 - t1, train_l2_step / ntrain / T, train_l2_full / ntrain, test_l2_step / ntest / T,
           test_l2_full / ntest)
-    
-    # print(f'epoch: {ep}, train loss: {train_l2_full / ntrain}, test loss: {test_l2_full / ntest}')
     training_history.write(str(ep)+' '+ str(t2-t1)+' '+ str(train_l2_step / ntrain / (T / step))+' '+ 
     str(train_l2_full / ntrain)+' '+ str(test_l2_step / ntest / (T / step))+' '+ str(test_l2_full / ntest) +'\n')
 training_history.close()

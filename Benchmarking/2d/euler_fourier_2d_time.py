@@ -370,7 +370,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1))
@@ -410,7 +410,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                # xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1)).item()
@@ -429,8 +429,6 @@ training_history.close()
 
 
 
-
-# pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
@@ -463,7 +461,7 @@ with torch.no_grad():
             else:
                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im), dim=-1)
 
         print(index, loss.item() / T)
         index = index + 1

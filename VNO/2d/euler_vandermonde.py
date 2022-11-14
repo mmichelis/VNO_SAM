@@ -217,19 +217,26 @@ def load_data():
     reader = MatReader(TRAIN_PATH)
     test_a = reader.read_field('vorticity')[:,:,:,:T_in]
     test_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
+    for NUM in range(1, ntest//64):
+        TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        test_a = torch.cat((test_a, reader.read_field('vorticity')[:,:,:,:T_in]))
+        test_u = torch.cat((test_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
 
-    TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{1}.mat'
+
+    TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{ntest//64}.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = reader.read_field('vorticity')[:,:,:,:T_in]
     train_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
-    # for NUM in range(2, 2):
-    #     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
-    #     reader = MatReader(TRAIN_PATH)
-    #     train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
-    #     train_u = torch.cat((train_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
+    for NUM in range(ntest//64+1, ntrain//64):
+        TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
+        train_u = torch.cat((train_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
+print(f'Training data loaded with shape {train_a.shape}.')
 
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
@@ -268,20 +275,22 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
+print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 
-train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
-train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
-test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
-test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
+def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
+    test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
+    test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
+    train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
+    train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
 
-print(train_u.shape)
-print(test_u.shape)
-S_x = train_u.shape[1]
-S_y = train_u.shape[2]
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
+print(f'Data made sparse with new shape {test_a.shape}.')
+
+# assert same number of samples with same shapes, not necessarily same times
+assert (train_a.shape[:-1] == train_u.shape[:-1])
+assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
-
-# train_a = train_a.reshape(ntrain,S_y,S_x,T_in)
-# test_a = test_a.reshape(ntest,S_y,S_x,T_in)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -374,8 +383,6 @@ training_history.close()
 
 
 
-
-# pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/'+data_dist+'_test_loss.txt', 'w')

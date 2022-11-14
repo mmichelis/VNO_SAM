@@ -168,7 +168,7 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 200
+epochs = 25
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -362,11 +362,13 @@ for ep in range(epochs):
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
             if t == 0:
-                pred = torch.unsqueeze(im, dim=-1)
+                # pred = torch.unsqueeze(im, dim=-1)
+                pred = im
             else:
-                pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                # pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1))
@@ -384,7 +386,6 @@ for ep in range(epochs):
             loss = 0
             xx = xx.to(device)
             yy = yy.to(device)
-
 
             yy = torch.index_select(yy, 1, x_pos)
             yy = torch.index_select(yy, 2, y_pos)
@@ -406,7 +407,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
 
-                # xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1)).item()
