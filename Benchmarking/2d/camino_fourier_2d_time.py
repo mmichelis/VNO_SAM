@@ -357,7 +357,6 @@ for ep in range(epochs):
             # im = torch.index_select(im, 2, y_pos)
 
             # decode normalization
-            pdb.set_trace()
             y = y_normalizer.decode(y)[...,0]
             im = y_normalizer.decode(im)[...,0]
             
