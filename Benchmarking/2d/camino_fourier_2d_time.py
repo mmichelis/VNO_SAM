@@ -263,7 +263,7 @@ def interpolate_positions(data, x_pos, y_pos, method='linear'):
 
     x = np.arange(np.min(x_pos), np.max(x_pos)+1,1)
     y = np.arange(np.min(y_pos), np.max(y_pos)+1,1)
-
+    pdb.set_trace()
     dx, dy = np.meshgrid(x, y)
     dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
     full_dense_data = np.zeros([data.shape[0], x.shape[0], y.shape[0], data.shape[-1]])
@@ -275,11 +275,12 @@ def interpolate_positions(data, x_pos, y_pos, method='linear'):
             dense_data = dense_data.reshape(x.shape[0],y.shape[0])
             full_dense_data[id, :, :, time] = dense_data
     return torch.from_numpy(full_dense_data)
-t4 = default_timer()
+
 train_a = interpolate_positions(train_a, x_pos.numpy(), y_pos.numpy())
+t4 = default_timer()
+train_a = interpolate_positions(train_u, x_pos.numpy(), y_pos.numpy())
 t5 = default_timer()
 print(f'interpolation time of {t5-t4} seconds')
-train_a = interpolate_positions(train_u, x_pos.numpy(), y_pos.numpy())
 test_a = interpolate_positions(test_a, x_pos.numpy(), y_pos.numpy())
 test_u = interpolate_positions(test_u, x_pos.numpy(), y_pos.numpy())
 
