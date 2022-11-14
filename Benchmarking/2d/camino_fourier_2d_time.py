@@ -260,7 +260,9 @@ test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u,
 
 def interpolate_positions(data, x_pos, y_pos, method='linear'):
     pdb.set_trace()
-    dx, dy = np.meshgrid(x_pos.numpy(), y_pos.numpy())
+    x_pos = x_pos.numpy()
+    y_pos = y_pos.numpy()
+    dx, dy = np.meshgrid(x_pos, y_pos)
     sparse_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
 
     x = np.arange(np.min(x_pos), np.max(x_pos)+1,1)
