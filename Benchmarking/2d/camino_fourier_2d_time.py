@@ -168,7 +168,7 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 25
+epochs = 2
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -403,9 +403,11 @@ for ep in range(epochs):
                 loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
                 if t == 0:
-                    pred = torch.unsqueeze(im, dim=-1)
+                    # pred = torch.unsqueeze(im, dim=-1)
+                    pred = im
                 else:
-                    pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                    # pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                    pred = torch.cat((pred, im), -1)
 
                 xx = torch.cat((xx[..., step:], im_), dim=-1)
 
@@ -456,9 +458,11 @@ with torch.no_grad():
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
-                pred = torch.unsqueeze(im, dim=-1)
+                # pred = torch.unsqueeze(im, dim=-1)
+                pred = im
             else:
-                pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                # pred = torch.cat((pred, torch.unsqueeze(im, dim=-1)), -1)
+                pred = torch.cat((pred, im), -1)
 
             xx = torch.cat((xx[..., step:], im_), dim=-1)
 
