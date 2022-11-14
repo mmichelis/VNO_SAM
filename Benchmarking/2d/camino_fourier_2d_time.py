@@ -248,11 +248,13 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
+x_pos = x_pos.to(device)
+y_pos = y_pos.to(device)
 
 # pdb.set_trace()
 S_x = torch.max(x_pos)
 S_y = torch.max(y_pos)
-pdb.set_trace()
+
 # assert (S_x == train_u.shape[3])
 # assert (S_y == train_u.shape[-2])
 # assert (T == train_u.shape[-1])
@@ -261,7 +263,8 @@ pdb.set_trace()
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
-
+t2 = default_timer()
+print(f'Processing finished in {t2-t1} seconds.')
 ################################################################
 # training and evaluation
 ################################################################
