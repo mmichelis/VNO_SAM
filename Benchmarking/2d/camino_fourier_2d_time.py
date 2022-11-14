@@ -292,9 +292,9 @@ print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample 
 # S_x = torch.max(x_pos)
 # S_y = torch.max(y_pos)
 
-# assert (S_x == train_u.shape[3])
-# assert (S_y == train_u.shape[-2])
-# assert (T == train_u.shape[-1])
+assert (train_a.shape[...,:] == train_u.shape[...,:])
+assert (test_a.shape[...,:] == test_u.shape[...,:])
+assert (T == train_u.shape[-1])
 
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
