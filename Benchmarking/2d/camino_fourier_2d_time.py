@@ -259,7 +259,8 @@ def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
 test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
 
 def interpolate_positions(data, x_pos, y_pos, method='linear'):
-    sparse_loc = np.stack((x_pos.flatten(), y_pos.flatten()), axis=1)
+    dx, dy = np.meshgrid(x_pos.numpy(), y_pos.numpy())
+    sparse_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
 
     x = np.arange(np.min(x_pos), np.max(x_pos)+1,1)
     y = np.arange(np.min(y_pos), np.max(y_pos)+1,1)
@@ -276,13 +277,13 @@ def interpolate_positions(data, x_pos, y_pos, method='linear'):
             full_dense_data[id, :, :, time] = dense_data
     return torch.from_numpy(full_dense_data)
 
-train_a = interpolate_positions(train_a, x_pos.numpy(), y_pos.numpy())
+train_a = interpolate_positions(train_a, x_pos, y_pos)
 t4 = default_timer()
-train_a = interpolate_positions(train_u, x_pos.numpy(), y_pos.numpy())
+train_a = interpolate_positions(train_u, x_pos, y_pos)
 t5 = default_timer()
 print(f'interpolation time of {t5-t4} seconds')
-test_a = interpolate_positions(test_a, x_pos.numpy(), y_pos.numpy())
-test_u = interpolate_positions(test_u, x_pos.numpy(), y_pos.numpy())
+test_a = interpolate_positions(test_a, x_pos, y_pos)
+test_u = interpolate_positions(test_u, x_pos, y_pos)
 
 # pdb.set_trace()
 # S_x = torch.max(x_pos)
