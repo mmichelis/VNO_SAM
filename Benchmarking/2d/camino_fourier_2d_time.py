@@ -213,6 +213,7 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 print(f'Data loaded with shape {test_a.shape}.')
 
+
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
@@ -320,6 +321,9 @@ model = FNO2d(modes, modes, width).cuda()
 # taring the positions is necessary for comparison by index selection
 x_pos = (x_pos-torch.min(x_pos)).to(device)
 y_pos = (y_pos-torch.min(y_pos)).to(device)
+
+# send y normalizer to the device
+y_normalizer.to(device)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)

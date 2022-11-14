@@ -9,7 +9,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-
+import scipy.interpolate
 import matplotlib.pyplot as plt
 import sys
 
@@ -168,14 +168,14 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 10
+epochs = 15
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.0
+growth = 1.75
 offset = 20 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
@@ -216,6 +216,7 @@ def load_data():
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
+print(f'Training data loaded with shape {train_a.shape}.')
 
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
@@ -254,16 +255,47 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
-x_pos = x_pos.to(device)
-y_pos = y_pos.to(device)
+print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 
-# pdb.set_trace()
-S_x = torch.max(x_pos)
-S_y = torch.max(y_pos)
 
-# assert (S_x == train_u.shape[3])
-# assert (S_y == train_u.shape[-2])
-# assert (T == train_u.shape[-1])
+def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
+    test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
+    test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
+    train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
+    train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
+
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
+print(f'Data made sparse with new shape {test_a.shape}.')
+
+
+def interpolate_positions(data, x_pos, y_pos, method=interp):
+    x_pos = x_pos.numpy()
+    y_pos = y_pos.numpy()
+    dx, dy = np.meshgrid(x_pos, y_pos)
+    sparse_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
+
+    x = np.arange(np.min(x_pos), np.max(x_pos)+1,1)
+    y = np.arange(np.min(y_pos), np.max(y_pos)+1,1)
+    dx, dy = np.meshgrid(x, y)
+    dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
+    full_dense_data = np.zeros([data.shape[0], x.shape[0], y.shape[0], data.shape[-1]], dtype=np.float32)
+    for id in range(data.shape[0]):
+        for time in range(data.shape[-1]):
+            # flatten the data
+            sparse_data = data[id, :, :, time].numpy().flatten()
+            dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc, method=method)
+            dense_data = dense_data.reshape(x.shape[0],y.shape[0])
+            full_dense_data[id, :, :, time] = dense_data
+    return torch.from_numpy(full_dense_data)
+start_interp = default_timer()
+train_a = interpolate_positions(train_a, x_pos, y_pos)
+train_u = interpolate_positions(train_u, x_pos, y_pos)
+test_a = interpolate_positions(test_a, x_pos, y_pos)
+test_u = interpolate_positions(test_u, x_pos, y_pos)
+stop_interp = default_timer()
+print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample files.') # about 80 seconds
+print(f'Data interpolated with new shape {test_a.shape}.')
 
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
