@@ -175,9 +175,6 @@ class FNO2d(nn.Module):
 # options are 'conexp_conexp', 'exp_conexp', 'rand_rand'
 data_dist = 'cc'
 
-
-# TRAIN_PATH = '../../../VNO_data/2d/'+data_dist+'_ns_V1e-3_N5000_T50.mat'
-# file_path = '/cluster/scratch/llingsch/NS/'
 file_path = '../../../VNO_data/2d/'
 
 ntrain = 64 * 1
