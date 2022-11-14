@@ -198,7 +198,6 @@ def load_data():
     test_a = reader.read_field('vorticity')[:,:,:,:T_in]
     test_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
     for NUM in range(1, ntest):
-        pdb.set_trace()
         TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         test_a = torch.cat((test_a, reader.read_field('vorticity')[:,:,:,:T_in]))
@@ -287,7 +286,7 @@ myloss = LpLoss(size_average=False)
 
 training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
-
+pdb.set_trace()
 for ep in range(epochs):
     model.train()
     t1 = default_timer()

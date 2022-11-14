@@ -9,7 +9,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
-
+import scipy.interpolate
 import matplotlib.pyplot as plt
 import sys
 
@@ -248,12 +248,37 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
-x_pos = x_pos.to(device)
-y_pos = y_pos.to(device)
 
+def make_sparse():
+    test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
+    test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
+    train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
+    train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
+make_sparse()
+
+def interpolate_positions(data, x_pos, y_pos, method='bilinear'):
+    sparse_loc = np.stack((x_pos.flatten(), y_pos.flatten()), axis=1)
+    pdb.set_trace()
+    x_max = int(np.max(x_pos)) + 1 - int(np.min(x_pos))
+    y_max = int(np.max(y_pos)) + 1 - int(np.min(y_pos))
+
+    x = np.arange(x_max)
+    y = np.arange(y_max)
+    dx, dy = np.meshgrid(x, y)
+    dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
+    full_dense_data = np.zeros([data.shape[0], x_max, y_max, data.shape[-1]])
+    for id in range(data.shape[0]):
+        for time in range(data.shape[-1]):
+            # flatten the data
+            sparse_data = data[id, :, :, time].numpy().flatten()
+            dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc, method=interp_kind)
+            dense_data = dense_data.reshape(x_max,y_max)
+            full_dense_data[id, :, :, time] = dense_data
+    return torch.from_numpy(full_dense_data)
+train_a = interpolate_positions(train_a, x_pos.numpy(), y_pos.numpy())
 # pdb.set_trace()
-S_x = torch.max(x_pos)
-S_y = torch.max(y_pos)
+# S_x = torch.max(x_pos)
+# S_y = torch.max(y_pos)
 
 # assert (S_x == train_u.shape[3])
 # assert (S_y == train_u.shape[-2])
