@@ -116,14 +116,12 @@ class FNO2d(nn.Module):
         x = torch.cat((x, grid), dim=-1)
         x = self.fc0(x)
         x = x.permute(0, 3, 1, 2)
-        x = self.bn0(x)
         # x = F.pad(x, [0,self.padding, 0,self.padding]) # pad the domain if input is non-periodic
 
         x1 = self.conv0(x)
         x2 = self.w0(x)
         x = x1 + x2
         x = F.gelu(x)
-        x = self.bn1(x)
 
         x1 = self.conv1(x)
         x2 = self.w1(x)
@@ -300,6 +298,14 @@ assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
+
+a_normalizer = UnitGaussianNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
+
+y_normalizer = UnitGaussianNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
+
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
@@ -345,6 +351,10 @@ for ep in range(epochs):
             im = model(xx)
             # im = torch.index_select(im, 1, x_pos)
             # im = torch.index_select(im, 2, y_pos)
+
+            # decode normalization
+            y = y_normalizer.decode(y)
+            im = y_normalizer.decode(im)
             
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
@@ -381,6 +391,8 @@ for ep in range(epochs):
                 y = yy[..., t:t + step]
 
                 im = model(xx)
+                im = y_normalizer.decode(im)
+
                 im = torch.index_select(im, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
                 
@@ -432,6 +444,7 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             im = model(xx)
+            im = y_normalizer.decode(im)
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 

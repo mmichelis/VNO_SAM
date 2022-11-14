@@ -159,8 +159,8 @@ data_dist = 'cc'
 interp = 'cubic'
 file_path = '/cluster/scratch/llingsch/NS/'
 # 16 files, each with 64 examples
-ntrain = 16     # take until 16 for training
-ntest = 2       # take first  2 for testing
+ntrain = 8 * 64     # take until 16 for training
+ntest = 2  * 64     # take first  2 for testing
 
 modes = 12
 width = 20
@@ -197,18 +197,18 @@ def load_data():
     reader = MatReader(TRAIN_PATH)
     test_a = reader.read_field('vorticity')[:,:,:,:T_in]
     test_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
-    for NUM in range(1, ntest):
+    for NUM in range(1, ntest//64):
         TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         test_a = torch.cat((test_a, reader.read_field('vorticity')[:,:,:,:T_in]))
         test_u = torch.cat((test_u, reader.read_field('vorticity')[:,:,:,T_in:T+T_in]))
 
 
-    TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{ntest}.mat'
+    TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{ntest//64}.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = reader.read_field('vorticity')[:,:,:,:T_in]
     train_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
-    for NUM in range(ntest+1, ntrain):
+    for NUM in range(ntest//64+1, ntrain//64):
         TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
