@@ -258,7 +258,7 @@ def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
 
-def interpolate_positions(data, x_pos, y_pos, method='bilinear'):
+def interpolate_positions(data, x_pos, y_pos, method='linear'):
     sparse_loc = np.stack((x_pos.flatten(), y_pos.flatten()), axis=1)
 
     x = np.arange(np.min(x_pos), np.max(x_pos)+1,1)
