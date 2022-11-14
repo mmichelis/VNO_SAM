@@ -292,8 +292,9 @@ print(f'Data interpolated with new shape {test_a.shape}.')
 # S_x = torch.max(x_pos)
 # S_y = torch.max(y_pos)
 
-assert (train_a.shape[...,0] == train_u.shape[...,0])
-assert (test_a.shape[...,0] == test_u.shape[...,0])
+# assert same number of samples with same shapes, not necessarily same times
+assert (train_a.shape[:-1] == train_u.shape[:-1])
+assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 
