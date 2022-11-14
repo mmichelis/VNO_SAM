@@ -306,6 +306,8 @@ assert (T == train_u.shape[-1])
 
 # y_normalizer = RangeNormalizer(train_u)
 # train_u = y_normalizer.encode(train_u)
+# send y normalizer to the device
+# y_normalizer.cuda()
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -321,9 +323,6 @@ model = FNO2d(modes, modes, width).cuda()
 # taring the positions is necessary for comparison by index selection
 x_pos = (x_pos-torch.min(x_pos)).to(device)
 y_pos = (y_pos-torch.min(y_pos)).to(device)
-
-# send y normalizer to the device
-# y_normalizer.cuda()
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -357,8 +356,8 @@ for ep in range(epochs):
             # im = torch.index_select(im, 2, y_pos)
 
             # decode normalization
-            y = y_normalizer.decode(y)[...,0]
-            im = y_normalizer.decode(im)[...,0]
+            # y = y_normalizer.decode(y)[...,0]
+            # im = y_normalizer.decode(im)[...,0]
             
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
@@ -395,7 +394,7 @@ for ep in range(epochs):
                 y = yy[..., t:t + step]
                 
                 im = model(xx)
-                im = y_normalizer.decode(im)[...,0]
+                # im = y_normalizer.decode(im)[...,0]
 
                 im = torch.index_select(im, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
@@ -448,7 +447,7 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             im = model(xx)
-            im = y_normalizer.decode(im)[...,0]
+            # im = y_normalizer.decode(im)[...,0]
 
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
