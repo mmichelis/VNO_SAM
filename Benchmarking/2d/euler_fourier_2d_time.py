@@ -397,10 +397,10 @@ for ep in range(epochs):
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
 
-                im = model(xx)
-                im = y_normalizer.decode(im)
+                im_ = model(xx)
+                # im = y_normalizer.decode(im)
 
-                im = torch.index_select(im, 1, x_pos)
+                im = torch.index_select(im_, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
                 
                 loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
@@ -410,7 +410,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], im_), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(this_batch_size, -1), yy.reshape(this_batch_size, -1)).item()
@@ -448,10 +448,10 @@ with torch.no_grad():
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
-            im = model(xx)
-            im = y_normalizer.decode(im)
+            im_ = model(xx)
+            # im = y_normalizer.decode(im)
             
-            im = torch.index_select(im, 1, x_pos)
+            im = torch.index_select(im_, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
@@ -461,7 +461,7 @@ with torch.no_grad():
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im_), dim=-1)
 
         print(index, loss.item() / T)
         index = index + 1
