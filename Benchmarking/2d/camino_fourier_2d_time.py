@@ -260,24 +260,29 @@ test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u,
 
 def interpolate_positions(data, x_pos, y_pos, method='bilinear'):
     sparse_loc = np.stack((x_pos.flatten(), y_pos.flatten()), axis=1)
-    pdb.set_trace()
-    x_max = int(np.max(x_pos)) + 1 - int(np.min(x_pos))
-    y_max = int(np.max(y_pos)) + 1 - int(np.min(y_pos))
 
-    x = np.arange(x_max)
-    y = np.arange(y_max)
+    x = np.arange(np.min(x_pos), np.max(x_pos)+1,1)
+    y = np.arange(np.min(y_pos), np.max(y_pos)+1,1)
+
     dx, dy = np.meshgrid(x, y)
     dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
-    full_dense_data = np.zeros([data.shape[0], x_max, y_max, data.shape[-1]])
+    full_dense_data = np.zeros([data.shape[0], x.shape[0], y.shape[0], data.shape[-1]])
     for id in range(data.shape[0]):
         for time in range(data.shape[-1]):
             # flatten the data
             sparse_data = data[id, :, :, time].numpy().flatten()
-            dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc, method=interp_kind)
-            dense_data = dense_data.reshape(x_max,y_max)
+            dense_data = scipy.interpolate.griddata(sparse_loc, sparse_data, dense_loc, method=method)
+            dense_data = dense_data.reshape(x.shape[0],y.shape[0])
             full_dense_data[id, :, :, time] = dense_data
     return torch.from_numpy(full_dense_data)
+t4 = default_timer()
 train_a = interpolate_positions(train_a, x_pos.numpy(), y_pos.numpy())
+t5 = default_timer()
+print(f'interpolation time of {t5-t4} seconds')
+train_a = interpolate_positions(train_u, x_pos.numpy(), y_pos.numpy())
+test_a = interpolate_positions(test_a, x_pos.numpy(), y_pos.numpy())
+test_u = interpolate_positions(test_u, x_pos.numpy(), y_pos.numpy())
+
 # pdb.set_trace()
 # S_x = torch.max(x_pos)
 # S_y = torch.max(y_pos)
