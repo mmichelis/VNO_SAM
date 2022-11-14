@@ -22,11 +22,9 @@ DATA_PATH_TRAIN = path_pred + pred_file
 pred_reader = MatReader(DATA_PATH_TRAIN)
 data = pred_reader.read_field('pred')[:,:,:,:]
 
-pdb.set_trace()
-
 # create grid
-pos_x = np.arange(data.shape[1])
-pos_y = np.arange(data.shape[2])
+pos_x = pred_reader.read_field('x_pos')
+pos_y = pred_reader.read_field('y_pos')
 x, y = np.meshgrid(pos_x, pos_y)
 
 
