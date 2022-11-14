@@ -253,9 +253,9 @@ x_pos, y_pos = define_positions(growth, offset)
 S_x = torch.max(x_pos)
 S_y = torch.max(y_pos)
 pdb.set_trace()
-assert (S_x == train_u.shape[3])
-assert (S_y == train_u.shape[-2])
-assert (T == train_u.shape[-1])
+# assert (S_x == train_u.shape[3])
+# assert (S_y == train_u.shape[-2])
+# assert (T == train_u.shape[-1])
 
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
