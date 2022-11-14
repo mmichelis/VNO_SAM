@@ -116,11 +116,13 @@ class FNO2d(nn.Module):
         x = torch.cat((x, grid), dim=-1)
         x = self.fc0(x)
         x = x.permute(0, 3, 1, 2)
+        x = self.bn0(x)
         # x = F.pad(x, [0,self.padding, 0,self.padding]) # pad the domain if input is non-periodic
 
         x1 = self.conv0(x)
         x2 = self.w0(x)
         x = x1 + x2
+
         x = F.gelu(x)
 
         x1 = self.conv1(x)
@@ -141,6 +143,7 @@ class FNO2d(nn.Module):
         x = x.permute(0, 2, 3, 1)
         x = self.fc1(x)
         x = F.gelu(x)
+        x = self.bn1(x)
         x = self.fc2(x)
         return x
 
@@ -156,11 +159,11 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 data_dist = 'cc'
-interp = 'cubic'
+interp = 'linear'
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 64
-ntest = 64
+ntrain = 64 * 1
+ntest = 64 * 1
 
 modes = 12
 width = 20
@@ -168,7 +171,7 @@ width = 20
 batch_size = 1
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 15
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -251,6 +254,8 @@ def define_positions(growth, offset):
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
 print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
+
+
 def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
     test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
     test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
@@ -261,7 +266,8 @@ def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
 test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
 print(f'Data made sparse with new shape {test_a.shape}.')
 
-def interpolate_positions(data, x_pos, y_pos, method='linear'):
+
+def interpolate_positions(data, x_pos, y_pos, method=interp):
     x_pos = x_pos.numpy()
     y_pos = y_pos.numpy()
     dx, dy = np.meshgrid(x_pos, y_pos)
@@ -288,15 +294,12 @@ test_u = interpolate_positions(test_u, x_pos, y_pos)
 stop_interp = default_timer()
 print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample files.') # about 80 seconds
 print(f'Data interpolated with new shape {test_a.shape}.')
-# pdb.set_trace()
-# S_x = torch.max(x_pos)
-# S_y = torch.max(y_pos)
+
 
 # assert same number of samples with same shapes, not necessarily same times
 assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
-
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -309,6 +312,7 @@ print(f'Processing finished in {t2-t1} seconds.')
 model = FNO2d(modes, modes, width).cuda()
 # model = torch.load(path_model)
 
+# taring the positions is necessary for comparison by index selection
 x_pos = (x_pos-torch.min(x_pos)).to(device)
 y_pos = (y_pos-torch.min(y_pos)).to(device)
 
