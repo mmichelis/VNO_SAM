@@ -193,7 +193,7 @@ t1 = default_timer()
 print('Preprocessing Data...')
 
 def load_data():
-    sub = 64
+    sub = 2
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
     test_a = reader.read_field('vorticity')[:sub,:,:,:T_in]
