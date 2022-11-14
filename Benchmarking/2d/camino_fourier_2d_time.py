@@ -193,7 +193,7 @@ t1 = default_timer()
 print('Preprocessing Data...')
 
 def load_data():
-    sub = 64
+    sub = 3
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
     test_a = reader.read_field('vorticity')[:sub,:,:,:T_in]
@@ -323,7 +323,7 @@ x_pos = (x_pos-torch.min(x_pos)).to(device)
 y_pos = (y_pos-torch.min(y_pos)).to(device)
 
 # send y normalizer to the device
-y_normalizer.to(device)
+y_normalizer.cuda()
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -449,6 +449,7 @@ with torch.no_grad():
 
             im = model(xx)
             im = y_normalizer.decode(im)
+
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 

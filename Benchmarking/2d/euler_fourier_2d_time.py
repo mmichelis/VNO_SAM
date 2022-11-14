@@ -298,6 +298,19 @@ print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample 
 print(f'Data interpolated with new shape {test_a.shape}.')
 
 
+# assert same number of samples with same shapes, not necessarily same times
+assert (train_a.shape[:-1] == train_u.shape[:-1])
+assert (test_a.shape[:-1] == test_u.shape[:-1])
+assert (T == train_u.shape[-1])
+
+
+a_normalizer = UnitGaussianNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
+
+y_normalizer = UnitGaussianNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
+
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
@@ -309,6 +322,12 @@ print(f'Processing finished in {t2-t1} seconds.')
 model = FNO2d(modes, modes, width).cuda()
 # model = torch.load(path_model)
 
+# taring the positions is necessary for comparison by index selection
+x_pos = (x_pos-torch.min(x_pos)).to(device)
+y_pos = (y_pos-torch.min(y_pos)).to(device)
+
+# send y normalizer to the device
+y_normalizer.to(device)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -341,6 +360,10 @@ for ep in range(epochs):
             # im = torch.index_select(im, 1, x_pos)
             # im = torch.index_select(im, 2, y_pos)
 
+            # decode normalization
+            y = y_normalizer.decode(y)
+            im = y_normalizer.decode(im)
+            
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
             if t == 0:
@@ -360,6 +383,7 @@ for ep in range(epochs):
 
     test_l2_step = 0
     test_l2_full = 0
+
     with torch.no_grad():
         for xx, yy in test_loader:
             loss = 0
@@ -375,6 +399,8 @@ for ep in range(epochs):
                 y = yy[..., t:t + step]
 
                 im = model(xx)
+                im = y_normalizer.decode(im)
+
                 im = torch.index_select(im, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
                 
@@ -426,6 +452,8 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             im = model(xx)
+            im = y_normalizer.decode(im)
+            
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 
