@@ -287,13 +287,13 @@ test_a = interpolate_positions(test_a, x_pos, y_pos)
 test_u = interpolate_positions(test_u, x_pos, y_pos)
 stop_interp = default_timer()
 print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample files.') # about 80 seconds
-
+print(f'Data interpolated with new shape {test_a.shape}.')
 # pdb.set_trace()
 # S_x = torch.max(x_pos)
 # S_y = torch.max(y_pos)
 
-assert (train_a.shape[...,:] == train_u.shape[...,:])
-assert (test_a.shape[...,:] == test_u.shape[...,:])
+assert (train_a.shape[...,0] == train_u.shape[...,0])
+assert (test_a.shape[...,0] == test_u.shape[...,0])
 assert (T == train_u.shape[-1])
 
 
