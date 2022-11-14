@@ -304,12 +304,12 @@ assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 
-a_normalizer = UnitGaussianNormalizer(train_a)
-train_a = a_normalizer.encode(train_a)
-test_a = a_normalizer.encode(test_a)
+# a_normalizer = UnitGaussianNormalizer(train_a)
+# train_a = a_normalizer.encode(train_a)
+# test_a = a_normalizer.encode(test_a)
 
-y_normalizer = UnitGaussianNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
+# y_normalizer = UnitGaussianNormalizer(train_u)
+# train_u = y_normalizer.encode(train_u)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -327,7 +327,7 @@ x_pos = (x_pos-torch.min(x_pos)).to(device)
 y_pos = (y_pos-torch.min(y_pos)).to(device)
 
 # send y normalizer to the device
-y_normalizer.to(device)
+# y_normalizer.cuda()
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -361,8 +361,8 @@ for ep in range(epochs):
             # im = torch.index_select(im, 2, y_pos)
 
             # decode normalization
-            y = y_normalizer.decode(y)
-            im = y_normalizer.decode(im)
+            # y = y_normalizer.decode(y)
+            # im = y_normalizer.decode(im)
             
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 

@@ -300,12 +300,12 @@ assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 
-a_normalizer = RangeNormalizer(train_a)
-train_a = a_normalizer.encode(train_a)
-test_a = a_normalizer.encode(test_a)
+# a_normalizer = RangeNormalizer(train_a)
+# train_a = a_normalizer.encode(train_a)
+# test_a = a_normalizer.encode(test_a)
 
-y_normalizer = RangeNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
+# y_normalizer = RangeNormalizer(train_u)
+# train_u = y_normalizer.encode(train_u)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
