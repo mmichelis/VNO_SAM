@@ -208,8 +208,7 @@ def load_data():
     reader = MatReader(TRAIN_PATH)
     train_a = reader.read_field('vorticity')[:,:,:,:T_in]
     train_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
-    for NUM in range(ntrain+1, ntest):
-        pdb.set_trace()
+    for NUM in range(ntest+1, ntrain):
         TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field('vorticity')[:,:,:,:T_in]))
