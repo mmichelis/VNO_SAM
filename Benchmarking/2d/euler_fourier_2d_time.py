@@ -337,7 +337,7 @@ myloss = LpLoss(size_average=False)
 
 training_history = open('./training_history/'+interp+'_from_'+data_dist+'.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
-pdb.set_trace()
+
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
@@ -348,7 +348,6 @@ for ep in range(epochs):
         xx = xx.to(device)
         yy = yy.to(device)
 
-        # pdb.set_trace()
         # yy = torch.index_select(yy, 1, x_pos)
         # yy = torch.index_select(yy, 2, y_pos)
 
@@ -390,7 +389,7 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
-            # pdb.set_trace()
+
             yy = torch.index_select(yy, 1, x_pos)
             yy = torch.index_select(yy, 2, y_pos)
 

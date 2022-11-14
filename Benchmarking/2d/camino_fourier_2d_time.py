@@ -323,7 +323,7 @@ x_pos = (x_pos-torch.min(x_pos)).to(device)
 y_pos = (y_pos-torch.min(y_pos)).to(device)
 
 # send y normalizer to the device
-y_normalizer.cuda()
+# y_normalizer.cuda()
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -344,7 +344,7 @@ for ep in range(epochs):
         xx = xx.to(device)
         yy = yy.to(device)
 
-        # pdb.set_trace()
+
         # yy = torch.index_select(yy, 1, x_pos)
         # yy = torch.index_select(yy, 2, y_pos)
 
@@ -386,7 +386,7 @@ for ep in range(epochs):
             xx = xx.to(device)
             yy = yy.to(device)
 
-            # pdb.set_trace()
+
             yy = torch.index_select(yy, 1, x_pos)
             yy = torch.index_select(yy, 2, y_pos)
 
