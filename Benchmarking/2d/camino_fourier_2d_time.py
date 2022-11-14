@@ -193,15 +193,16 @@ t1 = default_timer()
 print('Preprocessing Data...')
 
 def load_data():
+    sub = 10
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
-    test_a = reader.read_field('vorticity')[:,:,:,:T_in]
-    test_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
+    test_a = reader.read_field('vorticity')[:sub,:,:,:T_in]
+    test_u = reader.read_field('vorticity')[:sub,:,:,T_in:T+T_in]
 
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{1}.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = reader.read_field('vorticity')[:,:,:,:T_in]
-    train_u = reader.read_field('vorticity')[:,:,:,T_in:T+T_in]
+    train_a = reader.read_field('vorticity')[:sub,:,:,:T_in]
+    train_u = reader.read_field('vorticity')[:sub,:,:,T_in:T+T_in]
     # for NUM in range(2, 2):
     #     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{NUM}.mat'
     #     reader = MatReader(TRAIN_PATH)
@@ -210,6 +211,7 @@ def load_data():
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
+print(f'Data loaded with shape {test_a.shape}.')
 
 # define the lattice of points to select for the simulation
 def define_positions(growth, offset):
@@ -248,7 +250,7 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
-
+print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
     test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
     test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
@@ -257,6 +259,7 @@ def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
+print(f'Data made sparse with new shape {test_a.shape}.')
 
 def interpolate_positions(data, x_pos, y_pos, method='linear'):
     x_pos = x_pos.numpy()
@@ -279,7 +282,7 @@ def interpolate_positions(data, x_pos, y_pos, method='linear'):
     return torch.from_numpy(full_dense_data)
 start_interp = default_timer()
 train_a = interpolate_positions(train_a, x_pos, y_pos)
-train_a = interpolate_positions(train_u, x_pos, y_pos)
+train_u = interpolate_positions(train_u, x_pos, y_pos)
 test_a = interpolate_positions(test_a, x_pos, y_pos)
 test_u = interpolate_positions(test_u, x_pos, y_pos)
 stop_interp = default_timer()
