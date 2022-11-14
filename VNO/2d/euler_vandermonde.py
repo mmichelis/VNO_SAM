@@ -397,8 +397,8 @@ with torch.no_grad():
             y = yy[..., t:t + step]
             im = model(xx)
 
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
-            
+            loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
+
             if t == 0:
                 pred = im
             else:
