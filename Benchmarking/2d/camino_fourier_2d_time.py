@@ -162,7 +162,7 @@ file_path = '../../../VNO_data/2d/'
 ntrain = 64 * 1
 ntest = 64 * 1
 
-modes = 12
+modes = 16
 width = 20
 
 batch_size = 1
@@ -300,14 +300,14 @@ assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 
-a_normalizer = UnitGaussianNormalizer(train_a)
-train_a = a_normalizer.encode(train_a)
-test_a = a_normalizer.encode(test_a)
+# a_normalizer = UnitGaussianNormalizer(train_a)
+# train_a = a_normalizer.encode(train_a)
+# test_a = a_normalizer.encode(test_a)
 
-y_normalizer = UnitGaussianNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
-# send y normalizer to the device
-y_normalizer.cuda()
+# y_normalizer = UnitGaussianNormalizer(train_u)
+# train_u = y_normalizer.encode(train_u)
+# # send y normalizer to the device
+# y_normalizer.cuda()
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -354,8 +354,8 @@ for ep in range(epochs):
             im_full = model(xx)
             im = im_full
 
-            im = y_normalizer.decode(im)[...,0]
-            im = torch.unsqueeze(im, dim=-1)
+            # im = y_normalizer.decode(im)[...,0]
+            # im = torch.unsqueeze(im, dim=-1)
 
             # im = torch.index_select(im, 1, x_pos)
             # im = torch.index_select(im, 2, y_pos)
@@ -396,8 +396,8 @@ for ep in range(epochs):
                 im_full = model(xx)
                 im = im_full
 
-                im = y_normalizer.decode(im)[...,0]
-                im = torch.unsqueeze(im, dim=-1)
+                # im = y_normalizer.decode(im)[...,0]
+                # im = torch.unsqueeze(im, dim=-1)
 
                 im = torch.index_select(im, 1, x_pos)
                 im = torch.index_select(im, 2, y_pos)
@@ -452,8 +452,8 @@ with torch.no_grad():
             im_full = model(xx)
             im = im_full
 
-            im = y_normalizer.decode(im)[...,0]
-            im = torch.unsqueeze(im, dim=-1)
+            # im = y_normalizer.decode(im)[...,0]
+            # im = torch.unsqueeze(im, dim=-1)
 
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
