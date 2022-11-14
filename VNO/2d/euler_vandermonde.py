@@ -406,6 +406,7 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
+        # loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
 
         print(index, loss/T)
         full_pred[index,...] = pred
