@@ -357,6 +357,7 @@ for ep in range(epochs):
             # im = torch.index_select(im, 2, y_pos)
 
             # decode normalization
+            pdb.set_trace()
             y = y_normalizer.decode(y)
             im = y_normalizer.decode(im)
             
@@ -393,7 +394,7 @@ for ep in range(epochs):
             this_batch_size = xx.shape[0]
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
-                pdb.set_trace()
+                
                 im = model(xx)
                 im = y_normalizer.decode(im)
 
