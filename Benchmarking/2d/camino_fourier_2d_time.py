@@ -175,7 +175,7 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.5
+growth = 1.75
 offset = 20 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
@@ -259,7 +259,6 @@ def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
 test_a, test_u, train_a, train_u = make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos)
 
 def interpolate_positions(data, x_pos, y_pos, method='linear'):
-    pdb.set_trace()
     x_pos = x_pos.numpy()
     y_pos = y_pos.numpy()
     dx, dy = np.meshgrid(x_pos, y_pos)
@@ -269,7 +268,7 @@ def interpolate_positions(data, x_pos, y_pos, method='linear'):
     y = np.arange(np.min(y_pos), np.max(y_pos)+1,1)
     dx, dy = np.meshgrid(x, y)
     dense_loc = np.stack((dx.flatten(), dy.flatten()), axis=1)
-    full_dense_data = np.zeros([data.shape[0], x.shape[0], y.shape[0], data.shape[-1]])
+    full_dense_data = np.zeros([data.shape[0], x.shape[0], y.shape[0], data.shape[-1]], dtype=np.float32)
     for id in range(data.shape[0]):
         for time in range(data.shape[-1]):
             # flatten the data
@@ -278,14 +277,13 @@ def interpolate_positions(data, x_pos, y_pos, method='linear'):
             dense_data = dense_data.reshape(x.shape[0],y.shape[0])
             full_dense_data[id, :, :, time] = dense_data
     return torch.from_numpy(full_dense_data)
-
+start_interp = default_timer()
 train_a = interpolate_positions(train_a, x_pos, y_pos)
-t4 = default_timer()
 train_a = interpolate_positions(train_u, x_pos, y_pos)
-t5 = default_timer()
-print(f'interpolation time of {t5-t4} seconds')
 test_a = interpolate_positions(test_a, x_pos, y_pos)
 test_u = interpolate_positions(test_u, x_pos, y_pos)
+stop_interp = default_timer()
+print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample files.') # about 80 seconds
 
 # pdb.set_trace()
 # S_x = torch.max(x_pos)
