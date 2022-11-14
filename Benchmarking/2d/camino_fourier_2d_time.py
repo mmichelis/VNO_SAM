@@ -365,6 +365,8 @@ for ep in range(epochs):
             loss = 0
             xx = xx.to(device)
             yy = yy.to(device)
+            x_pos = x_pos.to(device)
+            y_pos = y_pos.to(device)
 
             # pdb.set_trace()
             yy = torch.index_select(yy, 1, x_pos)
