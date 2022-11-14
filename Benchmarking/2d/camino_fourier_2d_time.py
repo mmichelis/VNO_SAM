@@ -249,12 +249,14 @@ def define_positions(growth, offset):
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
 
-def make_sparse():
+def make_sparse(x_pos, y_pos):
     test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
     test_u = torch.index_select(torch.index_select(test_u, 1, x_pos), 2, y_pos)
     train_a = torch.index_select(torch.index_select(train_a, 1, x_pos), 2, y_pos)
     train_u = torch.index_select(torch.index_select(train_u, 1, x_pos), 2, y_pos)
-make_sparse()
+
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = make_sparse(x_pos, y_pos)
 
 def interpolate_positions(data, x_pos, y_pos, method='bilinear'):
     sparse_loc = np.stack((x_pos.flatten(), y_pos.flatten()), axis=1)
