@@ -309,6 +309,8 @@ print(f'Processing finished in {t2-t1} seconds.')
 model = FNO2d(modes, modes, width).cuda()
 # model = torch.load(path_model)
 
+x_pos = (x_pos-torch.min(x_pos)).to(device)
+y_pos = (y_pos-torch.min(y_pos)).to(device)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -360,13 +362,12 @@ for ep in range(epochs):
 
     test_l2_step = 0
     test_l2_full = 0
+    pdb.set_trace()
     with torch.no_grad():
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
             yy = yy.to(device)
-            x_pos = x_pos.to(device)
-            y_pos = y_pos.to(device)
 
             # pdb.set_trace()
             yy = torch.index_select(yy, 1, x_pos)
