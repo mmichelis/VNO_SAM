@@ -336,7 +336,7 @@ for ep in range(epochs):
             im = model(xx)
             # im = torch.index_select(im, 1, x_pos)
             # im = torch.index_select(im, 2, y_pos)
-
+            pdb.set_trace()
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
             if t == 0:
