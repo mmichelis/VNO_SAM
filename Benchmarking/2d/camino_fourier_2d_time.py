@@ -193,7 +193,7 @@ t1 = default_timer()
 print('Preprocessing Data...')
 
 def load_data():
-    sub = 10
+    sub = 64
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
     test_a = reader.read_field('vorticity')[:sub,:,:,:T_in]
@@ -362,7 +362,7 @@ for ep in range(epochs):
 
     test_l2_step = 0
     test_l2_full = 0
-    pdb.set_trace()
+
     with torch.no_grad():
         for xx, yy in test_loader:
             loss = 0
