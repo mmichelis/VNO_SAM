@@ -166,7 +166,7 @@ data_dist = 'cc'
 
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 64 * 3
+ntrain = 64 * 7
 ntest = 64 * 1
 
 modes = 16
@@ -183,7 +183,7 @@ scheduler_gamma = 0.97
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 growth = 1.75
-offset = 20 # rip takeoff
+offset = 10 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
 
