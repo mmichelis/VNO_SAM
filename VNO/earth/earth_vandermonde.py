@@ -166,9 +166,9 @@ batch_size = 5
 batch_size2 = batch_size
 
 epochs = 100
-learning_rate = 0.001
-scheduler_step = 100
-scheduler_gamma = 0.5
+learning_rate = 0.005
+scheduler_step = 10
+scheduler_gamma = 0.97
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 

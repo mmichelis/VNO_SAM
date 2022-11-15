@@ -90,14 +90,15 @@ class vdfs:
         self.y_modes = y_modes
         self.x_l = x_positions.shape[0]
         self.y_l = y_positions.shape[0]
-
+        pdb.set_trace()
         self.Vxt, self.Vxc, self.Vyt, self.Vyc = self.make_matrix()
 
     def make_matrix(self):
         V_x = torch.zeros([self.x_modes, self.x_l], dtype=torch.cfloat).cuda()
         for row in range(self.x_modes):
              for col in range(self.x_l):
-                V_x[row, col] = np.exp(-1j * row *  self.x_positions[col]) 
+                # V_x[row, col] = np.exp(-1j * row *  self.x_positions[col]) 
+                V_x[row, col] = np.cos((2*row+1) *  self.x_positions[col] / 2) 
         V_x = torch.divide(V_x, np.sqrt(self.x_l))
 
 
