@@ -181,7 +181,7 @@ ntrain = 64 * 3
 ntest = 64 * 1
 
 modes = 32
-width = 20
+width = 40
 
 batch_size = 20
 batch_size2 = batch_size
@@ -193,8 +193,8 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.75
-offset = 20 # rip takeoff
+growth = 1.4
+offset = 10 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
 
@@ -227,7 +227,7 @@ def load_data():
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
-print(f'Data loaded with shape {test_a.shape}.')
+print(f'Data loaded with shape {train_a.shape}.')
 
 
 # define the lattice of points to select for the simulation
@@ -284,8 +284,6 @@ assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
-# train_a = train_a.reshape(ntrain,S_y,S_x,T_in)
-# test_a = test_a.reshape(ntest,S_y,S_x,T_in)
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
