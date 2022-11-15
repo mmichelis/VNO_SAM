@@ -205,25 +205,30 @@ right = center_lon + offset
 bottom = center_lat - offset
 top = center_lat + offset
 
-TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
-reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
+# Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
+def load_data():
+    TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+    reader = MatReader(TEST_PATH)
+    test_a = reader.read_field(DAT)[-ntest:,:T_in,:,:]
+    test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:,:]
 
-TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
-reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
-train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
-
-for NUM in range(2, 5):
-    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
-    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
+    train_a = reader.read_field(DAT)[:ntrain,:T_in,:,:]
+    train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]
+
+    for NUM in range(2, 5):
+        TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]))
+
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = load_data()
+# shape at this point: [ntrain/ntest, 12, 361, 576]
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
-
 print(train_u.shape)
 print(test_u.shape)
 
@@ -252,9 +257,8 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
-# pdb.set_trace()
-# plt.contourf(lat_, lon_, train_a[100,:,:,0].cpu().numpy(), cmap='RdYlBu')
-# plt.show()
+
+
 ################################################################
 # training and evaluation
 ################################################################
@@ -379,7 +383,7 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
         
-        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
+        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
 
         print(index, full_loss.item() / T, step_loss.item() / T)
         index = index + 1

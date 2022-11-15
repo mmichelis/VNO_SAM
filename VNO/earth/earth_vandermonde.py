@@ -316,7 +316,7 @@ device = torch.device('cuda')
 ################################################################
 
 model = FNO2d(modes, modes, width).cuda()
-transformer = vft2d(lon, lat, modes, modes)
+transformer = vdfs(lon, lat, modes, modes)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -432,7 +432,7 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
-        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
+        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
 
         print(index, full_loss.item() / T, step_loss.item() / T)
         index = index + 1
