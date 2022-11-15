@@ -75,5 +75,5 @@ for s in range(subsets):
                 vorticity_field[index, :, :, index] = omega
 
 
-    scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s}.mat', mdict={'vorticity':vorticity_field})
+    scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s+4}.mat', mdict={'vorticity':vorticity_field})
 ##########################################################
