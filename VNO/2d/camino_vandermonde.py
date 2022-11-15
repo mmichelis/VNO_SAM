@@ -169,14 +169,14 @@ file_path = '../../../VNO_data/2d/'
 ntrain = 64 * 3
 ntest = 64 * 1
 
-modes = 32
-width = 40
+modes = 16
+width = 20
 
 batch_size = 20
 batch_size2 = batch_size
 
 epochs = 500
-learning_rate = 0.0005
+learning_rate = 0.005
 scheduler_step = 10
 scheduler_gamma = 0.97
 
