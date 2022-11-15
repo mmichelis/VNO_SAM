@@ -90,7 +90,7 @@ class vdfs:
         self.y_modes = y_modes
         self.x_l = x_positions.shape[0]
         self.y_l = y_positions.shape[0]
-        pdb.set_trace()
+        
         self.Vxt, self.Vxc, self.Vyt, self.Vyc = self.make_matrix()
 
     def make_matrix(self):
