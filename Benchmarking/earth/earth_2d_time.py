@@ -367,16 +367,17 @@ with torch.no_grad():
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
-            im = model(xx)[:,left:right, bottom:top,:]
+            full_im = model(xx)
+            im = full_im[:,left:right, bottom:top,:]
 
-            step_loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
 
             if t == 0:
                 pred = im
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
         
         full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1)).item()
 
