@@ -339,7 +339,7 @@ for ep in range(epochs):
         yy = yy.to(device)
 
         for t in range(0, T, step):
-            # pdb.set_trace()
+
             y = yy[..., t:t + step]
 
             im = model(xx)
@@ -351,7 +351,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
@@ -382,7 +382,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                # xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -398,10 +398,6 @@ for ep in range(epochs):
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
 
-    # plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
-    # plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
 training_history.close()
 
 
