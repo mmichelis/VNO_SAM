@@ -37,33 +37,42 @@ import matplotlib.pyplot as plt
 # For Euler
 ##########################################################
 file_path = '/cluster/scratch/llingsch/NS/bm_H50_N512/'
-num_samples = 1024
+num_samples = 256
 num_timesteps = 21
 num_points = 512
-subsets = 16
-sub_len = num_samples//subsets
+sub_len = 64 
+subsets = num_samples//sub_len
+data = 'vorticity'
 
 vorticity_field = np.zeros((sub_len, num_points, num_points, num_timesteps))
 pdb.set_trace()
 for s in range(subsets):
     for index, sample in enumerate(range(s*sub_len, (s+1)*sub_len)):
-        for time in range(num_timesteps):
+        for time in range(1, num_timesteps): # ignore the first value cause it is just a random initialization
             name = f'sample_{sample}_time_{time}.nc'
             ds = nc.Dataset(file_path + name)
 
-            u = ds['u'][:].data
-            v = ds['v'][:].data
 
-            shape = u.shape
-            x,y = np.mgrid[0:shape[0],0:shape[1]]
-            dims = len(shape)
-            field = np.stack((u,v))
+            if data == 'velocity':
+                u = ds['u'][:].data
+                v = ds['v'][:].data
 
-            partials = tuple(np.gradient(i) for i in field)
-            jacobian = np.stack(partials).reshape(*(j := (dims,) * 2), *shape)
-            curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
-            curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
-            vorticity_field[index, :,:, time] = curl
+                shape = u.shape
+                x,y = np.mgrid[0:shape[0],0:shape[1]]
+                dims = len(shape)
+                field = np.stack((u,v))
+
+                partials = tuple(np.gradient(i) for i in field)
+                jacobian = np.stack(partials).reshape(*(j := (dims,) * 2), *shape)
+                curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
+                curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
+                vorticity_field[index, :,:, time] = curl
+                
+            elif data == 'vorticity':
+                omega = ds['omega'][:].data
+
+                vorticity_field[index, :, :, time] = omega
+
 
     scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s}.mat', mdict={'vorticity':vorticity_field})
 ##########################################################
