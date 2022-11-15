@@ -176,7 +176,7 @@ batch_size = 20
 batch_size2 = batch_size
 
 epochs = 500
-learning_rate = 0.005
+learning_rate = 0.0005
 scheduler_step = 10
 scheduler_gamma = 0.97
 
