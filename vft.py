@@ -34,8 +34,8 @@ class vft1d:
 # class for 2-dimensional Fourier transforms on a nonequispaced lattice of data
 class vft2d:
     def __init__(self, x_positions, y_positions, x_modes, y_modes):
-        self.x_positions = x_positions
-        self.y_positions = y_positions
+        self.x_positions = x_positions / torch.max(x_positions) * 2 * np.pi
+        self.y_positions = y_positions / torch.max(y_positions) * 2 * np.pi
         self.x_modes = x_modes
         self.y_modes = y_modes
         self.x_l = x_positions.shape[0]
