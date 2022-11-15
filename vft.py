@@ -97,15 +97,16 @@ class vdfs:
         V_x = torch.zeros([self.x_modes, self.x_l], dtype=torch.cfloat).cuda()
         for row in range(self.x_modes):
              for col in range(self.x_l):
-                # V_x[row, col] = np.exp(-1j * row *  self.x_positions[col]) 
-                V_x[row, col] = np.cos((2*row+1) *  self.x_positions[col] / 2) 
+                V_x[row, col] = np.exp(-1j * row *  self.x_positions[col]) 
+                # V_x[row, col] = np.cos((2*row+1) *  self.x_positions[col] / 2) 
         V_x = torch.divide(V_x, np.sqrt(self.x_l))
 
 
         V_y = torch.zeros([self.y_modes, self.y_l], dtype=torch.cfloat).cuda()
         for row in range(self.y_modes):
              for col in range(self.y_l):
-                V_y[row, col] = np.exp(-1j * row *  self.y_positions[col]) 
+                # V_y[row, col] = np.exp(-1j * row *  self.y_positions[col]) 
+                V_y[row, col] = np.cos((2*row+1) *  self.y_positions[col] / 2) 
         V_y = torch.divide(V_y, np.sqrt(self.y_l))
 
         return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
