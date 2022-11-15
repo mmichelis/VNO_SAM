@@ -39,7 +39,7 @@ import matplotlib.pyplot as plt
 file_path = '/cluster/scratch/llingsch/NS/bm_H50_N512/'
 num_samples = 256
 num_timesteps = 20
-T_start = 22
+T_start = 1
 num_points = 512
 sub_len = 64 
 subsets = num_samples//sub_len
