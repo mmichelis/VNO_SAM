@@ -166,7 +166,7 @@ data_dist = 'cc'
 
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 64 * 7
+ntrain = 64 * 3
 ntest = 64 * 1
 
 modes = 16
