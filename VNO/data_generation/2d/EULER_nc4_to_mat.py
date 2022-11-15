@@ -38,7 +38,7 @@ import matplotlib.pyplot as plt
 ##########################################################
 file_path = '/cluster/scratch/llingsch/NS/bm_H50_N512/'
 num_samples = 256
-num_timesteps = 21
+num_timesteps = 20
 num_points = 512
 sub_len = 64 
 subsets = num_samples//sub_len
@@ -48,8 +48,8 @@ vorticity_field = np.zeros((sub_len, num_points, num_points, num_timesteps))
 pdb.set_trace()
 for s in range(subsets):
     for index, sample in enumerate(range(s*sub_len, (s+1)*sub_len)):
-        for time in range(1, num_timesteps): # ignore the first value cause it is just a random initialization
-            name = f'sample_{sample}_time_{time}.nc'
+        for time in range(num_timesteps): # ignore the first value cause it is just a random initialization
+            name = f'sample_{sample}_time_{time+1}.nc'
             ds = nc.Dataset(file_path + name)
 
 
@@ -67,7 +67,7 @@ for s in range(subsets):
                 curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
                 curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
                 vorticity_field[index, :,:, time] = curl
-                
+
             elif data == 'vorticity':
                 omega = ds['omega'][:].data
 
