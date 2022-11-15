@@ -433,6 +433,7 @@ index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/'+interp+'_from_'+data_dist+'_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
+full_pred = torch.zeros_like(test_u)
 with torch.no_grad():
     for xx, yy in test_loader:
         loss = 0
@@ -442,9 +443,6 @@ with torch.no_grad():
         yy = torch.index_select(yy, 1, x_pos)
         yy = torch.index_select(yy, 2, y_pos)
         
-        full_pred = model(xx)
-        full_pred = torch.index_select(full_pred, 1, x_pos)
-        full_pred = torch.index_select(full_pred, 2, y_pos)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
@@ -467,9 +465,8 @@ with torch.no_grad():
             xx = torch.cat((xx[..., step:], im_full), dim=-1)
 
         print(index, loss.item() / T)
+        full_pred[index,...] = pred
         index = index + 1
-        full_pred = torch.cat((full_pred, pred), -1)
-
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
 
