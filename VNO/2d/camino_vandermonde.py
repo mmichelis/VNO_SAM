@@ -140,17 +140,6 @@ class FNO2d(nn.Module):
         x2 = self.w3(x)
         x = x1 + x2
 
-        # x = self.conv0(x)
-        # x = F.gelu(x)
-
-        # x = self.conv1(x)
-        # x = F.gelu(x)
-
-        # x = self.conv2(x)
-        # x = F.gelu(x)
-
-        # x = self.conv3(x)
-
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
         x = x.permute(0, 2, 3, 1)
         x = self.fc1(x)
@@ -193,8 +182,8 @@ scheduler_gamma = 0.5
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.4
-offset = 10 # rip takeoff
+growth = 1.75
+offset = 20 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
 
