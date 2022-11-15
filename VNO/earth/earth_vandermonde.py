@@ -182,6 +182,9 @@ T_in = 12
 T = 12
 step = 1
 
+center_lat = 137 * 2
+growth = 1.2
+offset = 30
 ##############################################################
 # load data
 ################################################################
@@ -254,9 +257,7 @@ def define_positions(center_lat, growth, offset):
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
-center_lat = 137 * 2
-growth = 1.5
-lon, lat = define_positions(center_lat, growth, 20)
+lon, lat = define_positions(center_lat, growth, offset)
 
 
 # select the positions from the desired distribution and double accordingly
