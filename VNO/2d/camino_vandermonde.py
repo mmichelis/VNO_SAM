@@ -162,7 +162,7 @@ class FNO2d(nn.Module):
 ################################################################
 # define which (nonequispaced) data to work with
 # options are 'conexp_conexp', 'exp_conexp', 'rand_rand'
-data_dist = 'cc'
+data_dist = 'uniform'
 
 file_path = '../../../VNO_data/2d/'
 
@@ -175,14 +175,14 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 100
 learning_rate = 0.005
 scheduler_step = 10
 scheduler_gamma = 0.97
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.75
+growth = 1.0
 offset = 10 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
@@ -395,7 +395,7 @@ with torch.no_grad():
         print(index, loss.item() / T)
         full_pred[index,...] = pred
         index = index + 1
-        prediction_history.write(str(loss/T)+'\n')
+        prediction_history.write(str(loss.item()/T)+'\n')
 prediction_history.close()
 
 # ll: save as .txt instead of .mat
