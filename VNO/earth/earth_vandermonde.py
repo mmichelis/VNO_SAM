@@ -157,10 +157,10 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-modes = 32
+modes = 16
 width = 40
 
-batch_size = 1
+batch_size = 10
 batch_size2 = batch_size
 
 epochs = 5
@@ -429,9 +429,9 @@ with torch.no_grad():
 
         full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
 
-        print(index, full_loss.item() / T, step_loss.item() / T)
+        print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
-        prediction_history.write(f'{full_loss.item() / T}   {step_loss.item() / T}')
+        prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T}')
 prediction_history.close()
 print(pred.shape)
 
