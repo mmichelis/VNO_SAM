@@ -165,13 +165,10 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-ntrain = 100
-ntest = 100
-
 modes = 16
-width = 40
+width = 20
 
-batch_size = 2
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 10
@@ -182,7 +179,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 DAT = 'QLML'
-path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 
 sub = 1
@@ -190,36 +187,39 @@ T_in = 12
 T = 12
 step = 1
 
-################################################################
-# load data
-################################################################
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-offset = 20
+offset = 30
 left = center_lon - offset
 right = center_lon + offset
 bottom = center_lat - offset
 top = center_lat + offset
-pdb.set_trace()
+################################################################
+# load data
+################################################################
+def load_data():
+    TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+    reader = MatReader(TEST_PATH)
+    test_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
+    test_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
 
-TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
-reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,bottom:top, left:right]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,bottom:top, left:right]
-
-TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
-reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field(DAT)[:ntrain,:T_in,bottom:top, left:right]
-train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,bottom:top, left:right]
-
-for NUM in range(2, 5):
-    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,bottom:top, left:right]))
-    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,bottom:top, left:right]))
+    train_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
+    train_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
+
+    for NUM in range(2, 5):
+        TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,bottom:top, left:right]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]))
+
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = load_data()
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
+ntest = test_a.shape[0]
 
 print(train_u.shape)
 print(test_u.shape)
@@ -291,7 +291,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
@@ -322,7 +322,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                # xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -338,10 +338,6 @@ for ep in range(epochs):
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
 
-    # plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
-    # plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
 training_history.close()
 # torch.save(model, path_model)
 
@@ -353,10 +349,9 @@ index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open(f'./training_history/2d_europe_{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
-
 with torch.no_grad():
     for xx, yy in test_loader:
-        loss = 0
+        step_loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
         
@@ -365,21 +360,22 @@ with torch.no_grad():
 
             im = model(xx)
 
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            step_loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
                 pred = im
             else:
                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], im), dim=-1)
 
-        print(index, loss.item() / T)
-
+        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
+        
+        print(index, full_loss.item() / T, step_loss.item() / T)
         index = index + 1
 
-        prediction_history.write(str(loss.item() / T)+'\n')
-    prediction_history.close()
+        prediction_history.write(f'{full_loss.item() / T}   {step_loss.item() / T}')
+prediction_history.close()
 print(pred.shape)
 
 scipy.io.savemat('./predictions/2d_europe_'+path+'.mat', mdict={'pred': pred.cpu().numpy()})

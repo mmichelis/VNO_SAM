@@ -156,13 +156,11 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
-ntrain = 100
-ntest = 100
 
 modes = 32
 width = 40
 
-batch_size = 5
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 25
@@ -173,7 +171,7 @@ scheduler_gamma = 0.97
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 DAT = 'QLML'
-path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 
 runtime = np.zeros(2, )
 t1 = default_timer()
@@ -182,9 +180,15 @@ T_in = 12
 T = 12
 step = 1
 
+center_lon = int(188 * 1.6)
 center_lat = 137 * 2
 growth = 1.2
 offset = 30
+
+left = center_lon - offset
+right = center_lon + offset
+bottom = center_lat - offset
+top = center_lat + offset
 ##############################################################
 # load data
 ################################################################
@@ -192,29 +196,34 @@ offset = 30
 def load_data():
     TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
     reader = MatReader(TEST_PATH)
-    test_a = reader.read_field(DAT)[-ntest:,:T_in,:,:]
-    test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:,:]
+    test_a = reader.read_field(DAT)[:,:T_in,:,:]
+    test_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = reader.read_field(DAT)[:ntrain,:T_in,:,:]
-    train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]
+    train_a = reader.read_field(DAT)[:,:T_in,:,:]
+    train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
     for NUM in range(2, 5):
         TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
-        train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:,:]))
-        train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]))
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,:,:]))
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
 # shape at this point: [ntrain/ntest, 12, 361, 576]
 
+# I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
+ntrain = train_a.shape[0]
+ntest = test_a.shape[0]
+print(train_u.shape)
+print(test_u.shape)
+
 # the data must be centered longitudinally so that it stays on a lattice when doubled
 def center_longitutude(data, center):
     lon_pts = data.shape[-1]
     return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
-center_lon = int(188 * 1.6)
 test_a = center_longitutude(test_a, center_lon)
 test_u = center_longitutude(test_u, center_lon)
 train_a = center_longitutude(train_a, center_lon)
@@ -272,29 +281,21 @@ train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
 
+# scale and modify the lon / lat as needed
 lon = lon * np.pi / 180 / 1.6
 lat = np.pi - lat * np.pi / 180 / 2
 lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
-# lat_, lon_ = torch.meshgrid(lat, lon)
-# plt.contourf(lon_, lat_, test_a[0,0,:,:], 60, cmap='RdYlBu_r')
-# plt.scatter(lon_, lat_, marker='.')
-# plt.show()
 
-# I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
-ntrain = train_a.shape[0]
-print(train_u.shape)
-print(test_u.shape)
 
 # can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
 S_x = train_u.shape[-1]
 S_y = train_u.shape[-2]
 assert (T == train_u.shape[1])
 
-# a_normalizer = UnitGaussianNormalizer(train_a)
-# train_a = a_normalizer.encode(train_a)
-# test_a = a_normalizer.encode(test_a)
-# pdb.set_trace()
-
+# NOTE: using reshape will severely alter the data. Use torch. swapaxes instead to get it into the correct format.
+# go from (0, 1, 2, 3) to (0, 3, 2, 1)
+# train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
+# test_a = test_a.reshape(ntest,S_x,S_y,T_in)
 # reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
 train_a = torch.swapaxes(torch.swapaxes(train_a, 1, 3), 1, 2)
 train_u = torch.swapaxes(torch.swapaxes(train_u, 1, 3), 1, 2)
@@ -307,7 +308,6 @@ train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
 
 t2 = default_timer()
-
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
 
@@ -407,15 +407,13 @@ training_history.close()
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/2d_vandermonde_test_loss.txt', 'w')
-# ll: adding this to put y_norm on cuda
-# y_normalizer.cuda()
+batch_size = 1
 with torch.no_grad():
     for xx, yy in test_loader:
         step_loss = 0
         xx = xx.to(device)
         yy = yy.to(device)
         
-        # full_pred = model(xx)
         for t in range(0, T, step):
             y = yy[..., t:t + step]
             im = model(xx)

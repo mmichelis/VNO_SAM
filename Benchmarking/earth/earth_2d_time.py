@@ -165,9 +165,6 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-ntrain = 100
-ntest = 100
-
 modes = 16
 width = 20
 
@@ -182,11 +179,7 @@ scheduler_gamma = 0.5
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 DAT = 'QLML'
-path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-# path_model = '../VNO_models/'+path
-# path_train_err = 'results/'+path+'train.txt'
-# path_test_err = 'results/'+path+'test.txt'
-# path_image = 'image/'+path
+path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 
 sub = 1
@@ -194,34 +187,33 @@ T_in = 12
 T = 12
 step = 1
 
-################################################################
-# load data
-################################################################
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-offset = 20
+offset = 30
 left = center_lon - offset
 right = center_lon + offset
 bottom = center_lat - offset
 top = center_lat + offset
-
+################################################################
+# load data
+################################################################
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
     TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
     reader = MatReader(TEST_PATH)
-    test_a = reader.read_field(DAT)[-ntest:,:T_in,:,:]
-    test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,:,:]
+    test_a = reader.read_field(DAT)[:,:T_in,:,:]
+    test_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
     TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = reader.read_field(DAT)[:ntrain,:T_in,:,:]
-    train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]
+    train_a = reader.read_field(DAT)[:,:T_in,:,:]
+    train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
     for NUM in range(2, 5):
         TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
-        train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,:,:]))
-        train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,:,:]))
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,:,:]))
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
@@ -229,6 +221,7 @@ test_a, test_u, train_a, train_u = load_data()
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
+ntest = test_a.shape[0]
 print(train_u.shape)
 print(test_u.shape)
 
@@ -348,10 +341,6 @@ for ep in range(epochs):
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
 
-    # plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
-    # plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
 training_history.close()
 # torch.save(model, path_model)
 
@@ -363,7 +352,6 @@ index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open(f'./training_history/2d_earth_{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
-# full_pred = torch.zeros(test_u.shape)
 with torch.no_grad():
     for xx, yy in test_loader:
         step_loss = 0
@@ -380,8 +368,10 @@ with torch.no_grad():
 
             if t == 0:
                 pred = im
+                full_pred = full_im
             else:
                 pred = torch.cat((pred, im), -1)
+                full_pred = torch.cat((full_pred, full_im), -1)
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
         
@@ -393,4 +383,4 @@ with torch.no_grad():
 prediction_history.close()
 print(pred.shape)
 
-scipy.io.savemat('./predictions/2d_earth_'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/2d_earth_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
