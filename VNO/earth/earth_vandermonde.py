@@ -157,9 +157,9 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-modes = 16
-selected_modes = np.arange(modes)*2
-width = 40
+selected_modes = np.concatenate((np.arange(16), np.arange(16, 64,3))).shape
+modes = selected_modes.shape[0]
+width = 32
 
 batch_size = 10
 batch_size2 = batch_size

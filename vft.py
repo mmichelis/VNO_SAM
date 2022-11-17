@@ -110,7 +110,7 @@ class vdfs:
                 # V_y[row, col] = np.exp(-1j * row *  self.y_positions[col]) 
                 V_y[row, col] = np.cos((2*self.y_modes[row]+1) *  self.y_positions[col] / 2) 
         V_y = torch.divide(V_y, np.sqrt(self.y_l))
-        pdb.set_trace()
+
         return torch.transpose(V_x, 0, 1), torch.conj(V_x), torch.transpose(V_y, 0, 1), torch.conj(V_y)
 
     def forward(self, data):
