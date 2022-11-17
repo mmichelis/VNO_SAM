@@ -158,6 +158,7 @@ class FNO2d(nn.Module):
 ################################################################
 
 modes = 16
+selected_modes = np.arange(modes)*2
 width = 40
 
 batch_size = 10
@@ -317,7 +318,7 @@ device = torch.device('cuda')
 ################################################################
 
 model = FNO2d(modes, modes, width).cuda()
-transformer = vdfs(lon, lat, modes, modes)
+transformer = vdfs(lon, lat, selected_modes, selected_modes)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)

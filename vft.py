@@ -88,22 +88,25 @@ class vdfs:
         self.y_positions = y_positions / torch.max(y_positions) * 2 * np.pi
         self.x_modes = x_modes
         self.y_modes = y_modes
+        self.x_m = x_modes.shape[0]
+        self.y_m = y_modes.shape[0]
         self.x_l = x_positions.shape[0]
         self.y_l = y_positions.shape[0]
         
         self.Vxt, self.Vxc, self.Vyt, self.Vyc = self.make_matrix()
 
     def make_matrix(self):
-        V_x = torch.zeros([self.x_modes, self.x_l], dtype=torch.cfloat).cuda()
-        for row in range(self.x_modes):
+        pdb.set_trace()
+        V_x = torch.zeros([self.x_m, self.x_l], dtype=torch.cfloat).cuda()
+        for row in self.x_modes:
              for col in range(self.x_l):
                 V_x[row, col] = np.exp(-1j * row *  self.x_positions[col]) 
                 # V_x[row, col] = np.cos((2*row+1) *  self.x_positions[col] / 2) 
         V_x = torch.divide(V_x, np.sqrt(self.x_l))
 
 
-        V_y = torch.zeros([self.y_modes, self.y_l], dtype=torch.cfloat).cuda()
-        for row in range(self.y_modes):
+        V_y = torch.zeros([self.y_m, self.y_l], dtype=torch.cfloat).cuda()
+        for row in self.y_modes:
              for col in range(self.y_l):
                 # V_y[row, col] = np.exp(-1j * row *  self.y_positions[col]) 
                 V_y[row, col] = np.cos((2*row+1) *  self.y_positions[col] / 2) 
