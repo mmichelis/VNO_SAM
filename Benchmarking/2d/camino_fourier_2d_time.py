@@ -451,7 +451,7 @@ with torch.no_grad():
 
             # im = y_normalizer.decode(im)[...,0]
             # im = torch.unsqueeze(im, dim=-1)
-            full_pred[index,:,:,t] = im_full
+            # full_pred[index,:,:,t] = im_full
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 
@@ -469,4 +469,4 @@ with torch.no_grad():
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
 
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy(),'y_pos': y_pos.cpu().numpy(),'x_pos': x_pos.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy(),'y_pos': y_pos.cpu().numpy(),'x_pos': x_pos.cpu().numpy()})
