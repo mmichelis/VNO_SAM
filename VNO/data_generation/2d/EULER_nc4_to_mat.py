@@ -37,9 +37,9 @@ import matplotlib.pyplot as plt
 # For Euler
 ##########################################################
 file_path = '/cluster/scratch/llingsch/NS/bm_H50_N512/'
-num_samples = 256
+num_samples = 1024
 num_timesteps = 20
-T_start = 1
+T_start = 0
 num_points = 512
 sub_len = 64 
 subsets = num_samples//sub_len
@@ -75,5 +75,5 @@ for s in range(subsets):
                 vorticity_field[index, :, :, index] = omega
 
 
-    scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s+4}.mat', mdict={'vorticity':vorticity_field})
+    scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s}.mat', mdict={'vorticity':vorticity_field})
 ##########################################################
