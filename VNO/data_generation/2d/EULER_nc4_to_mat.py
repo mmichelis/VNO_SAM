@@ -67,7 +67,7 @@ for s in range(subsets):
                 jacobian = np.stack(partials).reshape(*(j := (dims,) * 2), *shape)
                 curl_mask = np.triu(np.ones(j, dtype=bool), k=1)
                 curl = (jacobian[curl_mask] - jacobian[curl_mask.T]).squeeze()
-                vorticity_field[index, :,:, index] = curl
+                vorticity_field[s_index, :,:, t_index] = curl
 
             elif data == 'vorticity':
                 omega = ds['omega'][:].data
