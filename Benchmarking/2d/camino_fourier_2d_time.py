@@ -159,16 +159,16 @@ data_dist = 'cc'
 interp = 'linear'
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 64 * 8
+ntrain = 64 * 1
 ntest = 64 * 1
 
 modes = 16
 width = 20
 
-batch_size = 1
+batch_size = 10
 batch_size2 = batch_size
 
-epochs = 10
+epochs = 1
 learning_rate = 0.001
 scheduler_step = 100
 scheduler_gamma = 0.5
@@ -451,11 +451,11 @@ with torch.no_grad():
 
             # im = y_normalizer.decode(im)[...,0]
             # im = torch.unsqueeze(im, dim=-1)
-
+            full_pred[index,:,:,t] = im_full
             im = torch.index_select(im, 1, x_pos)
             im = torch.index_select(im, 2, y_pos)
 
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
 
             if t == 0:
                 pred = im
@@ -465,7 +465,6 @@ with torch.no_grad():
             xx = torch.cat((xx[..., step:], im_full), dim=-1)
 
         print(index, loss.item() / T)
-        full_pred[index,...] = pred
         index = index + 1
         prediction_history.write(str(loss.item() / T)+'\n')
     prediction_history.close()
