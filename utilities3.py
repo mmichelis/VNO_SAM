@@ -157,6 +157,14 @@ class RangeNormalizer(object):
         x = x.view(s)
         return x
 
+    def cuda(self):
+        self.a = self.a.cuda()
+        self.b = self.b.cuda()
+
+    def cpu(self):
+        self.a = self.a.cpu()
+        self.b = self.b.cpu()
+
 #loss function with rel/abs Lp loss
 class LpLoss(object):
     def __init__(self, d=2, p=2, size_average=True, reduction=True):

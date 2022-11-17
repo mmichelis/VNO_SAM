@@ -282,6 +282,8 @@ test_u = double_data(test_u, lon, lat)
 train_a = double_data(train_a, lon, lat)
 train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
+print(train_u.shape)
+print(test_u.shape)
 
 # scale and modify the lon / lat as needed
 lon = lon * np.pi / 180 / 1.6
@@ -312,6 +314,9 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
+
+
+# normalize the data via min-max normalization
 
 
 ################################################################
