@@ -160,7 +160,7 @@ class FNO2d(nn.Module):
 selected_modes = np.concatenate((np.arange(16), np.arange(16, 50,3)))
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
-width = 32
+width = 40
 
 batch_size = 10
 batch_size2 = batch_size
@@ -184,7 +184,7 @@ step = 1
 
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-growth = 1.5
+growth = 1.4
 offset = 30
 
 left = center_lon - offset
