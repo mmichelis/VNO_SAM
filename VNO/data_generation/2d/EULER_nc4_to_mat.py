@@ -48,8 +48,8 @@ data = 'vorticity'
 vorticity_field = np.zeros((sub_len, num_points, num_points, num_timesteps))
 pdb.set_trace()
 for s in range(subsets):
-    for index, sample in enumerate(range(s*sub_len, (s+1)*sub_len)):
-        for index, time in enumerate(range(T_start, T_start+num_timesteps)): # ignore the first value cause it is just a random initialization
+    for s_index, sample in enumerate(range(s*sub_len, (s+1)*sub_len)):
+        for t_index, time in enumerate(range(T_start, T_start+num_timesteps)): # ignore the first value cause it is just a random initialization
             name = f'sample_{sample}_time_{time}.nc'
             ds = nc.Dataset(file_path + name)
 
@@ -72,7 +72,7 @@ for s in range(subsets):
             elif data == 'vorticity':
                 omega = ds['omega'][:].data
 
-                vorticity_field[index, :, :, index] = omega
+                vorticity_field[s_index, :, :, t_index] = omega
 
 
     scipy.io.savemat(f'/cluster/scratch/llingsch/NS/navierstokes_512_512_v1e-4_{s}.mat', mdict={'vorticity':vorticity_field})
