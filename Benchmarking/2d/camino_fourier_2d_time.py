@@ -283,14 +283,15 @@ def interpolate_positions(data, x_pos, y_pos, method=interp):
             dense_data = dense_data.reshape(x.shape[0],y.shape[0])
             full_dense_data[id, :, :, time] = dense_data
     return torch.from_numpy(full_dense_data)
-start_interp = default_timer()
-train_a = interpolate_positions(train_a, x_pos, y_pos)
-train_u = interpolate_positions(train_u, x_pos, y_pos)
-test_a = interpolate_positions(test_a, x_pos, y_pos)
-test_u = interpolate_positions(test_u, x_pos, y_pos)
-stop_interp = default_timer()
-print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample files.') # about 80 seconds
-print(f'Data interpolated with new shape {test_a.shape}.')
+if (growth > 1.0):
+    start_interp = default_timer()
+    train_a = interpolate_positions(train_a, x_pos, y_pos)
+    train_u = interpolate_positions(train_u, x_pos, y_pos)
+    test_a = interpolate_positions(test_a, x_pos, y_pos)
+    test_u = interpolate_positions(test_u, x_pos, y_pos)
+    stop_interp = default_timer()
+    print(f'interpolation time of {stop_interp-start_interp} for 2 vorticity sample files.') # about 80 seconds
+    print(f'Data interpolated with new shape {test_a.shape}.')
 
 
 # assert same number of samples with same shapes, not necessarily same times
