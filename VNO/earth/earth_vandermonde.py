@@ -403,6 +403,7 @@ for ep in range(epochs):
                 xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
             test_l2_step += loss.item()
+            pdb.set_trace()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step].reshape(batch_size, -1)).item()
 
     t2 = default_timer()
