@@ -62,7 +62,7 @@ class SpectralConv2d_fast(nn.Module):
         # batchsize = x.shape[0]
 
         x_ft = transformer.forward(x.cfloat())
-        pdb.set_trace()
+
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
