@@ -384,19 +384,19 @@ for ep in range(epochs):
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
-            yy = yy.to(device)
+            yy = yy.to(device)[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset), :]
 
 
             for t in range(0, T, step):
                 pdb.set_trace()
-                y = yy[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset), t:t + step]
+                y = yy
                 
                 full_im = model(xx)
                 im = im[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
                 asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
                 plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
                 plt.show()
-                plt.contourf(asd, jkl, im)
+                plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
                 plt.show()
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1), 60, cmap='RdYlBu_r')
