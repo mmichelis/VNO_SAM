@@ -384,7 +384,7 @@ for ep in range(epochs):
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
-        yy = y_normalizer.decode(yy)
+        # yy = y_normalizer.decode(yy)
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
         train_l2_full += l2_full.item()
 
