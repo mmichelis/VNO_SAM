@@ -388,8 +388,9 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                y = yy[:, num_w:num_w+2*offset, num_s:num_s+2*offset, t:t + step]
                 pdb.set_trace()
+                y = yy[:, int(num_w):int(num_w+2*offset), int(num_s):int(num_s+2*offset), t:t + step]
+                
                 full_im = model(xx)
                 im = im[:, num_w:num_w+2*offset, num_s:num_s+2*offset]
                 asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
