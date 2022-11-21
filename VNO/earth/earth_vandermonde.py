@@ -371,8 +371,8 @@ for ep in range(epochs):
 
             im = model(xx)
 
-            y = y_normalizer.decode(y)
-            im = y_normalizer.decode(im)
+            # y = y_normalizer.decode(y)
+            # im = y_normalizer.decode(im)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -384,6 +384,7 @@ for ep in range(epochs):
             xx = torch.cat((xx[..., step:], im), dim=-1)
 
         train_l2_step += loss.item()
+        yy = y_normalizer.decode(yy)
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
         train_l2_full += l2_full.item()
 
@@ -418,7 +419,7 @@ for ep in range(epochs):
 
             test_l2_step += loss.item()
 
-            yy = y_normalizer.decode(yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :])
+            yy = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
 
     t2 = default_timer()
