@@ -277,8 +277,8 @@ def define_positions(center_lat, growth, offset):
     # fix positions together
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
-    return lon.int(), lat.int(), num_w, num_s
-lon, lat, num_w, num_s = define_positions(center_lat, growth, offset)
+    return lon.int(), lat.int(), num_w, num_n
+lon, lat, num_w, num_n = define_positions(center_lat, growth, offset)
 
 
 # select the positions from the desired distribution and double accordingly
@@ -389,17 +389,17 @@ for ep in range(epochs):
 
             for t in range(0, T, step):
                 pdb.set_trace()
-                y = yy[:, int(num_w):int(num_w+2*offset), int(num_s):int(num_s+2*offset), t:t + step]
+                y = yy[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset), t:t + step]
                 
                 full_im = model(xx)
-                im = im[:, num_w:num_w+2*offset, num_s:num_s+2*offset]
+                im = im[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
                 asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
-                plt.contourf(asd, jkl, y)
+                plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
                 plt.show()
                 plt.contourf(asd, jkl, im)
                 plt.show()
                 
-                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1), 60, cmap='RdYlBu_r')
 
                 if t == 0:
                     pred = im
