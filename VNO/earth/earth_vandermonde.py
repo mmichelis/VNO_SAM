@@ -175,7 +175,7 @@ width = 40
 batch_size = 10
 batch_size2 = batch_size
 
-epochs = 200
+epochs = 5
 learning_rate = 0.0025
 scheduler_step = 10
 scheduler_gamma = 0.90
@@ -194,7 +194,7 @@ step = 1
 
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-growth = 1.4
+growth = 1.05
 offset = 30
 
 left = center_lon - offset
@@ -384,29 +384,23 @@ for ep in range(epochs):
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
-            yy = yy.to(device)[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset), :]
+            yy = yy.to(device)
 
 
             for t in range(0, T, step):
                 pdb.set_trace()
-                y = yy
+                y = yy[...,t:t+step]
                 
-                full_im = model(xx)
-                im = im[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
-                asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
-                plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-                plt.show()
-                plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-                plt.show()
+                im = model(xx)
                 
-                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1), 60, cmap='RdYlBu_r')
+                loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
                     pred = im
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], full_im), dim=-1)
+                xx = torch.cat((xx[..., step:], im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -436,11 +430,18 @@ with torch.no_grad():
     for xx, yy in test_loader:
         step_loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)
+        yy = yy.to(device)[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset),:]
         
         for t in range(0, T, step):
             y = yy[..., t:t + step]
-            im = model(xx)
+
+            full_im = model(xx)
+            im = im[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
+            asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
+            plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            plt.show()
+            plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            plt.show()
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
             
