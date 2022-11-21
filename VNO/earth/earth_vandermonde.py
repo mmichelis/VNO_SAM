@@ -457,7 +457,7 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
-        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
+        full_loss = myloss(pred.reshape(1, -1), yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:].reshape(1, -1))
 
         print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
