@@ -171,7 +171,7 @@ selected_modes = np.concatenate((np.arange(32), np.arange(32,64,3)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
-width = 20
+width = 32
 
 batch_size = 20
 batch_size2 = batch_size
