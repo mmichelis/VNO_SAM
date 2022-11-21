@@ -176,9 +176,9 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 100
 learning_rate = 0.005
-scheduler_step = 15
+scheduler_step = 6
 scheduler_gamma = 0.9
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
@@ -195,7 +195,7 @@ step = 1
 
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-growth = 1.7
+growth = 1.4
 offset = 30
 
 left = center_lon - offset
@@ -436,27 +436,18 @@ with torch.no_grad():
         
         for t in range(0, T, step):
             y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
-            # pdb.set_trace()
+
             full_im = model(xx)
             im = full_im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
-            # asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
-            # plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            # plt.show()
-            # plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            # plt.show()
-            # llon, llat = np.meshgrid(lon,lat[-int(num_n+2*offset):-int(num_n)])
-            # plt.contourf(llon, llat, yy[0,-int(num_n+2*offset):-int(num_n),:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            # plt.show()
-            # llon, llat = np.meshgrid(lon[int(num_w):int(num_w+2*offset)],lat[-int(num_n+2*offset):-int(num_n)])
-            # plt.contourf(llon, llat, yy[0,-int(num_n+2*offset):-int(num_n),int(num_w):int(num_w+2*offset),0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            # plt.show()
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
             
             if t == 0:
                 pred = im
+                full_pred = full_im
             else:
                 pred = torch.cat((pred, im), -1)
+                full_pred = torch.cat((full_pred, full_im), -1)
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
@@ -469,4 +460,4 @@ prediction_history.close()
 print(pred.shape)
 
 # only save one prediction to keep space low
-scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': pred.cpu().numpy(), 'lat': lat.cpu().numpy(), 'lon': lon.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'full_pred': full_pred.cpu().numpy(),'pred': pred.cpu().numpy(), 'lat': lat.cpu().numpy(), 'lon': lon.cpu().numpy()})
