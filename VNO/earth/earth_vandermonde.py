@@ -50,10 +50,10 @@ class SpectralConv2d_fast(nn.Module):
         self.modes2 = modes2
 
         self.scale = (1 / (in_channels * out_channels))
-        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
-        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
-        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
-        # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
+        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
+        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
 
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -63,19 +63,19 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         # batchsize = x.shape[0]
 
-        # x_ft = transformer.forward(x)
-        # # Multiply relevant Fourier modes
-        # # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
-        # x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
-        # #Return to physical space
-        # x = transformer.inverse(x_ft)
-
-
-        x_ft = transformer.forward(x.cfloat())
+        x_ft = transformer.forward(x)
+        # Multiply relevant Fourier modes
+        # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
-        x = transformer.inverse(x_ft).real
+        #Return to physical space
+        x = transformer.inverse(x_ft)
+
+
+        # x_ft = transformer.forward(x.cfloat())
+        # x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        # x = transformer.inverse(x_ft).real
 
 
         return x
@@ -167,19 +167,19 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-selected_modes = np.concatenate((np.arange(20), np.arange(20,33,2)))
+selected_modes = np.concatenate((np.arange(32), np.arange(32,33,2)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
 
-batch_size = 10
+batch_size = 20
 batch_size2 = batch_size
 
-epochs = 200
+epochs = 500
 learning_rate = 0.005
-scheduler_step = 10
-scheduler_gamma = 0.85
+scheduler_step = 15
+scheduler_gamma = 0.9
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
@@ -195,7 +195,7 @@ step = 1
 
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-growth = 1.4
+growth = 1.7
 offset = 30
 
 left = center_lon - offset
