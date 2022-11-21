@@ -260,7 +260,7 @@ def define_positions(center_lat, growth, offset):
     num_s = np.floor(side_s**(1/growth))+1
     num_n = np.floor((top - side_n)**(1/growth))+1
     num_w = np.floor(side_w**(1/growth))
-    num_e = num_w #np.floor((right - side_e)**(1/growth))
+    num_e = num_w
 
     # define the positions of points to each side
     points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
@@ -277,8 +277,8 @@ def define_positions(center_lat, growth, offset):
     # fix positions together
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
-    return lon.int(), lat.int()
-lon, lat = define_positions(center_lat, growth, offset)
+    return lon.int(), lat.int(), num_w, num_s
+lon, lat, num_w, num_s = define_positions(center_lat, growth, offset)
 
 
 # select the positions from the desired distribution and double accordingly
@@ -388,9 +388,15 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                y = yy[..., t:t + step]
-
-                im = model(xx)
+                y = yy[:, num_w:num_w+2*offset, num_s:num_s+2*offset, t:t + step]
+                pdb.set_trace()
+                full_im = model(xx)
+                im = im[:, num_w:num_w+2*offset, num_s:num_s+2*offset]
+                asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
+                plt.contourf(asd, jkl, y)
+                plt.show()
+                plt.contourf(asd, jkl, im)
+                plt.show()
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -399,7 +405,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -448,7 +454,7 @@ with torch.no_grad():
 
         print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
-        prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T}')
+        prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T} \n')
 prediction_history.close()
 print(pred.shape)
 
