@@ -388,7 +388,6 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                pdb.set_trace()
                 y = yy[...,t:t+step]
                 
                 im = model(xx)
@@ -434,7 +433,7 @@ with torch.no_grad():
         
         for t in range(0, T, step):
             y = yy[..., t:t + step]
-
+            pdb.set_trace()
             full_im = model(xx)
             im = im[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
             asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
