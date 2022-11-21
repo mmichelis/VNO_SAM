@@ -60,8 +60,9 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         # batchsize = x.shape[0]
-
-        x_ft = transformer.forward(x.cfloat())
+        pdb.set_trace()
+        # x_ft = transformer.forward(x.cfloat())
+        x_ft = transformer.forward(x)
 
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
@@ -69,7 +70,8 @@ class SpectralConv2d_fast(nn.Module):
         x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
         #Return to physical space
-        x = transformer.inverse(x_ft).real
+        # x = transformer.inverse(x_ft).real
+        x = transformer.inverse(x_ft)
 
         return x
 
@@ -182,8 +184,8 @@ path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 12
-T = 12
+T_in = 18
+T = 6
 step = 1
 
 center_lon = int(188 * 1.6)
