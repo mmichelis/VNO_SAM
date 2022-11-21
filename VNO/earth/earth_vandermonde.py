@@ -227,6 +227,14 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 # shape at this point: [ntrain/ntest, 12, 361, 576]
 
+
+a_normalizer = RangeNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
+
+y_normalizer = RangeNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
+
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
 ntest = test_a.shape[0]
@@ -346,6 +354,7 @@ myloss = LpLoss(size_average=False)
 training_history = open('./training_history/2d_vandermonde.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
+y_normalizer.cuda()
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
@@ -361,6 +370,9 @@ for ep in range(epochs):
             y = yy[..., t:t + step]
 
             im = model(xx)
+
+            y = y_normalizer.decode(y)
+            im = y_normalizer.decode(im)
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -392,7 +404,8 @@ for ep in range(epochs):
                 y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
                 
                 full_im = model(xx)
-                im = full_im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+                im = y_normalizer.decode(full_im)
+                im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -438,7 +451,8 @@ with torch.no_grad():
             y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
 
             full_im = model(xx)
-            im = full_im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+            im = y_normalizer.decode(full_im)
+            im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
             
@@ -447,7 +461,7 @@ with torch.no_grad():
                 full_pred = full_im
             else:
                 pred = torch.cat((pred, im), -1)
-                full_pred = torch.cat((full_pred, full_im), -1)
+                full_pred = torch.cat((full_pred, y_normalizer.decode(full_im)), -1)
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
