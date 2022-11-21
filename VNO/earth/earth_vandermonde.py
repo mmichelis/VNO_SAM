@@ -429,17 +429,20 @@ with torch.no_grad():
     for xx, yy in test_loader:
         step_loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset),:]
+        yy = yy.to(device)
         
         for t in range(0, T, step):
-            y = yy[..., t:t + step]
+            y = yy[:, -int(num_n):-int(num_n+2*offset), int(num_w):int(num_w+2*offset), t:t + step]
             pdb.set_trace()
             full_im = model(xx)
-            im = im[:, int(num_n):int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
+            im = im[:, -int(num_n):-int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
             asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
             plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
             plt.show()
             plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            plt.show()
+            llon, llat = np.meshgrid(lon,lat)
+            plt.contourf(llon, llat, full_im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
             plt.show()
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
@@ -449,7 +452,7 @@ with torch.no_grad():
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
         full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
 
