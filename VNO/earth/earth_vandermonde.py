@@ -166,7 +166,7 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-selected_modes = np.concatenate((np.arange(16)), np.arange(16,50,3))
+selected_modes = np.concatenate((np.arange(16), np.arange(16,50,3)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
