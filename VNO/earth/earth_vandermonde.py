@@ -175,7 +175,7 @@ width = 40
 batch_size = 10
 batch_size2 = batch_size
 
-epochs = 1
+epochs = 100
 learning_rate = 0.0025
 scheduler_step = 10
 scheduler_gamma = 0.90
@@ -388,9 +388,10 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                y = yy[...,t:t+step]
+                y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
                 
-                im = model(xx)
+                full_im = model(xx)
+                im = full_im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -399,10 +400,10 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
             test_l2_step += loss.item()
-            test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
+            test_l2_full += myloss(pred.reshape(batch_size, -1), yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step].reshape(batch_size, -1)).item()
 
     t2 = default_timer()
     scheduler.step()
@@ -433,7 +434,7 @@ with torch.no_grad():
         
         for t in range(0, T, step):
             y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
-            pdb.set_trace()
+            # pdb.set_trace()
             full_im = model(xx)
             im = full_im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
             # asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
