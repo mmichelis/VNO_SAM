@@ -418,7 +418,8 @@ for ep in range(epochs):
 
             test_l2_step += loss.item()
 
-            test_l2_full += myloss(pred.reshape(batch_size, -1), yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :].reshape(batch_size, -1)).item()
+            yy = y_normalizer.decode(yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :])
+            test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
 
     t2 = default_timer()
     scheduler.step()
