@@ -144,17 +144,17 @@ class RangeNormalizer(object):
         self.b = -self.a*mymax + high
 
     def encode(self, x):
-        s = x.size()
-        x = x.view(s[0], -1)
+        # s = x.size()
+        # x = x.view(s[0], -1)
         x = self.a*x + self.b
-        x = x.view(s)
+        # x = x.view(s)
         return x
 
     def decode(self, x):
-        s = x.size()
-        x = x.view(s[0], -1)
+        # s = x.size()
+        # x = x.view(s[0], -1)
         x = (x - self.b)/self.a
-        x = x.view(s)
+        # x = x.view(s)
         return x
 
     def cuda(self):
