@@ -62,7 +62,7 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         # batchsize = x.shape[0]
-        pdb.set_trace()
+        # pdb.set_trace()
         # x_ft = transformer.forward(x.cfloat())
         x_ft = transformer.forward(x)
 
@@ -170,7 +170,7 @@ class FNO2d(nn.Module):
 selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
-width = 40
+width = 20
 
 batch_size = 10
 batch_size2 = batch_size
