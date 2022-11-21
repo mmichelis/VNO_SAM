@@ -167,7 +167,7 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-selected_modes = np.concatenate((np.arange(32), np.arange(32,33,2)))
+selected_modes = np.concatenate((np.arange(32), np.arange(32,64,3)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
@@ -176,9 +176,9 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 100
+epochs = 200
 learning_rate = 0.005
-scheduler_step = 6
+scheduler_step = 8
 scheduler_gamma = 0.9
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
