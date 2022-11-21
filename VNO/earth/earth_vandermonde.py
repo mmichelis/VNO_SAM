@@ -432,18 +432,21 @@ with torch.no_grad():
         yy = yy.to(device)
         
         for t in range(0, T, step):
-            y = yy[:, -int(num_n):-int(num_n+2*offset), int(num_w):int(num_w+2*offset), t:t + step]
-            pdb.set_trace()
+            y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
+            # pdb.set_trace()
             full_im = model(xx)
-            im = im[:, -int(num_n):-int(num_n+2*offset), int(num_w):int(num_w+2*offset)]
-            asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
-            plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            plt.show()
-            plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            plt.show()
-            llon, llat = np.meshgrid(lon,lat)
-            plt.contourf(llon, llat, full_im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
-            plt.show()
+            im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset)]
+            # asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
+            # plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            # plt.show()
+            # plt.contourf(asd, jkl, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            # plt.show()
+            # llon, llat = np.meshgrid(lon,lat[-int(num_n+2*offset):-int(num_n)])
+            # plt.contourf(llon, llat, yy[0,-int(num_n+2*offset):-int(num_n),:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            # plt.show()
+            # llon, llat = np.meshgrid(lon[int(num_w):int(num_w+2*offset)],lat[-int(num_n+2*offset):-int(num_n)])
+            # plt.contourf(llon, llat, yy[0,-int(num_n+2*offset):-int(num_n),int(num_w):int(num_w+2*offset),0].cpu().numpy(), 60, cmap='RdYlBu_r')
+            # plt.show()
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
             
