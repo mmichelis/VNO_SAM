@@ -175,7 +175,7 @@ width = 40
 batch_size = 10
 batch_size2 = batch_size
 
-epochs = 5
+epochs = 1
 learning_rate = 0.0025
 scheduler_step = 10
 scheduler_gamma = 0.90
@@ -433,9 +433,9 @@ with torch.no_grad():
         
         for t in range(0, T, step):
             y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
-            # pdb.set_trace()
+            pdb.set_trace()
             full_im = model(xx)
-            im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset)]
+            im = full_im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
             # asd,jkl = np.mgrid[0:2*offset, 0:2*offset]
             # plt.contourf(asd, jkl, y[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu_r')
             # plt.show()
