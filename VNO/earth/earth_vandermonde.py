@@ -62,7 +62,7 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         # batchsize = x.shape[0]
-        # pdb.set_trace()
+        pdb.set_trace()
         # x_ft = transformer.forward(x.cfloat())
         x_ft = transformer.forward(x)
 
