@@ -137,8 +137,8 @@ class GaussianNormalizer(object):
 class RangeNormalizer(object):
     def __init__(self, x, low=0.0, high=1.0):
         super(RangeNormalizer, self).__init__()
-        mymin = torch.min(x, 0)[0].view(-1)
-        mymax = torch.max(x, 0)[0].view(-1)
+        mymin = torch.min(x)
+        mymax = torch.max(x)
 
         self.a = (high - low)/(mymax - mymin)
         self.b = -self.a*mymax + high
