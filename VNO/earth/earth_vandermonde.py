@@ -63,13 +63,13 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         # batchsize = x.shape[0]
 
-        x_ft = transformer.forward(x)
+        x_ft = transformer.forward(x.cfloat())
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
         #Return to physical space
-        x = transformer.inverse(x_ft)
+        x = transformer.inverse(x_ft).real
 
 
         # x_ft = transformer.forward(x.cfloat())
@@ -179,7 +179,7 @@ batch_size2 = batch_size
 epochs = 500
 learning_rate = 0.005
 scheduler_step = 10
-scheduler_gamma = 0.95
+scheduler_gamma = 0.97
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
