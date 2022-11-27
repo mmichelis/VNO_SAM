@@ -8,7 +8,7 @@ import pdb
 file_names = np.loadtxt('download.txt', dtype=str)
 num_files = file_names.shape[0]
 file_name = file_names[0]
-file_path = '/cluster/scratch/llingsch/'
+file_path = '/cluster/scratch/llingsch/EarthData/'
 name = 'QLML'
 ds = nc.Dataset(file_path + file_name)
 lat_ = ds['lat'][:].data
