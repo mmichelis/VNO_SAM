@@ -171,10 +171,10 @@ width = 20
 batch_size = 5
 batch_size2 = batch_size
 
-epochs = 100
-learning_rate = 0.001
-scheduler_step = 100
-scheduler_gamma = 0.5
+epochs = 500
+learning_rate = 0.005
+scheduler_step = 10
+scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
@@ -209,7 +209,7 @@ def load_data():
     train_a = reader.read_field(DAT)[:,:T_in,:,:]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    for NUM in range(2, 5):
+    for NUM in range(2, 16):
         TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
@@ -218,6 +218,13 @@ def load_data():
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
 # shape at this point: [ntrain/ntest, 12, 361, 576]
+
+a_normalizer = RangeNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
+
+y_normalizer = RangeNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
@@ -269,6 +276,7 @@ myloss = LpLoss(size_average=False)
 training_history = open(f'./training_history/2d_earth_{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
+y_normalizer.cuda()
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
@@ -316,6 +324,7 @@ for ep in range(epochs):
                 y = yy[..., t:t + step]
 
                 full_im = model(xx)
+                im = y_normalizer.decode(full_im)
                 im = full_im[:,left:right, bottom:top,:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
@@ -362,16 +371,17 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             full_im = model(xx)
+            im = y_normalizer.decode(full_im)
             im = full_im[:,left:right, bottom:top,:]
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
 
             if t == 0:
                 pred = im
-                full_pred = full_im
+                full_pred = y_normalizer.decode(full_im)
             else:
                 pred = torch.cat((pred, im), -1)
-                full_pred = torch.cat((full_pred, full_im), -1)
+                full_pred = torch.cat((full_pred, y_normalizer.decode(full_im)), -1)
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
         
