@@ -218,12 +218,12 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 
 
-a_normalizer = RangeNormalizer(train_a)
-train_a = a_normalizer.encode(train_a)
-test_a = a_normalizer.encode(test_a)
+# a_normalizer = RangeNormalizer(train_a)
+# train_a = a_normalizer.encode(train_a)
+# test_a = a_normalizer.encode(test_a)
 
-y_normalizer = RangeNormalizer(train_u)
-train_u = y_normalizer.encode(train_u)
+# y_normalizer = RangeNormalizer(train_u)
+# train_u = y_normalizer.encode(train_u)
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
@@ -323,7 +323,7 @@ for ep in range(epochs):
                 y = yy[..., t:t + step]
 
                 im = model(xx)
-                im = y_normalizer.decode(im)
+                # im = y_normalizer.decode(im)
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
@@ -368,7 +368,7 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             im = model(xx)
-            im = y_normalizer.decode(im)
+            # im = y_normalizer.decode(im)
             step_loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
