@@ -460,7 +460,7 @@ with torch.no_grad():
             
             if t == 0:
                 pred = im
-                full_pred = full_im
+                full_pred = y_normalizer.decode(full_im)
             else:
                 pred = torch.cat((pred, im), -1)
                 full_pred = torch.cat((full_pred, y_normalizer.decode(full_im)), -1)
