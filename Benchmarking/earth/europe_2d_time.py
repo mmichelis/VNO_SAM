@@ -277,7 +277,7 @@ myloss = LpLoss(size_average=False)
 training_history = open(f'./training_history/2d_europe_{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
-y_normalizer.cuda()
+# y_normalizer.cuda()
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
