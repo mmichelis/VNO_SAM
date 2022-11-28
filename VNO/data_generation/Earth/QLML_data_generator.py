@@ -5,10 +5,10 @@ import pdb
 
 #pdb.set_trace()
 
-file_names = np.loadtxt('NewNames.txt', dtype=str)
+file_names = np.loadtxt('download.txt', dtype=str)
 num_files = file_names.shape[0]
 file_name = file_names[0]
-file_path = '/cluster/scratch/llingsch/'
+file_path = '/cluster/scratch/llingsch/EarthData/'
 name = 'QLML'
 ds = nc.Dataset(file_path + file_name)
 lat_ = ds['lat'][:].data
@@ -17,7 +17,7 @@ speed = ds[name][:,:,:].data
 
 speed_data = np.empty((100,speed.shape[0],speed.shape[1],speed.shape[2]))
 
-for rd in range(2, 5):
+for rd in range(0, 16):
     print(round)
     for id in range(100): #num_files):
         file_name = file_names[id+100*rd]
