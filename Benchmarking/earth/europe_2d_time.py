@@ -208,7 +208,7 @@ def load_data():
     train_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
 
-    for NUM in range(2, 5):
+    for NUM in range(2, 16):
         TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,bottom:top, left:right]))
