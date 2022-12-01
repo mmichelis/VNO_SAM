@@ -171,13 +171,13 @@ selected_modes = np.concatenate((np.arange(16), np.arange(16,40,3)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
-width = 20
+width = 32
 
 batch_size = 20
 batch_size2 = batch_size
 
 epochs = 100
-learning_rate = 0.005
+learning_rate = 0.0025
 scheduler_step = 10
 scheduler_gamma = 0.9
 
@@ -464,6 +464,7 @@ with torch.no_grad():
             
             if t == 0:
                 pred = im
+                full_pred = full_im
                 # full_pred = y_normalizer.decode(full_im)
             else:
                 pred = torch.cat((pred, im), -1)
