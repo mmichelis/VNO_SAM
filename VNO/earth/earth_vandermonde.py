@@ -407,7 +407,8 @@ for ep in range(epochs):
                 
                 full_im = model(xx)
                 # im = y_normalizer.decode(full_im)
-                pdb.set_trace()
+                im = full_im
+                
                 im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
