@@ -225,6 +225,7 @@ test_a = a_normalizer.encode(test_a)
 
 y_normalizer = RangeNormalizer(train_u)
 train_u = y_normalizer.encode(train_u)
+test_u = y_normalizer.encode(test_u)
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]

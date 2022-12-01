@@ -176,10 +176,10 @@ width = 32
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 100
 learning_rate = 0.005
 scheduler_step = 10
-scheduler_gamma = 0.95
+scheduler_gamma = 0.9
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
@@ -195,7 +195,7 @@ step = 1
 
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-growth = 1.4
+growth = 1.7
 offset = 30
 
 left = center_lon - offset
@@ -403,13 +403,13 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
-                
+                # y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
+                y = yy
                 full_im = model(xx)
                 # im = y_normalizer.decode(full_im)
                 im = full_im
                 
-                im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+                # im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 

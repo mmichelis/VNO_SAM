@@ -171,10 +171,10 @@ width = 20
 batch_size = 20
 batch_size2 = batch_size
 
-epochs = 500
+epochs = 100
 learning_rate = 0.005
 scheduler_step = 10
-scheduler_gamma = 0.95
+scheduler_gamma = 0.9
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
