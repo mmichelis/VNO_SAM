@@ -167,11 +167,11 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 
-selected_modes = np.concatenate((np.arange(32), np.arange(32,64,3)))
+selected_modes = np.concatenate((np.arange(16), np.arange(16,40,4)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
-width = 32
+width = 20
 
 batch_size = 20
 batch_size2 = batch_size
@@ -404,7 +404,7 @@ for ep in range(epochs):
 
             for t in range(0, T, step):
                 # y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
-                y = yy
+                y = yy[..., t:t + step]
                 full_im = model(xx)
                 # im = y_normalizer.decode(full_im)
                 im = full_im
