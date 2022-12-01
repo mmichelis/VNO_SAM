@@ -218,12 +218,13 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 
 
-# a_normalizer = RangeNormalizer(train_a)
-# train_a = a_normalizer.encode(train_a)
-# test_a = a_normalizer.encode(test_a)
+a_normalizer = RangeNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
 
-# y_normalizer = RangeNormalizer(train_u)
-# train_u = y_normalizer.encode(train_u)
+y_normalizer = RangeNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
+train_a = y_normalizer.encode(train_a)
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
