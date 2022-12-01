@@ -364,7 +364,7 @@ for ep in range(epochs):
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
+        yy = yy.to(device)#[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
 
         for t in range(0, T, step):
 
@@ -372,7 +372,7 @@ for ep in range(epochs):
 
             full_im = model(xx)
             im = full_im
-            im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+            # im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
 
             # y = y_normalizer.decode(y)
             # im = y_normalizer.decode(im)
