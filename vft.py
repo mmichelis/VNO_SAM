@@ -102,7 +102,7 @@ class vdfs:
         for row in range(self.x_m):
              for col in range(self.x_l):
                 # V_x[row, col] = np.exp(-1j * self.x_modes[row] *  self.x_positions[col]) 
-                V_x[row, col] = np.cos((2*row+1) *  self.x_positions[col] / 2) 
+                V_x[row, col] = np.cos((2*self.x_modes[row]+1) *  self.x_positions[col] / 2) 
         V_x = torch.divide(V_x, np.sqrt(self.x_l))
 
 
