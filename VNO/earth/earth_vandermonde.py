@@ -368,9 +368,11 @@ for ep in range(epochs):
 
         for t in range(0, T, step):
 
-            y = yy[..., t:t + step]
+            y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
 
-            im = model(xx)
+            full_im = model(xx)
+            im = full_im
+            im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
 
             # y = y_normalizer.decode(y)
             # im = y_normalizer.decode(im)
@@ -382,7 +384,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
         train_l2_step += loss.item()
         # yy = y_normalizer.decode(yy)
@@ -403,13 +405,13 @@ for ep in range(epochs):
 
 
             for t in range(0, T, step):
-                # y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
+                y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
                 y = yy[..., t:t + step]
                 full_im = model(xx)
                 # im = y_normalizer.decode(full_im)
                 im = full_im
                 
-                # im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+                im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
