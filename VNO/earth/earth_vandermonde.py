@@ -234,7 +234,7 @@ test_a = a_normalizer.encode(test_a)
 
 y_normalizer = RangeNormalizer(train_u)
 train_u = y_normalizer.encode(train_u)
-train_a = y_normalizer.encode(train_a)
+test_u = y_normalizer.encode(test_u)
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
@@ -457,6 +457,7 @@ with torch.no_grad():
 
             full_im = model(xx)
             # im = y_normalizer.decode(full_im)
+            im = full_im
             im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
