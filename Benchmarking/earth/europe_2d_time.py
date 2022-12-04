@@ -12,7 +12,7 @@ import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
 import sys
-
+import os
 
 import operator
 from functools import reduce
@@ -164,6 +164,11 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
+euler_data_path = '/cluster/scratch/llingsch/EarthData/'
+if os.euler_path.exists():
+    original_data_path = euler_data_path
+else:
+    original_data_path = '../../../VNO_data/EarthData/'
 
 modes = 16
 width = 20
@@ -187,29 +192,32 @@ T_in = 12
 T = 12
 step = 1
 
-center_lon = int(188 * 1.6)
-center_lat = 137 * 2
-offset = 80
-left = center_lon - offset
-right = center_lon + offset
-bottom = center_lat - offset
-top = center_lat + offset
+center_lon = 265 # int(188 * 1.6)
+center_lat = 270 # 137 * 2
+lon_offset = 70
+lat_offset = 25
+left = center_lon - lon_offset
+right = center_lon + lon_offset
+bottom = center_lat - lat_offset
+top = center_lat + lat_offset
 ################################################################
 # load data
 ################################################################
+
+
 def load_data():
-    TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+    TEST_PATH = original_data_path + f'{DAT}_data_0.mat'
     reader = MatReader(TEST_PATH)
     test_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
     test_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
 
-    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
+    TRAIN_PATH = original_data_path + f'{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
 
     for NUM in range(2, 16):
-        TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+        TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,bottom:top, left:right]))
         train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]))
@@ -245,8 +253,6 @@ assert (T == train_u.shape[1])
 
 # NOTE: using reshape will severely alter the data. Use torch. swapaxes instead to get it into the correct format.
 # go from (0, 1, 2, 3) to (0, 3, 2, 1)
-# train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
-# test_a = test_a.reshape(ntest,S_x,S_y,T_in)
 train_a = torch.swapaxes(train_a, 1, 3)
 test_a = torch.swapaxes(test_a, 1, 3)
 train_u = torch.swapaxes(train_u, 1, 3)
@@ -258,9 +264,6 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
-# pdb.set_trace()
-# plt.contourf(lat_, lon_, train_a[100,:,:,0].cpu().numpy(), cmap='RdYlBu')
-# plt.show()
 ################################################################
 # training and evaluation
 ################################################################

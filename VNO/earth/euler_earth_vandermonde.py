@@ -20,7 +20,7 @@ from functools import reduce
 from functools import partial
 
 from timeit import default_timer
-
+import os
 import sys
 sys.path.append('../../')
 from vft import *
@@ -206,6 +206,8 @@ top = center_lat + offset
 # load data
 ################################################################
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
+
+
 def load_data():
     TEST_PATH = f'/cluster/scratch/llingsch/EarthData/{DAT}_data_0.mat'
     reader = MatReader(TEST_PATH)
