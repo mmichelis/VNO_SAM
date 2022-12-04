@@ -194,9 +194,9 @@ T = 12
 step = 1
 
 center_lon = int(188 * 1.6)
-center_lat = 137 * 2
+center_lat = 150 * 2
+offset = 15
 growth = 1.4
-offset = 30
 
 left = center_lon - offset
 right = center_lon + offset
