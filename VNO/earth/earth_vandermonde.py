@@ -20,7 +20,7 @@ from functools import reduce
 from functools import partial
 
 from timeit import default_timer
-
+import os
 import sys
 sys.path.append('../../')
 from vft import *
@@ -166,6 +166,12 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
+euler_data_path = '/cluster/scratch/llingsch/EarthData/'
+if os.path.exists(euler_data_path):
+    original_data_path = euler_data_path
+else:
+    original_data_path = '../../../VNO_data/EarthData/'
+
 
 selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
 # selected_modes = np.arange(16)
@@ -207,18 +213,18 @@ top = center_lat + offset
 ################################################################
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
-    TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
+    TEST_PATH = original_data_path + f'{DAT}_data_0.mat'
     reader = MatReader(TEST_PATH)
     test_a = reader.read_field(DAT)[:,:T_in,:,:]
     test_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
+    TRAIN_PATH = original_data_path + f'{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
     train_a = reader.read_field(DAT)[:,:T_in,:,:]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
     for NUM in range(2, 16):
-        TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+        TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
         train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,:,:]))
