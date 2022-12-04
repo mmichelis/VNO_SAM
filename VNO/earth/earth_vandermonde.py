@@ -183,7 +183,7 @@ batch_size = 20
 batch_size2 = batch_size
 
 epochs = 100
-learning_rate = 0.001
+learning_rate = 0.005
 scheduler_step = 10
 scheduler_gamma = 0.9
 
@@ -199,15 +199,17 @@ T_in = 12
 T = 12
 step = 1
 
-center_lon = int(188 * 1.6)
-center_lat = 150 * 2
-offset = 15
-growth = 1.4
+center_lon = 265 # int(188 * 1.6)
+center_lat = 270 # 137 * 2
+lon_offset = 70
+lat_offset = 25
 
-left = center_lon - offset
-right = center_lon + offset
-bottom = center_lat - offset
-top = center_lat + offset
+left = center_lon - lon_offset
+right = center_lon + lon_offset
+bottom = center_lat - lat_offset
+top = center_lat + lat_offset
+
+growth = 1.4
 ##############################################################
 # load data
 ################################################################
@@ -258,7 +260,7 @@ train_a = center_longitutude(train_a, center_lon)
 train_u = center_longitutude(train_u, center_lon)
 
 # define the lattice of points to select for the simulation
-def define_positions(center_lat, growth, offset):
+def define_positions(center_lat, growth, lon_offset, lat_offset):
     # the bottom and left boundaries are both at 0, but not the top or right boundaries
     top = 180 * 2
     right = 360 * 1.6
@@ -267,10 +269,10 @@ def define_positions(center_lat, growth, offset):
     center_lon = right//2
 
     # define the bounds of the equispaced region
-    side_s = center_lat - offset
-    side_n = center_lat + offset
-    side_w = center_lon - offset
-    side_e = center_lon + offset
+    side_s = center_lat - lat_offset
+    side_n = center_lat + lat_offset
+    side_w = center_lon - lon_offset
+    side_e = center_lon + lon_offset
 
     # calculate the number of points in each side of the nonequispaced region
     num_s = np.floor(side_s**(1/growth))+1
@@ -294,8 +296,8 @@ def define_positions(center_lat, growth, offset):
     lat = torch.cat((points_s, central_lat, points_n))
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int(), num_w, num_n
-lon, lat, num_w, num_n = define_positions(center_lat, growth, offset)
-
+lon, lat, num_w, num_n = define_positions(center_lat, growth, lon_offset, lat_offset)
+pdb.set_trace()
 
 # select the positions from the desired distribution and double accordingly
 def double_data(data, lon, lat):
