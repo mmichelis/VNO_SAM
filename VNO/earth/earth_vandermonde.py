@@ -209,7 +209,7 @@ right = center_lon + lon_offset
 bottom = center_lat - lat_offset
 top = center_lat + lat_offset
 
-growth = 1.4
+growth = 1.7
 ##############################################################
 # load data
 ################################################################
@@ -297,7 +297,6 @@ def define_positions(center_lat, growth, lon_offset, lat_offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int(), num_w, num_n
 lon, lat, num_w, num_n = define_positions(center_lat, growth, lon_offset, lat_offset)
-pdb.set_trace()
 
 # select the positions from the desired distribution and double accordingly
 def double_data(data, lon, lat):
