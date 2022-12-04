@@ -189,7 +189,7 @@ step = 1
 
 center_lon = int(188 * 1.6)
 center_lat = 137 * 2
-offset = 30
+offset = 20
 left = center_lon - offset
 right = center_lon + offset
 bottom = center_lat - offset
