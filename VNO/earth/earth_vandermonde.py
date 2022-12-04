@@ -408,7 +408,7 @@ for ep in range(epochs):
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
-            yy = yy.to(device)[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
+            yy = yy.to(device)[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
 
 
             for t in range(0, T, step):
@@ -418,7 +418,7 @@ for ep in range(epochs):
                 # im = y_normalizer.decode(full_im)
                 im = full_im
                 
-                im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+                im = im[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -462,12 +462,12 @@ with torch.no_grad():
         yy = yy.to(device)
         
         for t in range(0, T, step):
-            y = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), t:t + step]
+            y = yy[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), t:t + step]
 
             full_im = model(xx)
             # im = y_normalizer.decode(full_im)
             im = full_im
-            im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
+            im = im[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:]
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
             
@@ -482,7 +482,7 @@ with torch.no_grad():
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
-        full_loss = myloss(pred.reshape(1, -1), yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:].reshape(1, -1))
+        full_loss = myloss(pred.reshape(1, -1), yy[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:].reshape(1, -1))
 
         print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
