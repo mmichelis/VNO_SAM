@@ -165,7 +165,7 @@ class FNO2d(nn.Module):
 # configs
 ################################################################
 euler_data_path = '/cluster/scratch/llingsch/EarthData/'
-if os.euler_path.exists():
+if os.path.exists(euler_data_path):
     original_data_path = euler_data_path
 else:
     original_data_path = '../../../VNO_data/EarthData/'
