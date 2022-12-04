@@ -188,7 +188,7 @@ T = 12
 step = 1
 
 center_lon = int(188 * 1.6)
-center_lat = 150 * 2
+center_lat = 137 * 2
 offset = 50
 left = center_lon - offset
 right = center_lon + offset
