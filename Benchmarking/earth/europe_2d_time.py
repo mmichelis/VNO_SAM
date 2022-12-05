@@ -188,8 +188,8 @@ path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 
 sub = 1
-T_in = 12
-T = 12
+T_in = 18
+T = 6
 step = 1
 
 center_lon = 265 # int(188 * 1.6)

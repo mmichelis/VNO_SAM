@@ -173,7 +173,7 @@ else:
     original_data_path = '../../../VNO_data/EarthData/'
 
 
-selected_modes = np.concatenate((np.arange(16), np.arange(16,32,1)))
+selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
@@ -195,8 +195,8 @@ path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 12
-T = 12
+T_in = 18
+T = 6
 step = 1
 
 center_lon = 265 # int(188 * 1.6)
