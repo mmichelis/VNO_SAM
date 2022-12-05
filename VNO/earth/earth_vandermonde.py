@@ -195,8 +195,8 @@ path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 18
-T = 6
+T_in = 12
+T = 12
 step = 1
 
 center_lon = 265 # int(188 * 1.6)
