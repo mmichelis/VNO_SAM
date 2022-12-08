@@ -177,9 +177,9 @@ batch_size = 10
 batch_size2 = batch_size
 
 epochs = 100
-learning_rate = 0.001
+learning_rate = 0.005
 scheduler_step = 10
-scheduler_gamma = 0.9
+scheduler_gamma = 0.91
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
@@ -188,14 +188,14 @@ path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 
 sub = 1
-T_in = 18
-T = 6
+T_in = 12
+T = 12
 step = 1
 
-center_lon = 265 # int(188 * 1.6)
-center_lat = 270 # 137 * 2
-lon_offset = 70
-lat_offset = 25
+center_lon = 195 # int(188 * 1.6)
+center_lat = 140 # 137 * 2
+lon_offset = 40
+lat_offset = 70
 left = center_lon - lon_offset
 right = center_lon + lon_offset
 bottom = center_lat - lat_offset

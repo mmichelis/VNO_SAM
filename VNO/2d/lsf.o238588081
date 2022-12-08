@@ -1,0 +1,76 @@
+Sender: LSF System <lsfadmin@eu-g3-028>
+Subject: Job 238588081: <python3 euler_vandermonde.py> in cluster <euler> Exited
+
+Job <python3 euler_vandermonde.py> was submitted from host <eu-login-14> by user <llingsch> in cluster <euler> at Mon Nov 14 20:26:41 2022
+Job was executed on host(s) <eu-g3-028>, in queue <gpu.4h>, as user <llingsch> in cluster <euler> at Mon Nov 14 20:26:54 2022
+</cluster/home/llingsch> was used as the home directory.
+</cluster/home/llingsch/SAM/VNO_main/VNO_SAM/VNO/2d> was used as the working directory.
+Started at Mon Nov 14 20:26:54 2022
+Terminated at Mon Nov 14 20:26:59 2022
+Results reported at Mon Nov 14 20:26:59 2022
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python3 euler_vandermonde.py
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   2.16 sec.
+    Max Memory :                                 1283 MB
+    Average Memory :                             -
+    Total Requested Memory :                     65536.00 MB
+    Delta Memory :                               64253.00 MB
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   29 sec.
+    Turnaround time :                            18 sec.
+
+The output (if any) follows:
+
+100 0.001 100 0.5
+Preprocessing Data...
+Traceback (most recent call last):
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/site-packages/scipy/io/matlab/mio.py", line 39, in _open_file
+    return open(file_like, mode), True
+FileNotFoundError: [Errno 2] No such file or directory: '../../../VNO_data/2d/navierstokes_512_512_v1e-4_0.mat'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "../../utilities3.py", line 35, in _load_file
+    self.data = scipy.io.loadmat(self.file_path)
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/site-packages/scipy/io/matlab/mio.py", line 224, in loadmat
+    with _open_file_context(file_name, appendmat) as f:
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/contextlib.py", line 113, in __enter__
+    return next(self.gen)
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/site-packages/scipy/io/matlab/mio.py", line 17, in _open_file_context
+    f, opened = _open_file(file_like, appendmat, mode)
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/site-packages/scipy/io/matlab/mio.py", line 45, in _open_file
+    return open(file_like, mode), True
+FileNotFoundError: [Errno 2] No such file or directory: '../../../VNO_data/2d/navierstokes_512_512_v1e-4_0.mat'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "euler_vandermonde.py", line 238, in <module>
+    test_a, test_u, train_a, train_u = load_data()
+  File "euler_vandermonde.py", line 217, in load_data
+    reader = MatReader(TRAIN_PATH)
+  File "../../utilities3.py", line 31, in __init__
+    self._load_file()
+  File "../../utilities3.py", line 38, in _load_file
+    self.data = h5py.File(self.file_path)
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/site-packages/h5py/_hl/files.py", line 424, in __init__
+    fid = make_fid(name, mode, userblock_size,
+  File "/cluster/apps/nss/gcc-8.2.0/python/3.8.5/x86_64/lib64/python3.8/site-packages/h5py/_hl/files.py", line 190, in make_fid
+    fid = h5f.open(name, flags, fapl=fapl)
+  File "h5py/_objects.pyx", line 54, in h5py._objects.with_phil.wrapper
+  File "h5py/_objects.pyx", line 55, in h5py._objects.with_phil.wrapper
+  File "h5py/h5f.pyx", line 96, in h5py.h5f.open
+OSError: Unable to open file (unable to open file: name = '../../../VNO_data/2d/navierstokes_512_512_v1e-4_0.mat', errno = 2, error message = 'No such file or directory', flags = 0, o_flags = 0)

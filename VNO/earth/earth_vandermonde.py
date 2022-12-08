@@ -177,15 +177,15 @@ selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
 # selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
-width = 32
+width = 20
 
-batch_size = 10
+batch_size = 10 
 batch_size2 = batch_size
 
 epochs = 100
 learning_rate = 0.005
 scheduler_step = 10
-scheduler_gamma = 0.9
+scheduler_gamma = 0.91
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
@@ -195,14 +195,14 @@ path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 18
-T = 6
+T_in = 12
+T = 12
 step = 1
 
-center_lon = 265 # int(188 * 1.6)
-center_lat = 270 # 137 * 2
+center_lon = 170 # int(188 * 1.6)
+center_lat = 140 # 137 * 2
 lon_offset = 70
-lat_offset = 25
+lat_offset = 70
 
 left = center_lon - lon_offset
 right = center_lon + lon_offset
@@ -210,6 +210,7 @@ bottom = center_lat - lat_offset
 top = center_lat + lat_offset
 
 growth = 1.7
+print(f'growth = {growth}')
 ##############################################################
 # load data
 ################################################################
@@ -372,7 +373,7 @@ for ep in range(epochs):
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)#[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
-
+        batch_size = xx.shape[0]
         for t in range(0, T, step):
 
             y = yy[...,t:t + step]
@@ -383,7 +384,6 @@ for ep in range(epochs):
 
             # y = y_normalizer.decode(y)
             # im = y_normalizer.decode(im)
-
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
@@ -409,7 +409,7 @@ for ep in range(epochs):
             loss = 0
             xx = xx.to(device)
             yy = yy.to(device)[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
-
+            batch_size = xx.shape[0]
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
