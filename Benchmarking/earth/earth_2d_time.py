@@ -280,12 +280,12 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
-    batch_size = xx.shape[0]
+
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)[:,left:right, bottom:top, :]
-
+        batch_size = xx.shape[0]
         for t in range(0, T, step):
 
             y = yy[..., t:t + step]

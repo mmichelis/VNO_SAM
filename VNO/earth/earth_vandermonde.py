@@ -166,7 +166,7 @@ print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
 
-batch_size = 7
+batch_size = 6
 batch_size2 = batch_size
 print(batch_size)
 
