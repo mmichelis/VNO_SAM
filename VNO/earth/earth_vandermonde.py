@@ -177,7 +177,7 @@ scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'QLML' # 'HLML'
+DAT = 'QLML' # 'QLML' or 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 print(path)
 runtime = np.zeros(2, )
@@ -214,7 +214,7 @@ def load_data():
     train_a = reader.read_field(DAT)[:,:T_in,:,:]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    for NUM in range(2, 16):
+    for NUM in range(2, 6):
         TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))

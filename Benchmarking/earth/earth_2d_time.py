@@ -206,7 +206,7 @@ def load_data():
     train_a = reader.read_field(DAT)[:,:T_in,:,:]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    for NUM in range(2, 16):
+    for NUM in range(2, 6):
         TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
@@ -285,6 +285,7 @@ for ep in range(epochs):
         loss = 0
         xx = xx.to(device)
         yy = yy.to(device)[:,left:right, bottom:top, :]
+
         batch_size = xx.shape[0]
         for t in range(0, T, step):
 
