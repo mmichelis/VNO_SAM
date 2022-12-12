@@ -173,13 +173,13 @@ scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'QLML' # 'HLML'
+DAT = 'HLML' # 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 
 sub = 1
-T_in = 12 #12
-T = 12 # 12
+T_in = 6 #12
+T = 18 # 12
 step = 1
 
 center_lon = 170 # int(188 * 1.6)
@@ -206,7 +206,7 @@ def load_data():
     train_a = reader.read_field(DAT)[:,:T_in,:,:]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    for NUM in range(2, 6):
+    for NUM in range(2, 16):
         TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
