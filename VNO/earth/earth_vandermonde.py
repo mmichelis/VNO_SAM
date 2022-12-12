@@ -170,14 +170,14 @@ batch_size = 5
 batch_size2 = batch_size
 print(batch_size)
 
-epochs = 200
+epochs = 2
 learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'HLML' # 'QLML' or 'HLML'
+DAT = 'QLML' # 'QLML' or 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 print(path)
 runtime = np.zeros(2, )
@@ -197,7 +197,7 @@ right = center_lon + lon_offset
 bottom = center_lat - lat_offset
 top = center_lat + lat_offset
 
-growth = 1.7
+growth = 2.0
 print(f'growth = {growth}')
 ##############################################################
 # load data
