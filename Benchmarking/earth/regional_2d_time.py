@@ -1,10 +1,10 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+This work was originally authored by Zongyi Li, to present the Fourier Neural Operator for 2D+time problem such as the Navier Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf).
+
+It has been modified by
+@author: Levi Lingsch
+to implement the Benchmark over a region of the Earth.
 """
-
-
 import torch
 import numpy as np
 import torch.nn as nn
@@ -24,10 +24,9 @@ sys.path.append('../../')
 from utilities3 import *
 from Adam import Adam
 
+
 torch.manual_seed(0)
 np.random.seed(0)
-
-import pdb
 
 ################################################################
 # fourier layer
@@ -137,15 +136,6 @@ class FNO2d(nn.Module):
         x2 = self.w3(x)
         x = x1 + x2
 
-        # x2 = self.w0(x)
-        # x = F.gelu(x2)
-        # x2 = self.w1(x)
-        # x = F.gelu(x2)
-        # x2 = self.w2(x)
-        # x = F.gelu(x2)
-        # x2 = self.w3(x)
-        # x = F.gelu(x2)
-
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
         x = x.permute(0, 2, 3, 1)
         x = self.fc1(x)
@@ -177,27 +167,28 @@ batch_size = 10
 batch_size2 = batch_size
 print(batch_size)
 
-epochs = 100
+epochs = 200
 learning_rate = 0.001
 scheduler_step = 10
-scheduler_gamma = 0.91
+scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'QLML'
+DAT = 'QLML' # 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 print(path)
 
 sub = 1
-T_in = 6
-T = 18
+T_in = 6 #12
+T = 18  #12
 step = 1
 
-center_lon = 195 # int(188 * 1.6)
+center_lon = 170 # int(188 * 1.6)
 center_lat = 140 # 137 * 2
-lon_offset = 40
+lon_offset = 70
 lat_offset = 70
+
 left = center_lon - lon_offset
 right = center_lon + lon_offset
 bottom = center_lat - lat_offset
@@ -289,6 +280,7 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
+    batch_size = xx.shape[0]
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
@@ -323,13 +315,12 @@ for ep in range(epochs):
             loss = 0
             xx = xx.to(device)
             yy = yy.to(device)
-
+            batch_size = xx.shape[0]
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
 
                 im = model(xx)
-                # im = y_normalizer.decode(im)
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
@@ -354,12 +345,8 @@ for ep in range(epochs):
                     +'\n')
 
 training_history.close()
-# torch.save(model, path_model)
 
 
-
-
-# pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open(f'./training_history/2d_europe_{DAT}_data_test_loss.txt', 'w')
@@ -374,7 +361,6 @@ with torch.no_grad():
             y = yy[..., t:t + step]
 
             im = model(xx)
-            # im = y_normalizer.decode(im)
             step_loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:

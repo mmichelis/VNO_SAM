@@ -3,34 +3,30 @@ This work was originally authored by Zongyi Li, to present the Fourier Neural Op
 
 It has been modified by
 @author: Levi Lingsch
-to implement the 2D+time VNO on the Navier Stokes equation using data with a contracting-expanding distribution in both dimensions.
+to implement the VNO the Earth.
 """
-
-
 import torch
 import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
-
+import os
+import sys
 
 import operator
 from functools import reduce
 from functools import partial
 
 from timeit import default_timer
-import os
-import sys
+
 sys.path.append('../../')
 from vft import *
 from Adam import Adam
 from utilities3 import *
-import pdb
 
 torch.manual_seed(0)
 np.random.seed(0)
-
 
 ################################################################
 # fourier layer
@@ -65,20 +61,14 @@ class SpectralConv2d_fast(nn.Module):
 
         x_ft = transformer.forward(x.cfloat())
         # Multiply relevant Fourier modes
-        # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
         #Return to physical space
         x = transformer.inverse(x_ft).real
 
-
-        # x_ft = transformer.forward(x.cfloat())
-        # x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
-        # x = transformer.inverse(x_ft).real
-
-
         return x
+
+
+
 
 class FNO2d(nn.Module):
     def __init__(self, modes1, modes2, width):
@@ -155,10 +145,8 @@ class FNO2d(nn.Module):
 
     def get_grid(self, shape, device):
         batchsize, size_x, size_y = shape[0], shape[2], shape[1]
-        # gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
         gridx = lon
         gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
-        # gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
         gridy = lat
         gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
@@ -174,30 +162,29 @@ else:
 
 
 selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
-# selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
 
-batch_size = 5 
+batch_size = 7
 batch_size2 = batch_size
 print(batch_size)
 
-epochs = 1
+epochs = 200
 learning_rate = 0.001
 scheduler_step = 10
-scheduler_gamma = 0.91
+scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'QLML'
+DAT = 'QLML' # 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 print(path)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 6
-T = 18
+T_in = 6 #12
+T = 18 #12
 step = 1
 
 center_lon = 170 # int(188 * 1.6)
@@ -345,9 +332,6 @@ print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
 
 
-# normalize the data via min-max normalization
-
-
 ################################################################
 # training and evaluation
 ################################################################
@@ -373,7 +357,7 @@ for ep in range(epochs):
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
-        yy = yy.to(device) #[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
+        yy = yy.to(device) 
         batch_size = xx.shape[0]
         for t in range(0, T, step):
 
@@ -381,9 +365,7 @@ for ep in range(epochs):
 
             full_im = model(xx)
             im = full_im
-            im = im #[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
-            # y = y_normalizer.decode(y)
-            # im = y_normalizer.decode(im)
+            im = im 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
@@ -394,7 +376,6 @@ for ep in range(epochs):
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
         train_l2_step += loss.item()
-        # yy = y_normalizer.decode(yy)
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
         train_l2_full += l2_full.item()
 
@@ -413,9 +394,8 @@ for ep in range(epochs):
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
-                # y = yy[..., t:t + step]
+                
                 full_im = model(xx)
-                # im = y_normalizer.decode(full_im)
                 im = full_im
                 
                 im = im[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:]
@@ -430,8 +410,6 @@ for ep in range(epochs):
                 xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
             test_l2_step += loss.item()
-
-            # yy = yy[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
 
     t2 = default_timer()
@@ -448,9 +426,6 @@ for ep in range(epochs):
 training_history.close()
 
 
-
-
-# pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
 prediction_history = open('./training_history/2d_vandermonde_test_loss.txt', 'w')
@@ -465,7 +440,6 @@ with torch.no_grad():
             y = yy[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), t:t + step]
 
             full_im = model(xx)
-            # im = y_normalizer.decode(full_im)
             im = full_im
             im = im[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:]
 
@@ -474,10 +448,8 @@ with torch.no_grad():
             if t == 0:
                 pred = im
                 full_pred = full_im
-                # full_pred = y_normalizer.decode(full_im)
             else:
                 pred = torch.cat((pred, im), -1)
-                # full_pred = torch.cat((full_pred, y_normalizer.decode(full_im)), -1)
                 full_pred = torch.cat((full_pred, full_im), -1)
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
