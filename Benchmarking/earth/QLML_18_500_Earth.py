@@ -1,10 +1,10 @@
 """
-@author: Zongyi Li
-This file is the Fourier Neural Operator for 2D problem such as the Navier-Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf),
-which uses a recurrent structure to propagates in time.
+This work was originally authored by Zongyi Li, to present the Fourier Neural Operator for 2D+time problem such as the Navier Stokes equation discussed in Section 5.3 in the [paper](https://arxiv.org/pdf/2010.08895.pdf).
+
+It has been modified by
+@author: Levi Lingsch
+to implement the Benchmark over the Earth.
 """
-
-
 import torch
 import numpy as np
 import torch.nn as nn
@@ -12,7 +12,7 @@ import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
 import sys
-
+import os
 
 import operator
 from functools import reduce
@@ -24,10 +24,9 @@ sys.path.append('../../')
 from utilities3 import *
 from Adam import Adam
 
+
 torch.manual_seed(0)
 np.random.seed(0)
-
-import pdb
 
 ################################################################
 # fourier layer
@@ -92,8 +91,8 @@ class FNO2d(nn.Module):
         self.modes2 = modes2
         self.width = width
         self.padding = 2 # pad the domain if input is non-periodic
-        self.fc0 = nn.Linear(14, self.width)
-        # input channel is 14: the solution of the previous 12 timesteps + 2 locations (u(t-10, x, y), ..., u(t-1, x, y),  x, y)
+        self.fc0 = nn.Linear(T_in+2, self.width)
+        # input channel is T_in+2: the solution of the previous T_in timesteps + 2 locations (u(t-10, x, y), ..., u(t-1, x, y),  x, y)
 
         self.conv0 = SpectralConv2d_fast(self.width, self.width, self.modes1, self.modes2)
         self.conv1 = SpectralConv2d_fast(self.width, self.width, self.modes1, self.modes2)
@@ -137,15 +136,6 @@ class FNO2d(nn.Module):
         x2 = self.w3(x)
         x = x1 + x2
 
-        # x2 = self.w0(x)
-        # x = F.gelu(x2)
-        # x2 = self.w1(x)
-        # x = F.gelu(x2)
-        # x2 = self.w2(x)
-        # x = F.gelu(x2)
-        # x2 = self.w3(x)
-        # x = F.gelu(x2)
-
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
         x = x.permute(0, 2, 3, 1)
         x = self.fc1(x)
@@ -164,59 +154,83 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
+DAT = 'QLML' # 'HLML' or 'QLML'
+T_in = 6     # 6 or 12
+training_file_number = 6    # 6 or 16
+print(DAT, T_in, training_file_number)
 
-ntrain = 100
-ntest = 100
+euler_data_path = '/cluster/scratch/llingsch/EarthData/'
+if os.path.exists(euler_data_path):
+    original_data_path = euler_data_path
+else:
+    original_data_path = '../../../VNO_data/EarthData/'
 
 modes = 16
-width = 40
+width = 20
 
-batch_size = 2
+batch_size = 1
 batch_size2 = batch_size
 
-epochs = 25
+epochs = 100
 learning_rate = 0.001
-scheduler_step = 100
-scheduler_gamma = 0.5
+scheduler_step = 10
+scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'QLML'
-path = DAT+'_data_'+str(ntrain)+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-# path_model = '../VNO_models/'+path
-# path_train_err = 'results/'+path+'train.txt'
-# path_test_err = 'results/'+path+'test.txt'
-# path_image = 'image/'+path
+path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
+print(path)
 
 sub = 1
-T_in = 12
-T = 12
+T = 24 - T_in
 step = 1
 
+center_lon = 170 # int(188 * 1.6)
+center_lat = 140 # 137 * 2
+lon_offset = 70
+lat_offset = 70
+
+left = center_lon - lon_offset
+right = center_lon + lon_offset
+bottom = center_lat - lat_offset
+top = center_lat + lat_offset
 ################################################################
 # load data
 ################################################################
+# Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
+def load_data():
+    TEST_PATH = original_data_path + f'{DAT}_data_0.mat'
+    reader = MatReader(TEST_PATH)
+    test_a = reader.read_field(DAT)[:,:T_in,:,:]
+    test_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-TEST_PATH = f'../../../VNO_data/EarthData/{DAT}_data_0.mat'
-reader = MatReader(TEST_PATH)
-test_a = reader.read_field(DAT)[-ntest:,:T_in,::sub,::sub]
-test_u = reader.read_field(DAT)[-ntest:,T_in:T+T_in,::sub,::sub]
-
-TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_1.mat'
-reader = MatReader(TRAIN_PATH)
-train_a = reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]
-train_u = reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]
-
-for NUM in range(2, 3):
-    TRAIN_PATH = f'../../../VNO_data/EarthData/{DAT}_data_{NUM}.mat'
+    TRAIN_PATH = original_data_path + f'{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = torch.cat((train_a, reader.read_field(DAT)[:ntrain,:T_in,::sub,::sub]))
-    train_u = torch.cat((train_u, reader.read_field(DAT)[:ntrain,T_in:T+T_in,::sub,::sub]))
+    train_a = reader.read_field(DAT)[:,:T_in,:,:]
+    train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
+
+    for NUM in range(2, training_file_number):
+        TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
+        reader = MatReader(TRAIN_PATH)
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,:,:]))
+
+    return test_a, test_u, train_a, train_u
+test_a, test_u, train_a, train_u = load_data()
+# shape at this point: [ntrain/ntest, 12, 361, 576]
+
+a_normalizer = RangeNormalizer(train_a)
+train_a = a_normalizer.encode(train_a)
+test_a = a_normalizer.encode(test_a)
+
+y_normalizer = RangeNormalizer(train_u)
+train_u = y_normalizer.encode(train_u)
+test_u = y_normalizer.encode(test_u)
 
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
-
+ntest = test_a.shape[0]
 print(train_u.shape)
 print(test_u.shape)
 
@@ -245,9 +259,8 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
-# pdb.set_trace()
-# plt.contourf(lat_, lon_, train_a[100,:,:,0].cpu().numpy(), cmap='RdYlBu')
-# plt.show()
+
+
 ################################################################
 # training and evaluation
 ################################################################
@@ -262,23 +275,28 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open(f'./training_history/2d_{DAT}_data.txt', 'w')
+training_history = open(f'./training_history/2d_earth_{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
+y_normalizer.cuda()
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
+
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)
+        yy = yy.to(device)[:,left:right, bottom:top, :]
 
+        batch_size = xx.shape[0]
         for t in range(0, T, step):
+
             y = yy[..., t:t + step]
 
-            im = model(xx)
+            full_im = model(xx)
+            im = full_im[:,left:right, bottom:top,:]
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -287,7 +305,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
@@ -303,13 +321,14 @@ for ep in range(epochs):
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
-            yy = yy.to(device)
-
+            yy = yy.to(device)[:,left:right, bottom:top, :]
+            batch_size = xx.shape[0]
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
 
-                im = model(xx)
+                full_im = model(xx)
+                im = full_im[:,left:right, bottom:top,:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -318,7 +337,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                # xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -334,49 +353,41 @@ for ep in range(epochs):
                     +' '+ str(test_l2_full / ntest)\
                     +'\n')
 
-    # plt.contourf(lat_, lon_, im[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
-    # plt.contourf(lat_, lon_, yy[0,:,:,0].cpu().numpy(), 60, cmap='RdYlBu')
-    # plt.show()
 training_history.close()
-# torch.save(model, path_model)
 
 
-
-
-# pred = torch.zeros(test_u.shape)
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open(f'./training_history/2d_{DAT}_data_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/2d_earth_{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
-full_pred = torch.zeros(test_u.shape)
 with torch.no_grad():
     for xx, yy in test_loader:
-        loss = 0
+        step_loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)
+        yy = yy.to(device)[:,left:right, bottom:top, :]
         
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
-            im = model(xx)
+            full_im = model(xx)
+            im = full_im[:,left:right, bottom:top,:]
 
-            loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
 
             if t == 0:
                 pred = im
             else:
                 pred = torch.cat((pred, im), -1)
+                full_pred = torch.cat((full_pred, full_im), -1)
 
-            # xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
+        
+        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
 
-        print(index, loss.item() / T)
-        full_pred[index] = pred
-
+        print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
+        prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T}')
+prediction_history.close()
+print(pred.shape)
 
-        prediction_history.write(str(loss.item() / T)+'\n')
-    prediction_history.close()
-print(full_pred.shape)
-
-scipy.io.savemat('./predictions/2d_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/2d_earth_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
