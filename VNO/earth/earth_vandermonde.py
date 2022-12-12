@@ -50,9 +50,9 @@ class SpectralConv2d_fast(nn.Module):
         self.modes2 = modes2
 
         self.scale = (1 / (in_channels * out_channels))
-        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
         # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
-        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
+        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
         # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
 
     # Complex multiplication
@@ -63,13 +63,13 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         # batchsize = x.shape[0]
 
-        x_ft = transformer.forward(x)
+        x_ft = transformer.forward(x.cfloat())
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
         #Return to physical space
-        x = transformer.inverse(x_ft)
+        x = transformer.inverse(x_ft).real
 
 
         # x_ft = transformer.forward(x.cfloat())
@@ -179,11 +179,12 @@ print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
 
-batch_size = 10 
+batch_size = 5 
 batch_size2 = batch_size
+print(batch_size)
 
-epochs = 100
-learning_rate = 0.005
+epochs = 1
+learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.91
 
@@ -191,12 +192,12 @@ print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 DAT = 'QLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
-
+print(path)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 12
-T = 12
+T_in = 6
+T = 18
 step = 1
 
 center_lon = 170 # int(188 * 1.6)
@@ -372,7 +373,7 @@ for ep in range(epochs):
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)#[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset), :]
+        yy = yy.to(device) #[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
         batch_size = xx.shape[0]
         for t in range(0, T, step):
 
@@ -380,8 +381,7 @@ for ep in range(epochs):
 
             full_im = model(xx)
             im = full_im
-            # im = im[:, -int(num_n+2*offset):-int(num_n), int(num_w):int(num_w+2*offset),:]
-
+            im = im #[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
             # y = y_normalizer.decode(y)
             # im = y_normalizer.decode(im)
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))

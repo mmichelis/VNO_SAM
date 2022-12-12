@@ -1,0 +1,51 @@
+Sender: LSF System <lsfadmin@eu-a2p-037>
+Subject: Job 251254021: <python3 HLML_data_generator.py> in cluster <euler> Done
+
+Job <python3 HLML_data_generator.py> was submitted from host <eu-login-09> by user <llingsch> in cluster <euler> at Fri Dec  9 22:08:56 2022
+Job was executed on host(s) <eu-a2p-037>, in queue <normal.4h>, as user <llingsch> in cluster <euler> at Fri Dec  9 22:09:54 2022
+</cluster/home/llingsch> was used as the home directory.
+</cluster/home/llingsch/SAM/VNO_main/VNO_SAM/VNO/data_generation/Earth> was used as the working directory.
+Started at Fri Dec  9 22:09:54 2022
+Terminated at Fri Dec  9 22:31:12 2022
+Results reported at Fri Dec  9 22:31:12 2022
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+python3 HLML_data_generator.py
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1172.25 sec.
+    Max Memory :                                 26000 MB
+    Average Memory :                             20806.18 MB
+    Total Requested Memory :                     16000.00 MB
+    Delta Memory :                               -10000.00 MB
+    Max Swap :                                   -
+    Max Processes :                              3
+    Max Threads :                                4
+    Run time :                                   1297 sec.
+    Turnaround time :                            1336 sec.
+
+The output (if any) follows:
+
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
+<built-in function round>
