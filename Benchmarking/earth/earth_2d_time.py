@@ -163,7 +163,7 @@ else:
 modes = 16
 width = 20
 
-batch_size = 2
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 200
