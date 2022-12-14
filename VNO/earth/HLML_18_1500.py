@@ -3,7 +3,7 @@ This work was originally authored by Zongyi Li, to present the Fourier Neural Op
 
 It has been modified by
 @author: Levi Lingsch
-to implement the Benchmark over the Earth.
+to implement the VNO the Earth.
 """
 import torch
 import numpy as np
@@ -11,8 +11,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import matplotlib.pyplot as plt
-import sys
 import os
+import sys
 
 import operator
 from functools import reduce
@@ -21,9 +21,9 @@ from functools import partial
 from timeit import default_timer
 
 sys.path.append('../../')
-from utilities3 import *
+from vft import *
 from Adam import Adam
-
+from utilities3 import *
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -47,7 +47,9 @@ class SpectralConv2d_fast(nn.Module):
 
         self.scale = (1 / (in_channels * out_channels))
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
-        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
+        # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
 
     # Complex multiplication
     def compl_mul2d(self, input, weights):
@@ -55,20 +57,18 @@ class SpectralConv2d_fast(nn.Module):
         return torch.einsum("bixy,ioxy->boxy", input, weights)
 
     def forward(self, x):
-        batchsize = x.shape[0]
-        #Compute Fourier coeffcients up to factor of e^(- something constant)
-        x_ft = torch.fft.rfft2(x)
+        # batchsize = x.shape[0]
 
+        x_ft = transformer.forward(x.cfloat())
         # Multiply relevant Fourier modes
-        out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-        out_ft[:, :, :self.modes1, :self.modes2] = \
-            self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        out_ft[:, :, -self.modes1:, :self.modes2] = \
-            self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
-
+        x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         #Return to physical space
-        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+        x = transformer.inverse(x_ft).real
+
         return x
+
+
+
 
 class FNO2d(nn.Module):
     def __init__(self, modes1, modes2, width):
@@ -92,7 +92,7 @@ class FNO2d(nn.Module):
         self.width = width
         self.padding = 2 # pad the domain if input is non-periodic
         self.fc0 = nn.Linear(T_in+2, self.width)
-        # input channel is T_in+2: the solution of the previous T_in timesteps + 2 locations (u(t-10, x, y), ..., u(t-1, x, y),  x, y)
+        # input channel is 12: the solution of the previous 10 timesteps + 2 locations (u(t-10, x, y), ..., u(t-1, x, y),  x, y)
 
         self.conv0 = SpectralConv2d_fast(self.width, self.width, self.modes1, self.modes2)
         self.conv1 = SpectralConv2d_fast(self.width, self.width, self.modes1, self.modes2)
@@ -144,11 +144,11 @@ class FNO2d(nn.Module):
         return x
 
     def get_grid(self, shape, device):
-        batchsize, size_x, size_y = shape[0], shape[1], shape[2]
-        gridx = torch.tensor(np.linspace(0, 1, size_x), dtype=torch.float)
-        gridx = gridx.reshape(1, size_x, 1, 1).repeat([batchsize, 1, size_y, 1])
-        gridy = torch.tensor(np.linspace(0, 1, size_y), dtype=torch.float)
-        gridy = gridy.reshape(1, 1, size_y, 1).repeat([batchsize, size_x, 1, 1])
+        batchsize, size_x, size_y = shape[0], shape[2], shape[1]
+        gridx = lon
+        gridx = gridx.reshape(1, 1, size_x, 1).repeat([batchsize, size_y, 1, 1])
+        gridy = lat
+        gridy = gridy.reshape(1, size_y, 1, 1).repeat([batchsize, 1, size_x, 1])
         return torch.cat((gridx, gridy), dim=-1).to(device)
 
 ################################################################
@@ -160,11 +160,15 @@ if os.path.exists(euler_data_path):
 else:
     original_data_path = '../../../VNO_data/EarthData/'
 
-modes = 16
+
+selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
+print(f'selected modes: {selected_modes}')
+modes = selected_modes.shape[0]
 width = 20
 
-batch_size = 1
+batch_size = 5
 batch_size2 = batch_size
+print(batch_size)
 
 epochs = 200
 learning_rate = 0.001
@@ -173,13 +177,14 @@ scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'HLML' # 'HLML'
+DAT = 'HLML' # 'QLML' or 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+print(path)
+runtime = np.zeros(2, )
 t1 = default_timer()
 
-sub = 1
-T_in = 12 #12
-T = 12 # 12
+T_in = 6 #12
+T = 18 #12
 step = 1
 
 center_lon = 170 # int(188 * 1.6)
@@ -191,7 +196,10 @@ left = center_lon - lon_offset
 right = center_lon + lon_offset
 bottom = center_lat - lat_offset
 top = center_lat + lat_offset
-################################################################
+
+growth = 2.0
+print(f'growth = {growth}')
+##############################################################
 # load data
 ################################################################
 # Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
@@ -216,6 +224,7 @@ def load_data():
 test_a, test_u, train_a, train_u = load_data()
 # shape at this point: [ntrain/ntest, 12, 361, 576]
 
+
 a_normalizer = RangeNormalizer(train_a)
 train_a = a_normalizer.encode(train_a)
 test_a = a_normalizer.encode(test_a)
@@ -230,24 +239,90 @@ ntest = test_a.shape[0]
 print(train_u.shape)
 print(test_u.shape)
 
+# the data must be centered longitudinally so that it stays on a lattice when doubled
+def center_longitutude(data, center):
+    lon_pts = data.shape[-1]
+    return torch.cat((data[:,:,:,center-lon_pts//2:], data[:,:,:,:center-lon_pts//2]), -1)
+test_a = center_longitutude(test_a, center_lon)
+test_u = center_longitutude(test_u, center_lon)
+train_a = center_longitutude(train_a, center_lon)
+train_u = center_longitutude(train_u, center_lon)
+
+# define the lattice of points to select for the simulation
+def define_positions(center_lat, growth, lon_offset, lat_offset):
+    # the bottom and left boundaries are both at 0, but not the top or right boundaries
+    top = 180 * 2
+    right = 360 * 1.6
+
+    # the data should already be centered longitudinally
+    center_lon = right//2
+
+    # define the bounds of the equispaced region
+    side_s = center_lat - lat_offset
+    side_n = center_lat + lat_offset
+    side_w = center_lon - lon_offset
+    side_e = center_lon + lon_offset
+
+    # calculate the number of points in each side of the nonequispaced region
+    num_s = np.floor(side_s**(1/growth))+1
+    num_n = np.floor((top - side_n)**(1/growth))+1
+    num_w = np.floor(side_w**(1/growth))
+    num_e = num_w
+
+    # define the positions of points to each side
+    points_s = torch.flip(side_s - torch.round(torch.arange(num_s)**growth), [0])
+    points_n = side_n + torch.round(torch.arange(num_n)**growth)
+    points_w = torch.flip(side_w - torch.round(torch.arange(num_w)**growth),[0])
+    points_e = side_e + torch.round(torch.arange(num_e)**growth)
+
+    # print(f"east {num_e} west {num_w}")
+
+    # positions with equispaced distributions
+    central_lat = torch.arange(side_s+1, side_n)
+    central_lon = torch.arange(side_w+1, side_e)
+
+    # fix positions together
+    lat = torch.cat((points_s, central_lat, points_n))
+    lon = torch.cat((points_w, central_lon, points_e))
+    return lon.int(), lat.int(), num_w, num_n
+lon, lat, num_w, num_n = define_positions(center_lat, growth, lon_offset, lat_offset)
+
+# select the positions from the desired distribution and double accordingly
+def double_data(data, lon, lat):
+    sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
+    double_data = sparse_data
+    double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+    return double_data
+test_a = double_data(test_a, lon, lat)
+test_u = double_data(test_u, lon, lat)
+train_a = double_data(train_a, lon, lat)
+train_u = double_data(train_u, lon, lat)
+# shape at this point: [ntrain/ntest, 12, 194, 123]
+print(train_u.shape)
+print(test_u.shape)
+
+# scale and modify the lon / lat as needed
+lon = lon * np.pi / 180 / 1.6
+lat = np.pi - lat * np.pi / 180 / 2
+lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
+
+
 # can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
 S_x = train_u.shape[-1]
 S_y = train_u.shape[-2]
-lon = np.arange(S_x)
-lat = np.arange(S_y)
-
-lon_, lat_ = np.meshgrid(lat, lon)
-
 assert (T == train_u.shape[1])
 
 # NOTE: using reshape will severely alter the data. Use torch. swapaxes instead to get it into the correct format.
 # go from (0, 1, 2, 3) to (0, 3, 2, 1)
 # train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
 # test_a = test_a.reshape(ntest,S_x,S_y,T_in)
-train_a = torch.swapaxes(train_a, 1, 3)
-test_a = torch.swapaxes(test_a, 1, 3)
-train_u = torch.swapaxes(train_u, 1, 3)
-test_u = torch.swapaxes(test_u, 1, 3)
+# reshape the data to be in [Number of exmaples, X-coordinates, Y-coordinates, 1, Time], this is how their code was originally written
+train_a = torch.swapaxes(torch.swapaxes(train_a, 1, 3), 1, 2)
+train_u = torch.swapaxes(torch.swapaxes(train_u, 1, 3), 1, 2)
+test_a = torch.swapaxes(torch.swapaxes(test_a, 1, 3), 1, 2)
+test_u = torch.swapaxes(torch.swapaxes(test_u, 1, 3), 1, 2)
+# shape at this point: [ntrain/ntest, 123, 194, 12]
+
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
@@ -262,8 +337,7 @@ device = torch.device('cuda')
 ################################################################
 
 model = FNO2d(modes, modes, width).cuda()
-# model = torch.load(path_model)
-
+transformer = vdfs(lon, lat, selected_modes, selected_modes)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
@@ -271,8 +345,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open(f'./training_history/2d_earth_{DAT}_data.txt', 'w')
-training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
+training_history = open('./training_history/2d_vandermonde.txt', 'w')
+training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 y_normalizer.cuda()
 for ep in range(epochs):
@@ -280,20 +354,18 @@ for ep in range(epochs):
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
-
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)[:,left:right, bottom:top, :]
-
+        yy = yy.to(device) 
         batch_size = xx.shape[0]
         for t in range(0, T, step):
 
-            y = yy[..., t:t + step]
+            y = yy[...,t:t + step]
 
             full_im = model(xx)
-            im = full_im[:,left:right, bottom:top,:]
-
+            im = full_im
+            im = im 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
             if t == 0:
@@ -317,14 +389,16 @@ for ep in range(epochs):
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
-            yy = yy.to(device)[:,left:right, bottom:top, :]
+            yy = yy.to(device)[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), :]
             batch_size = xx.shape[0]
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
-
+                
                 full_im = model(xx)
-                im = full_im[:,left:right, bottom:top,:]
+                im = full_im
+                
+                im = im[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:]
                 
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -354,36 +428,39 @@ training_history.close()
 
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open(f'./training_history/2d_earth_{DAT}_data_test_loss.txt', 'w')
-batch_size=1        # need to set this otherwise the loss outputs are not correct
+prediction_history = open('./training_history/2d_vandermonde_test_loss.txt', 'w')
+batch_size = 1
 with torch.no_grad():
     for xx, yy in test_loader:
         step_loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)[:,left:right, bottom:top, :]
+        yy = yy.to(device)
         
         for t in range(0, T, step):
-            y = yy[..., t:t + step]
+            y = yy[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset), t:t + step]
 
             full_im = model(xx)
-            im = full_im[:,left:right, bottom:top,:]
+            im = full_im
+            im = im[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:]
 
             step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
-
+            
             if t == 0:
                 pred = im
+                full_pred = full_im
             else:
                 pred = torch.cat((pred, im), -1)
                 full_pred = torch.cat((full_pred, full_im), -1)
 
             xx = torch.cat((xx[..., step:], full_im), dim=-1)
-        
-        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
+
+        full_loss = myloss(pred.reshape(1, -1), yy[:, -int(num_n+2*lat_offset):-int(num_n), int(num_w):int(num_w+2*lon_offset),:].reshape(1, -1))
 
         print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
-        prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T}')
+        prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T} \n')
 prediction_history.close()
 print(pred.shape)
 
-scipy.io.savemat('./predictions/2d_earth_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+# only save one prediction to keep space low
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'full_pred': full_pred.cpu().numpy(),'pred': pred.cpu().numpy(), 'lat': lat.cpu().numpy(), 'lon': lon.cpu().numpy()})

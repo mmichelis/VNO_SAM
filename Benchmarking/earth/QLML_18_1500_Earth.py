@@ -3,7 +3,7 @@ This work was originally authored by Zongyi Li, to present the Fourier Neural Op
 
 It has been modified by
 @author: Levi Lingsch
-to implement the Benchmark over a region of the Earth.
+to implement the Benchmark over the Earth.
 """
 import torch
 import numpy as np
@@ -92,7 +92,7 @@ class FNO2d(nn.Module):
         self.width = width
         self.padding = 2 # pad the domain if input is non-periodic
         self.fc0 = nn.Linear(T_in+2, self.width)
-        # input channel is 14: the solution of the previous 12 timesteps + 2 locations (u(t-10, x, y), ..., u(t-1, x, y),  x, y)
+        # input channel is T_in+2: the solution of the previous T_in timesteps + 2 locations (u(t-10, x, y), ..., u(t-1, x, y),  x, y)
 
         self.conv0 = SpectralConv2d_fast(self.width, self.width, self.modes1, self.modes2)
         self.conv1 = SpectralConv2d_fast(self.width, self.width, self.modes1, self.modes2)
@@ -154,6 +154,11 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
+DAT = 'QLML' # 'HLML' or 'QLML'
+T_in = 6     # 6 or 12
+training_file_number = 16    # 6 or 16
+print(DAT, T_in, training_file_number)
+
 euler_data_path = '/cluster/scratch/llingsch/EarthData/'
 if os.path.exists(euler_data_path):
     original_data_path = euler_data_path
@@ -163,25 +168,22 @@ else:
 modes = 16
 width = 20
 
-batch_size = 10
+batch_size = 1
 batch_size2 = batch_size
-print(batch_size)
 
-epochs = 200
+epochs = 100
 learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'HLML' # 'HLML'
 path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 t1 = default_timer()
 print(path)
 
 sub = 1
-T_in = 12
-T = 12
+T = 24 - T_in
 step = 1
 
 center_lon = 170 # int(188 * 1.6)
@@ -196,28 +198,27 @@ top = center_lat + lat_offset
 ################################################################
 # load data
 ################################################################
-
-
+# Due to the amount of data required for this project, it is necessary to construct the sparse data directly within this code. There is not enough storage elsewhere.
 def load_data():
     TEST_PATH = original_data_path + f'{DAT}_data_0.mat'
     reader = MatReader(TEST_PATH)
-    test_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
-    test_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
+    test_a = reader.read_field(DAT)[:,:T_in,:,:]
+    test_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
     TRAIN_PATH = original_data_path + f'{DAT}_data_1.mat'
     reader = MatReader(TRAIN_PATH)
-    train_a = reader.read_field(DAT)[:,:T_in,bottom:top, left:right]
-    train_u = reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]
+    train_a = reader.read_field(DAT)[:,:T_in,:,:]
+    train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    for NUM in range(2, 16):
+    for NUM in range(2, training_file_number):
         TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
-        train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,bottom:top, left:right]))
-        train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,bottom:top, left:right]))
+        train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
+        train_u = torch.cat((train_u, reader.read_field(DAT)[:,T_in:T+T_in,:,:]))
 
     return test_a, test_u, train_a, train_u
 test_a, test_u, train_a, train_u = load_data()
-
+# shape at this point: [ntrain/ntest, 12, 361, 576]
 
 a_normalizer = RangeNormalizer(train_a)
 train_a = a_normalizer.encode(train_a)
@@ -230,7 +231,6 @@ test_u = y_normalizer.encode(test_u)
 # I am concatenating several large data file together here, so the ntrain is variable. Should just reset it here with the actual value.
 ntrain = train_a.shape[0]
 ntest = test_a.shape[0]
-
 print(train_u.shape)
 print(test_u.shape)
 
@@ -246,6 +246,8 @@ assert (T == train_u.shape[1])
 
 # NOTE: using reshape will severely alter the data. Use torch. swapaxes instead to get it into the correct format.
 # go from (0, 1, 2, 3) to (0, 3, 2, 1)
+# train_a = train_a.reshape(ntrain,S_x,S_y,T_in)
+# test_a = test_a.reshape(ntest,S_x,S_y,T_in)
 train_a = torch.swapaxes(train_a, 1, 3)
 test_a = torch.swapaxes(test_a, 1, 3)
 train_u = torch.swapaxes(train_u, 1, 3)
@@ -257,6 +259,8 @@ test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a,
 t2 = default_timer()
 print('preprocessing finished, time used:', t2-t1)
 device = torch.device('cuda')
+
+
 ################################################################
 # training and evaluation
 ################################################################
@@ -271,24 +275,28 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open(f'./training_history/2d_europe_{DAT}_data.txt', 'w')
+training_history = open(f'./training_history/2d_earth_{DAT}_data.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
-# y_normalizer.cuda()
+y_normalizer.cuda()
 for ep in range(epochs):
     model.train()
     t1 = default_timer()
     train_l2_step = 0
     train_l2_full = 0
+
     for xx, yy in train_loader:
         loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)
+        yy = yy.to(device)[:,left:right, bottom:top, :]
+
         batch_size = xx.shape[0]
         for t in range(0, T, step):
+
             y = yy[..., t:t + step]
 
-            im = model(xx)
+            full_im = model(xx)
+            im = full_im[:,left:right, bottom:top,:]
 
             loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
@@ -297,7 +305,7 @@ for ep in range(epochs):
             else:
                 pred = torch.cat((pred, im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
         train_l2_step += loss.item()
         l2_full = myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1))
@@ -313,13 +321,15 @@ for ep in range(epochs):
         for xx, yy in test_loader:
             loss = 0
             xx = xx.to(device)
-            yy = yy.to(device)
+            yy = yy.to(device)[:,left:right, bottom:top, :]
             batch_size = xx.shape[0]
 
             for t in range(0, T, step):
                 y = yy[..., t:t + step]
 
-                im = model(xx)
+                full_im = model(xx)
+                im = full_im[:,left:right, bottom:top,:]
+                
                 loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
 
                 if t == 0:
@@ -327,7 +337,7 @@ for ep in range(epochs):
                 else:
                     pred = torch.cat((pred, im), -1)
 
-                xx = torch.cat((xx[..., step:], im), dim=-1)
+                xx = torch.cat((xx[..., step:], full_im), dim=-1)
 
             test_l2_step += loss.item()
             test_l2_full += myloss(pred.reshape(batch_size, -1), yy.reshape(batch_size, -1)).item()
@@ -348,34 +358,37 @@ training_history.close()
 
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open(f'./training_history/2d_europe_{DAT}_data_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/2d_earth_{DAT}_data_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
 with torch.no_grad():
     for xx, yy in test_loader:
         step_loss = 0
         xx = xx.to(device)
-        yy = yy.to(device)
+        yy = yy.to(device)[:,left:right, bottom:top, :]
         
         for t in range(0, T, step):
             y = yy[..., t:t + step]
 
-            im = model(xx)
-            step_loss += myloss(im.reshape(batch_size, -1), y.reshape(batch_size, -1))
+            full_im = model(xx)
+            im = full_im[:,left:right, bottom:top,:]
+
+            step_loss += myloss(im.reshape(1, -1), y.reshape(1, -1))
 
             if t == 0:
                 pred = im
+                full_pred = full_im
             else:
                 pred = torch.cat((pred, im), -1)
+                full_pred = torch.cat((full_pred, full_im), -1)
 
-            xx = torch.cat((xx[..., step:], im), dim=-1)
-
-        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
+            xx = torch.cat((xx[..., step:], full_im), dim=-1)
         
+        full_loss = myloss(pred.reshape(1, -1), yy.reshape(1, -1))
+
         print(index, full_loss.item(), step_loss.item() / T)
         index = index + 1
-
         prediction_history.write(f'{full_loss.item()}   {step_loss.item() / T}')
 prediction_history.close()
 print(pred.shape)
 
-scipy.io.savemat('./predictions/2d_europe_'+path+'.mat', mdict={'pred': pred.cpu().numpy()})
+scipy.io.savemat('./predictions/2d_earth_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
