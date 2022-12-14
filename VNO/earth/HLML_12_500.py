@@ -46,9 +46,9 @@ class SpectralConv2d_fast(nn.Module):
         self.modes2 = modes2
 
         self.scale = (1 / (in_channels * out_channels))
-        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
         # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
-        self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
+        # self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
         # self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.float))
 
     # Complex multiplication
@@ -59,13 +59,13 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         # batchsize = x.shape[0]
 
-        # x_ft = transformer.forward(x.cfloat())
-        x_ft = transformer.forward(x)
+        x_ft = transformer.forward(x.cfloat())
+        # x_ft = transformer.forward(x)
         # Multiply relevant Fourier modes
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         #Return to physical space
-        # x = transformer.inverse(x_ft).real
-        x = transformer.inverse(x_ft)
+        x = transformer.inverse(x_ft).real
+        # x = transformer.inverse(x_ft)
 
         return x
 
@@ -163,7 +163,8 @@ else:
     original_data_path = '../../../VNO_data/EarthData/'
 
 
-selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
+# selected_modes = np.concatenate((np.arange(16), np.arange(16,40,3)))
+selected_modes = np.arange(16)
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
@@ -172,7 +173,7 @@ batch_size = 5
 batch_size2 = batch_size
 print(batch_size)
 
-epochs = 200
+epochs = 100
 learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.95
