@@ -161,7 +161,7 @@ else:
     original_data_path = '../../../VNO_data/EarthData/'
 
 
-selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3)))
+selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3), np.arange(41,80,5)))
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
@@ -178,7 +178,7 @@ scheduler_gamma = 0.95
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
 DAT = 'QLML' # 'QLML' or 'HLML'
-path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = DAT+'_12_500_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
 print(path)
 runtime = np.zeros(2, )
 t1 = default_timer()
