@@ -154,6 +154,10 @@ class FNO2d(nn.Module):
 ################################################################
 # configs
 ################################################################
+DAT = 'HLML' # 'QLML' or 'HLML'
+T_in = 12
+training_file_number = 16
+
 euler_data_path = '/cluster/scratch/llingsch/EarthData/'
 if os.path.exists(euler_data_path):
     original_data_path = euler_data_path
@@ -177,14 +181,13 @@ scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-DAT = 'HLML' # 'QLML' or 'HLML'
-path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = f'{DAT}_{24-T_in}_{(training_file_number-1)*100}_{epochs}_{modes}_{width}'
 print(path)
 runtime = np.zeros(2, )
 t1 = default_timer()
 
-T_in = 12
-T = 12
+
+T = 24 - T_in
 step = 1
 
 center_lon = 170 # int(188 * 1.6)
@@ -214,7 +217,7 @@ def load_data():
     train_a = reader.read_field(DAT)[:,:T_in,:,:]
     train_u = reader.read_field(DAT)[:,T_in:T+T_in,:,:]
 
-    for NUM in range(2, 16):
+    for NUM in range(2, training_file_number):
         TRAIN_PATH = original_data_path + f'{DAT}_data_{NUM}.mat'
         reader = MatReader(TRAIN_PATH)
         train_a = torch.cat((train_a, reader.read_field(DAT)[:,:T_in,:,:]))
@@ -345,7 +348,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open('./training_history/2d_vandermonde.txt', 'w')
+training_history = open(f'./training_history/{path}.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_Step  Train_L2_Full  Test_L2_Step  Test_L2_Full  \n')
 
 y_normalizer.cuda()
@@ -428,7 +431,7 @@ training_history.close()
 
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open('./training_history/2d_vandermonde_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/{path}_test_loss.txt', 'w')
 batch_size = 1
 with torch.no_grad():
     for xx, yy in test_loader:
