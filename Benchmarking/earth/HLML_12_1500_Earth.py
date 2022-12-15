@@ -178,7 +178,7 @@ scheduler_gamma = 0.95
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-path = DAT+'_ep' + str(epochs) + '_m' + str(modes) + '_w' + str(width)
+path = f'{DAT}_{24-T_in}_{(training_file_number-1)*100}_Earth_{epochs}_{modes}_{width}'
 t1 = default_timer()
 print(path)
 
@@ -275,7 +275,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step,
 
 myloss = LpLoss(size_average=False)
 
-training_history = open(f'./training_history/2d_earth_{DAT}_data.txt', 'w')
+training_history = open(f'./training_history/{path}.txt', 'w')
 training_history.write('Epoch  Time  Train_L2_step Train_L2_full Test_L2_step Test_L2_full \n')
 
 y_normalizer.cuda()
@@ -358,7 +358,7 @@ training_history.close()
 
 index = 0
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=1, shuffle=False)
-prediction_history = open(f'./training_history/2d_earth_{DAT}_data_test_loss.txt', 'w')
+prediction_history = open(f'./training_history/{path}_test_loss.txt', 'w')
 batch_size=1        # need to set this otherwise the loss outputs are not correct
 with torch.no_grad():
     for xx, yy in test_loader:
@@ -391,4 +391,4 @@ with torch.no_grad():
 prediction_history.close()
 print(pred.shape)
 
-scipy.io.savemat('./predictions/2d_earth_'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
+scipy.io.savemat('./predictions/'+path+'.mat', mdict={'pred': full_pred.cpu().numpy()})
