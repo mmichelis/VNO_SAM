@@ -105,7 +105,7 @@ class vdfs:
         V_x = torch.divide(V_x, np.sqrt(self.x_l))
 
 
-        V_y = torch.zeros([2*self.y_m, self.y_l], dtype=torch.cfloat).cuda()
+        V_y = torch.zeros([self.y_m, self.y_l], dtype=torch.cfloat).cuda()
         # V_y = torch.zeros([self.y_m, self.y_l], dtype=torch.float).cuda()
         for row in range(self.y_m):
              for col in range(self.y_l):
