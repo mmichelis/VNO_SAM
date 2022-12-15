@@ -165,7 +165,7 @@ else:
     original_data_path = '../../../VNO_data/EarthData/'
 
 
-selected_modes = np.concatenate((np.arange(16), np.arange(16,41,3), np.arange(41,80,5)))
+selected_modes = np.concatenate((np.arange(4,32)))
 print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
