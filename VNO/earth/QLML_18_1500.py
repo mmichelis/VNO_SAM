@@ -308,7 +308,7 @@ print(test_u.shape)
 # scale and modify the lon / lat as needed
 lon = lon * np.pi / 180 / 1.6
 lat = np.pi - lat * np.pi / 180 / 2
-lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
+# lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
 
 
 # can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
