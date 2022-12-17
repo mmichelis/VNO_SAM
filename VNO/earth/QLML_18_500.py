@@ -293,12 +293,12 @@ lon, lat, num_w, num_n = define_positions(center_lat, growth, lon_offset, lat_of
 def double_data(data, lon, lat):
     sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
     double_data = sparse_data
-    double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+    # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
     return double_data
-# test_a = double_data(test_a, lon, lat)
-# test_u = double_data(test_u, lon, lat)
-# train_a = double_data(train_a, lon, lat)
-# train_u = double_data(train_u, lon, lat)
+test_a = double_data(test_a, lon, lat)
+test_u = double_data(test_u, lon, lat)
+train_a = double_data(train_a, lon, lat)
+train_u = double_data(train_u, lon, lat)
 # shape at this point: [ntrain/ntest, 12, 194, 123]
 print(train_u.shape)
 print(test_u.shape)
