@@ -59,8 +59,8 @@ class SpectralConv2d_fast(nn.Module):
     def forward(self, x):
         # batchsize = x.shape[0]
 
-        # x_ft = transformer.forward(x.cfloat())
-        x_ft = transformer.forward(x)
+        x_ft = transformer.forward(x.cfloat())
+        # x_ft = transformer.forward(x)
         # Multiply relevant Fourier modes
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         #Return to physical space
