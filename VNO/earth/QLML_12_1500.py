@@ -449,7 +449,7 @@ with torch.no_grad():
             
             if t == 0:
                 pred = im
-                full_pred = full_im
+                full_pred = xx
             else:
                 pred = torch.cat((pred, im), -1)
                 full_pred = torch.cat((full_pred, full_im), -1)
