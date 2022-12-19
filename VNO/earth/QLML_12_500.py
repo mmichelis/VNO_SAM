@@ -171,7 +171,7 @@ print(f'selected modes: {selected_modes}')
 modes = selected_modes.shape[0]
 width = 20
 
-batch_size = 5
+batch_size = 10
 batch_size2 = batch_size
 print(batch_size)
 
@@ -200,7 +200,7 @@ right = center_lon + lon_offset
 bottom = center_lat - lat_offset
 top = center_lat + lat_offset
 
-growth = 2.0
+growth = 1.5
 print(f'growth = {growth}')
 ##############################################################
 # load data
@@ -294,7 +294,7 @@ lon, lat, num_w, num_n = define_positions(center_lat, growth, lon_offset, lat_of
 def double_data(data, lon, lat):
     sparse_data = torch.index_select(torch.index_select(data, -2, lat), -1, lon)
     double_data = sparse_data
-    double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
+    # double_data = torch.cat((torch.flip(sparse_data, [-2,-1]), sparse_data), -2)
     return double_data
 test_a = double_data(test_a, lon, lat)
 test_u = double_data(test_u, lon, lat)
@@ -307,7 +307,7 @@ print(test_u.shape)
 # scale and modify the lon / lat as needed
 lon = lon * np.pi / 180 / 1.6
 lat = np.pi - lat * np.pi / 180 / 2
-lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
+# lat = torch.cat((torch.flipud(lat), 2*np.pi - lat), 0)
 
 
 # can't assert without knowing shapes beforehand, so I just gather them from the data and use them where necessary
