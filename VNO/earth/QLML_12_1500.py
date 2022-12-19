@@ -174,7 +174,7 @@ batch_size = 10
 batch_size2 = batch_size
 print(batch_size)
 
-epochs = 200
+epochs = 4
 learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.95
