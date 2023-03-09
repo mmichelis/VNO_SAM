@@ -277,7 +277,6 @@ print(f'Data made sparse with new shape {test_a.shape}.')
 assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
-pdb.set_trace()
 
 x_pos, y_pos = torch.meshgrid(x_pos, y_pos)
 x_pos = torch.flatten(x_pos)
@@ -318,7 +317,7 @@ for ep in range(epochs):
 
         this_batch_size = xx.shape[0]
         for t in range(0, T, step):
-            pdb.set_trace()
+            
             y = yy[..., t:t + step] #[4, 512, 512, 1]
             im = model(xx)
             
