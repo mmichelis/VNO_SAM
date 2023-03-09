@@ -258,10 +258,7 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
-x_pos, y_pos = torch.meshgrid(x_pos, y_pos)
-x_pos = torch.flatten(x_pos)
-y_pos = torch.flatten(y_pos)
-print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
+
 
 def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
     test_a = torch.index_select(torch.index_select(test_a, 1, x_pos), 2, y_pos)
@@ -278,6 +275,11 @@ assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 pdb.set_trace()
+
+x_pos, y_pos = torch.meshgrid(x_pos, y_pos)
+x_pos = torch.flatten(x_pos)
+y_pos = torch.flatten(y_pos)
+print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)
