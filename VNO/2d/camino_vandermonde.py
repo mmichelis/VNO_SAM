@@ -61,6 +61,7 @@ class SpectralConv2d_fast(nn.Module):
 
     def forward(self, x):
         batchsize = x.shape[0]
+        pdb.set_trace()
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = transformer.forward(x.cfloat())
 
@@ -308,6 +309,7 @@ for ep in range(epochs):
 
         this_batch_size = xx.shape[0]
         for t in range(0, T, step):
+            pdb.set_trace()
             y = yy[..., t:t + step]
             im = model(xx)
             
