@@ -310,6 +310,7 @@ for ep in range(epochs):
         for t in range(0, T, step):
             y = yy[..., t:t + step]
             im = model(xx)
+            
             loss += myloss(im.reshape(this_batch_size, -1), y.reshape(this_batch_size, -1))
 
             if t == 0:
