@@ -72,7 +72,7 @@ class SpectralConv2d_fast(nn.Module):
         x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
         #Return to physical space
-        x = transformer.inverse(x_ft).real # x [4, 20, 512, 512]
+        x = transformer.inverse(x_ft) # x [4, 20, 512, 512]
 
         return x
 
@@ -258,6 +258,8 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
+x_pos = torch.flatten(x_pos)
+y_pos = torch.flatten(y_pos)
 print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 
 def make_sparse(test_a, test_u, train_a, train_u, x_pos, y_pos):
@@ -274,7 +276,7 @@ print(f'Data made sparse with new shape {test_a.shape}.')
 assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
-
+pdb.set_trace()
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
 test_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(test_a, test_u), batch_size=batch_size, shuffle=False)

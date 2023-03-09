@@ -136,12 +136,36 @@ class vdfs:
         
         return data_inv
 
-# class fully_nonequispaced_vft:
-#     def __init__(self, x_positions, y_positions, modes):
-#         self.x_positions = x_positions
-#         self.y_positions = y_positions
-#         self.modes = modes
+class fully_nonequispaced_vft:
+    def __init__(self, x_positions, y_positions, modes):
+        self.x_positions = x_positions
+        self.y_positions = y_positions
+        self.number_points = x_positions.shape[0]
+        self.modes = modes
 
-#         self.V_fwd, self.V_inv = self.make_matrix()
+        self.V_fwd, self.V_inv = self.make_matrix()
 
-#     def make_matrix(self):
+    def make_matrix(self):
+        forward_mat = torch.zeros((self.modes**2, self.number_points), dtype=torch.cfloat)
+        for Y in range(self.modes):
+            for X in range(self.modes):
+                forward_mat[Y+X*self.modes, :] = np.exp(-1j* (X*self.x_positions[0]+Y*self.y_positions[0]))
+
+        inverse_mat = torch.zeros((self.number_points, self.modes**2),  dtype=torch.cfloat)
+        for Y in range(self.modes):
+            for X in range(self.modes):
+                inverse_mat[:, Y+X*self.modes] = np.exp(1j* (X*self.x_positions[0]+Y*self.x_positions[0]))
+        # reconstruction_flat = (np.matmul(inverse_mat, Fourier_3dmatmul) / np.sqrt(number_points)).real
+        return forward_mat, inverse_mat
+
+    def forward(self, data):
+        data_fwd = (np.matmul(self.V_fwd, data) / np.sqrt(self.number_points))
+        data_fwd = torch.reshape(data_fwd, (data_fwd.shape[0], data_fwd.shape[1], self.modes, self.modes))
+
+        return data_fwd
+
+    def inverse(self, data):
+        data = torch.reshape(data, (data.shape[0], data.shape[1], self.modes**2, 1))
+        data_inv = (np.matmul(self.V_inv, data) / np.sqrt(self.number_points)).real
+        
+        return data_inv
