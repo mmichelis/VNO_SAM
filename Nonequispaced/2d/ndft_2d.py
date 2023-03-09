@@ -299,7 +299,7 @@ transformer = fully_nonequispaced_vft(x_pos, y_pos, modes)
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=scheduler_step, gamma=scheduler_gamma)
-
+torch.autograd.set_detect_anomaly(True)
 myloss = LpLoss(size_average=False)
 
 training_history = open('./training_history/'+data_dist+'.txt', 'w')
