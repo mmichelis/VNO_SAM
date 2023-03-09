@@ -295,7 +295,7 @@ print(f'Processing finished in {t2-t1} seconds.')
 # training and evaluation
 ################################################################
 model = FNO2d(modes, modes, width).cuda()
-transformer = fully_nonequispaced_vft(x_pos, y_pos, modes, modes)
+transformer = fully_nonequispaced_vft(x_pos, y_pos, modes)
 
 print(count_params(model))
 optimizer = Adam(model.parameters(), lr=learning_rate, weight_decay=1e-4)
