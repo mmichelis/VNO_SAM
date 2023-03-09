@@ -146,12 +146,12 @@ class fully_nonequispaced_vft:
         self.V_fwd, self.V_inv = self.make_matrix()
 
     def make_matrix(self):
-        forward_mat = torch.zeros((self.modes**2, self.number_points), dtype=torch.cfloat)
+        forward_mat = torch.zeros((self.modes**2, self.number_points), dtype=torch.cfloat).cuda()
         for Y in range(self.modes):
             for X in range(self.modes):
                 forward_mat[Y+X*self.modes, :] = np.exp(-1j* (X*self.x_positions[0]+Y*self.y_positions[0]))
 
-        inverse_mat = torch.zeros((self.number_points, self.modes**2),  dtype=torch.cfloat)
+        inverse_mat = torch.zeros((self.number_points, self.modes**2),  dtype=torch.cfloat).cuda()
         for Y in range(self.modes):
             for X in range(self.modes):
                 inverse_mat[:, Y+X*self.modes] = np.exp(1j* (X*self.x_positions[0]+Y*self.x_positions[0]))
