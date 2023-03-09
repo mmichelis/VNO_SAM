@@ -135,3 +135,13 @@ class vdfs:
                 2, 3)
         
         return data_inv
+
+# class fully_nonequispaced_vft:
+#     def __init__(self, x_positions, y_positions, modes):
+#         self.x_positions = x_positions
+#         self.y_positions = y_positions
+#         self.modes = modes
+
+#         self.V_fwd, self.V_inv = self.make_matrix()
+
+#     def make_matrix(self):
