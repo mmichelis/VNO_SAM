@@ -258,6 +258,7 @@ def define_positions(growth, offset):
     lon = torch.cat((points_w, central_lon, points_e))
     return lon.int(), lat.int()
 x_pos, y_pos = define_positions(growth, offset)
+x_pos, y_pos = torch.meshgrid(x_pos, y_pos)
 x_pos = torch.flatten(x_pos)
 y_pos = torch.flatten(y_pos)
 print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
