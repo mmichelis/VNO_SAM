@@ -166,6 +166,6 @@ class fully_nonequispaced_vft:
 
     def inverse(self, data):
         data = torch.reshape(data, (data.shape[0], data.shape[1], self.modes**2, 1))
-        data_inv = (torch.matmul(self.V_inv, data) / np.sqrt(self.number_points)).real
+        data_inv = (torch.matmul(self.V_inv, data) / np.sqrt(self.number_points))
         
-        return data_inv
+        return data_inv.real
