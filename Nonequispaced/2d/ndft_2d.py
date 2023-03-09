@@ -63,7 +63,7 @@ class SpectralConv2d_fast(nn.Module):
         batchsize = x.shape[0]
         num_pts = x.shape[-1]
         pdb.set_trace()
-        x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
+        x = np.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = transformer.forward(x.cfloat()) #[4, 20, 32, 16]
@@ -75,7 +75,7 @@ class SpectralConv2d_fast(nn.Module):
 
         #Return to physical space
         x = transformer.inverse(x_ft) # x [4, 20, 512, 512]
-        x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
+        x = np.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
         return x
 
@@ -120,7 +120,6 @@ class FNO2d(nn.Module):
         self.fc2 = nn.Linear(128, 1)
 
     def forward(self, x):
-        pdb.set_trace()
         grid = self.get_grid(x.shape, x.device)
         x = torch.cat((x, grid), dim=-1)
         x = self.fc0(x)
