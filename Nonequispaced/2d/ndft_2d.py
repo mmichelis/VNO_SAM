@@ -182,7 +182,7 @@ width = 20
 batch_size = 4
 batch_size2 = batch_size
 
-epochs = 5
+epochs = 100
 learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.75
