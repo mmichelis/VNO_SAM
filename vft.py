@@ -150,22 +150,22 @@ class fully_nonequispaced_vft:
         for Y in range(self.modes):
             for X in range(self.modes):
                 forward_mat[Y+X*self.modes, :] = np.exp(-1j* (X*self.x_positions[0]+Y*self.y_positions[0]))
+        forward_mat /= np.sqrt(self.number_points)
 
         inverse_mat = torch.zeros((self.number_points, self.modes**2),  dtype=torch.cfloat).cuda()
         for Y in range(self.modes):
             for X in range(self.modes):
                 inverse_mat[:, Y+X*self.modes] = np.exp(1j* (X*self.x_positions[0]+Y*self.x_positions[0]))
-        # reconstruction_flat = (np.matmul(inverse_mat, Fourier_3dmatmul) / np.sqrt(number_points)).real
+        inverse_mat /= np.sqrt(self.number_points)
+        
         return forward_mat, inverse_mat
 
     def forward(self, data):
-        data_fwd = (torch.matmul(self.V_fwd, data) / np.sqrt(self.number_points))
-        # data_fwd = torch.reshape(data_fwd, (data_fwd.shape[0], data_fwd.shape[1], self.modes, self.modes))
+        data_fwd = torch.matmul(self.V_fwd, data)
 
         return data_fwd
 
     def inverse(self, data):
-        # data = torch.reshape(data, (data.shape[0], data.shape[1], self.modes**2, 1))
-        data_inv = (torch.matmul(self.V_inv, data) / np.sqrt(self.number_points))
+        data_inv = torch.matmul(self.V_inv, data)
         
         return data_inv
