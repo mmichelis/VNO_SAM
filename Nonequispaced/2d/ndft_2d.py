@@ -280,8 +280,8 @@ assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
 x_grid, y_grid = torch.meshgrid(x_pos, y_pos)
-x_flat = torch.flatten(x_pos)
-y_flat = torch.flatten(y_pos)
+x_flat = torch.flatten(x_grid)
+y_flat = torch.flatten(y_grid)
 print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
 
 train_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(train_a, train_u), batch_size=batch_size, shuffle=True)
