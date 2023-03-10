@@ -66,7 +66,7 @@ class SpectralConv2d_fast(nn.Module):
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        x_ft = transformer.forward(x) #[4, 20, 32, 16]
+        x_ft = transformer.forward(x.cfloat()) #[4, 20, 32, 16]
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
         # # Multiply relevant Fourier modes
