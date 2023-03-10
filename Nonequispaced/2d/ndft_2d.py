@@ -279,7 +279,7 @@ assert (train_a.shape[:-1] == train_u.shape[:-1])
 assert (test_a.shape[:-1] == test_u.shape[:-1])
 assert (T == train_u.shape[-1])
 
-x_pos, y_pos = torch.meshgrid(x_pos, y_pos)
+x_grid, y_grid = torch.meshgrid(x_pos, y_pos)
 x_flat = torch.flatten(x_pos)
 y_flat = torch.flatten(y_pos)
 print(f'x_pos and y_pos created with shapes {x_pos.shape} {y_pos.shape}.')
