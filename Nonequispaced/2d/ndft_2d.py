@@ -172,7 +172,7 @@ data_dist = 'uniform'
 
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 64 * 1
+ntrain = 64 * 2
 ntest = 64 * 1
 
 modes = 16
