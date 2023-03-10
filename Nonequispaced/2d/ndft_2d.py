@@ -64,24 +64,19 @@ class SpectralConv2d_fast(nn.Module):
         num_pts = x.shape[-1]
         # pdb.set_trace()
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
-        # x = x.view(batchsize, self.out_channels, num_pts**2, 1)
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = transformer.forward(x.cfloat()) #[4, 20, 32, 16]
         x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
-        # x_ft = x_ft.view(batchsize, self.out_channels, self.modes1, self.modes1)
 
         # # Multiply relevant Fourier modes
         out_ft = torch.zeros(batchsize, self.out_channels, self.modes1, self.modes1, dtype=torch.cfloat, device=x.device)
         out_ft[:, :, :self.modes1, :self.modes1] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
         # #Return to physical space
         x_ft = torch.reshape(out_ft, (batchsize, self.out_channels, self.modes1**2, 1))
-        # x_ft = out_ft.view(batchsize, self.out_channels, self.modes1**2, 1)
         x = transformer.inverse(x_ft) # x [4, 20, 512, 512]
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
-        # x = x.view(batchsize, self.out_channels, num_pts, num_pts)
 
         return x.real
 
