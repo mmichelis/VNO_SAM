@@ -149,15 +149,15 @@ class fully_nonequispaced_vft:
         forward_mat = torch.zeros((self.modes**2, self.number_points), dtype=torch.cfloat).cuda()
         for Y in range(self.modes):
             for X in range(self.modes):
-                forward_mat[Y+X*self.modes, :] = np.exp(-1j* (X*self.x_positions[0]+Y*self.y_positions[0]))
+                forward_mat[Y+X*self.modes, :] = np.exp(-1j* (X*self.x_positions+Y*self.y_positions))
         forward_mat /= np.sqrt(self.number_points)
 
         inverse_mat = torch.zeros((self.number_points, self.modes**2),  dtype=torch.cfloat).cuda()
         for Y in range(self.modes):
             for X in range(self.modes):
-                inverse_mat[:, Y+X*self.modes] = np.exp(1j* (X*self.x_positions[0]+Y*self.x_positions[0]))
+                inverse_mat[:, Y+X*self.modes] = np.exp(1j* (X*self.x_positions+Y*self.x_positions))
         inverse_mat /= np.sqrt(self.number_points)
-        
+
         return forward_mat, inverse_mat
 
     def forward(self, data):
