@@ -75,7 +75,7 @@ class SpectralConv2d_fast(nn.Module):
         # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
         # #Return to physical space
-        x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, num_pts**2, 1))
+        x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1**2, 1))
         x = transformer.inverse(x_ft) # x [4, 20, 512, 512]
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
