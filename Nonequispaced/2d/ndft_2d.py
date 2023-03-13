@@ -179,10 +179,10 @@ ntest = 64 * 1
 modes = 16
 width = 20
 
-batch_size = 1
+batch_size = 2
 batch_size2 = batch_size
 
-epochs = 50
+epochs = 25
 learning_rate = 0.005
 scheduler_step = 10
 scheduler_gamma = 0.75
