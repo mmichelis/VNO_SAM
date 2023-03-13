@@ -179,7 +179,7 @@ ntest = 64 * 1
 modes = 16
 width = 20
 
-batch_size = 4
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 50
