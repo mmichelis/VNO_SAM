@@ -195,8 +195,8 @@ class FNO2d(nn.Module):
 # options are 'conexp_conexp', 'exp_conexp', 'rand_rand'
 data_dist = 'uniform'
 
-file_path = '../../../VNO_data/2d/'
-# file_path = '/cluster/scratch/llingsch/NS/'
+# file_path = '../../../VNO_data/2d/'
+file_path = '/cluster/scratch/llingsch/NS/'
 
 ntrain = 64 * 15
 ntest = 64 * 1
@@ -204,10 +204,10 @@ ntest = 64 * 1
 modes = 16
 width = 20
 
-batch_size = 1
+batch_size = 2
 batch_size2 = batch_size
 
-epochs = 25
+epochs = 100
 learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.75
