@@ -204,7 +204,7 @@ ntest = 64 * 1
 modes = 16
 width = 20
 
-batch_size = 2
+batch_size = 1
 batch_size2 = batch_size
 
 epochs = 100
@@ -214,7 +214,7 @@ scheduler_gamma = 0.75
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.75
+growth = 1.0
 offset = 10 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
