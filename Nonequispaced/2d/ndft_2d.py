@@ -173,7 +173,7 @@ data_dist = 'uniform'
 file_path = '../../../VNO_data/2d/'
 # file_path = '/cluster/scratch/llingsch/NS/'
 
-ntrain = 64 * 15
+ntrain = 64 * 1
 ntest = 64 * 1
 
 modes = 16
