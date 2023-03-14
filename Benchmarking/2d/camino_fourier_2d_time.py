@@ -159,7 +159,7 @@ data_dist = 'uniform'
 interp = 'linear'
 file_path = '../../../VNO_data/2d/'
 
-ntrain = 64 * 12
+ntrain = 64 * 1
 ntest = 64 * 1
 
 modes = 16
@@ -168,8 +168,8 @@ width = 20
 batch_size = 4
 batch_size2 = batch_size
 
-epochs = 100
-learning_rate = 0.005
+epochs = 25
+learning_rate = 0.001
 scheduler_step = 10
 scheduler_gamma = 0.97
 
