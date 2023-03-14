@@ -147,29 +147,29 @@ class FNO2d(nn.Module):
         # x = x1 + x2
 
 
-        # x1 = self.conv0(x)
-        # x = F.gelu(x1)
-
-        # x1 = self.conv1(x)
-        # x = F.gelu(x1)
-
-        # x1 = self.conv2(x)
-        # x = F.gelu(x1)
-
-        # x1 = self.conv3(x)
-        # x = x1
-
-        x1 = self.w0(x)
+        x1 = self.conv0(x)
         x = F.gelu(x1)
 
-        x1 = self.w1(x)
+        x1 = self.conv1(x)
         x = F.gelu(x1)
 
-        x1 = self.w2(x)
+        x1 = self.conv2(x)
         x = F.gelu(x1)
 
-        x1 = self.w3(x)
+        x1 = self.conv3(x)
         x = x1
+
+        # x1 = self.w0(x)
+        # x = F.gelu(x1)
+
+        # x1 = self.w1(x)
+        # x = F.gelu(x1)
+
+        # x1 = self.w2(x)
+        # x = F.gelu(x1)
+
+        # x1 = self.w3(x)
+        # x = x1
 
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
         x = x.permute(0, 2, 3, 1)
