@@ -159,11 +159,11 @@ class fully_nonequispaced_vft:
         return forward_mat, inverse_mat
 
     def forward(self, data):
-        data_fwd = torch.matmul(self.V_fwd, data) / torch.sqrt(self.number_points) / torch.sqrt(2)
+        data_fwd = torch.matmul(self.V_fwd, data) / np.sqrt(self.number_points) / np.sqrt(2)
 
         return data_fwd
 
     def inverse(self, data):
-        data_inv = torch.matmul(self.V_inv, data) / torch.sqrt(self.number_points) / torch.sqrt(2)
+        data_inv = torch.matmul(self.V_inv, data) / np.sqrt(self.number_points) / np.sqrt(2)
         
         return data_inv
