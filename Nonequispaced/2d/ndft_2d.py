@@ -195,8 +195,8 @@ class FNO2d(nn.Module):
 # options are 'conexp_conexp', 'exp_conexp', 'rand_rand'
 data_dist = 'uniform'
 
-# file_path = '../../../VNO_data/2d/'
-file_path = '/cluster/scratch/llingsch/NS/'
+file_path = '../../../VNO_data/2d/'
+# file_path = '/cluster/scratch/llingsch/NS/'
 
 ntrain = 64 * 15
 ntest = 64 * 1
@@ -214,7 +214,7 @@ scheduler_gamma = 0.75
 
 print(epochs, learning_rate, scheduler_step, scheduler_gamma)
 
-growth = 1.75
+growth = 1.0
 offset = 10 # rip takeoff
 
 path = f'{data_dist}_ns_gr{growth}_off{offset}_ep{epochs}_m{modes}_w{width}'
