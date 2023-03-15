@@ -127,7 +127,7 @@ ntest = 64
 
 width = 20
 ndft_modes = 16
-vft_modes = torch.arange(ndft_modes)
+vft_modes = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
 
 batch_size = 1
 
