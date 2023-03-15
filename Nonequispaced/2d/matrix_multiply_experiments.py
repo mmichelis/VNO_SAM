@@ -61,6 +61,7 @@ class SpectralConv2d_fast(nn.Module):
         return torch.einsum("bixy,ioxy->boxy", input, weights)
 
     def ndft_forward(self, x):
+        pdb.set_trace()
         batchsize = x.shape[0]
         num_pts = x.shape[-1]
 
