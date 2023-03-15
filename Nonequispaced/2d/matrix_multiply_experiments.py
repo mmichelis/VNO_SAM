@@ -185,10 +185,11 @@ for size in sizes:
 
     x = test_a[:,:,:size,:size]
 
-    t1 = 
+    t1 = default_timer()
     t_ndft = spectral_conv.ndft_forward(x)
+    t_ndft = default_timer() - t1
 
-    print(size)
+    print(f'{size}  {t_ndft}    NDFT')
 
 
 
