@@ -144,7 +144,7 @@ def load_data():
     reader = MatReader(TRAIN_PATH)
     test_a = reader.read_field('vorticity')[:,:,:,:width]
 
-    test_a = torch.reshape(test_a, (batch_size, width, 512, 512))
+    test_a = torch.reshape(test_a, (ntest, width, 512, 512))
 
     return test_a
 test_a = load_data()
