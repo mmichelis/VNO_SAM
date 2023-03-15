@@ -175,7 +175,7 @@ spectral_conv = SpectralConv2d_fast(width, width, ndft_modes, ndft_modes)
 # training_history = open('./training_history/matmul_experiments.txt', 'w')
 # training_history.write('Size    Time    Method \n')
 
-sizes = [32, 64, 128, 256, 512]
+sizes = [32, 32, 32, 64, 128, 256, 512]
 for size in sizes:
     x_pos, y_pos, x_flat, y_flat = define_positions(size)
 
