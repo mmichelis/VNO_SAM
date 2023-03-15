@@ -126,14 +126,13 @@ file_path = '../../../VNO_data/2d/'
 
 ntest = 64
 
-width = 20
+width = 10
 ndft_modes = 16
 vft_modes = 16
 
 batch_size = 1
 
-T_in = 10
-T = 10
+
 
 ################################################################
 # load data
@@ -144,9 +143,9 @@ print('Preprocessing Data...')
 def load_data():
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
-    test_a = reader.read_field('vorticity')[:batch_size,:,:,:T_in]
+    test_a = reader.read_field('vorticity')[:batch_size,:,:,:width]
 
-    test_a = torch.reshape(test_a, (batch_size, T_in, 512, 512))
+    test_a = torch.reshape(test_a, (batch_size, width, 512, 512))
 
     return test_a
 test_a = load_data()
@@ -185,6 +184,8 @@ for size in sizes:
     vft_transformer = vft2d(x_pos, y_pos, vft_modes, vft_modes)
 
     x = test_a[:,:,:size,:size]
+
+    t1 = 
     t_ndft = spectral_conv.ndft_forward(x)
 
     print(size)
