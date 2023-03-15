@@ -61,7 +61,6 @@ class SpectralConv2d_fast(nn.Module):
         return torch.einsum("bixy,ioxy->boxy", input, weights)
 
     def ndft_forward(self, x):
-        pdb.set_trace()
         batchsize = x.shape[0]
         num_pts = x.shape[-1]
 
@@ -173,8 +172,8 @@ print(f'Processing finished in {t2-t1} seconds.')
 
 spectral_conv = SpectralConv2d_fast(width, width, ndft_modes, ndft_modes)
 
-training_history = open('./training_history/matmul_experiments.txt', 'w')
-training_history.write('Size    Time    Method \n')
+# training_history = open('./training_history/matmul_experiments.txt', 'w')
+# training_history.write('Size    Time    Method \n')
 
 sizes = [32, 64, 128, 256, 512]
 for size in sizes:
@@ -186,10 +185,19 @@ for size in sizes:
     x = test_a[:,:,:size,:size].cuda()
 
     t1 = default_timer()
-    t_ndft = spectral_conv.ndft_forward(x)
+    ndft = spectral_conv.ndft_forward(x)
     t_ndft = default_timer() - t1
-
     print(f'{size}  {t_ndft}    NDFT')
+
+    t1 = default_timer()
+    vft = spectral_conv.vft_forward(x)
+    t_vft = default_timer() - t1
+    print(f'{size}  {t_vft}    VFT')
+
+    t1 = default_timer()
+    fft = spectral_conv.fft_forward(x)
+    t_fft = default_timer() - t1
+    print(f'{size}  {t_fft}    FFT')
 
 
 
