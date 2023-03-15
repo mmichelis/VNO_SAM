@@ -52,7 +52,7 @@ class SpectralConv2d_fast(nn.Module):
 
         self.scale = (1 / (in_channels * out_channels))
         self.weights1 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)).cuda()
-        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat))
+        self.weights2 = nn.Parameter(self.scale * torch.rand(in_channels, out_channels, self.modes1, self.modes2, dtype=torch.cfloat)).cuda()
 
 
     # Complex multiplication
