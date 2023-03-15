@@ -199,6 +199,8 @@ for size in sizes:
     t_fft = default_timer() - t1
     print(f'{size}  {t_fft}    FFT')
 
+    print('\n\n')
+
 
 
     
