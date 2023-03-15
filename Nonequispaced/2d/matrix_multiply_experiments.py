@@ -129,7 +129,7 @@ width = 20
 ndft_modes = 16
 vft_modes = 16
 
-batch_size = 10
+batch_size = 3
 
 
 
@@ -142,7 +142,7 @@ print('Preprocessing Data...')
 def load_data():
     TRAIN_PATH = f'{file_path}navierstokes_512_512_v1e-4_{0}.mat'
     reader = MatReader(TRAIN_PATH)
-    test_a = reader.read_field('vorticity')[:batch_size,:,:,:width]
+    test_a = reader.read_field('vorticity')[:,:,:,:width]
 
     test_a = torch.reshape(test_a, (batch_size, width, 512, 512))
 
@@ -176,13 +176,13 @@ spectral_conv = SpectralConv2d_fast(width, width, ndft_modes, ndft_modes)
 # training_history.write('Size    Time    Method \n')
 
 sizes = [32, 32, 32, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512]
-for size in sizes:
+for iter, size in enumerate(sizes):
     x_pos, y_pos, x_flat, y_flat = define_positions(size)
 
     ndft_transformer = fully_nonequispaced_vft(x_flat, y_flat, ndft_modes)
     vft_transformer = vft2d(x_pos, y_pos, vft_modes, vft_modes)
 
-    x = test_a[:,:,:size,:size].cuda()
+    x = test_a[iter*batch_size:(iter+1)*batch_size,:,:size,:size].cuda()
 
     t1 = default_timer()
     ndft = spectral_conv.ndft_forward(x)
