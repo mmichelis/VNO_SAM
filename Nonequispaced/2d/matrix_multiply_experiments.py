@@ -183,7 +183,7 @@ for size in sizes:
     ndft_transformer = fully_nonequispaced_vft(x_flat, y_flat, ndft_modes)
     vft_transformer = vft2d(x_pos, y_pos, vft_modes, vft_modes)
 
-    x = test_a[:,:,:size,:size]
+    x = test_a[:,:,:size,:size].cuda()
 
     t1 = default_timer()
     t_ndft = spectral_conv.ndft_forward(x)
