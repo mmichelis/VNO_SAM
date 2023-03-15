@@ -125,7 +125,7 @@ file_path = '../../../VNO_data/2d/'
 
 ntest = 64
 
-width = 10
+width = 20
 ndft_modes = 16
 vft_modes = 16
 
