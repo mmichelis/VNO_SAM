@@ -129,7 +129,7 @@ width = 10
 ndft_modes = 16
 vft_modes = 16
 
-batch_size = 1
+batch_size = 10
 
 
 
@@ -190,12 +190,12 @@ for size in sizes:
     print(f'{size}  {t_ndft}    NDFT')
 
     t1 = default_timer()
-    vft = spectral_conv.fft_forward(x)
+    vft = spectral_conv.vft_forward(x)
     t_vft = default_timer() - t1
     print(f'{size}  {t_vft}    VFT')
 
     t1 = default_timer()
-    fft = spectral_conv.vft_forward(x)
+    fft = spectral_conv.fft_forward(x)
     t_fft = default_timer() - t1
     print(f'{size}  {t_fft}    FFT')
 
