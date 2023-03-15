@@ -185,7 +185,7 @@ for size in sizes:
     vft_transformer = vft2d(x_pos, y_pos, vft_modes, vft_modes)
 
     x = test_a[:,:,size,size]
-    t_ndft = SpectralConv2d_fast.ndft_forward(x)
+    t_ndft = spectral_conv.ndft_forward(x)
 
     print(size)
 
