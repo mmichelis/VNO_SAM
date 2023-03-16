@@ -61,55 +61,55 @@ class SpectralConv2d_fast(nn.Module):
         return torch.einsum("bixy,ioxy->boxy", input, weights)
 
     def ndft_forward(self, x):
-        batchsize = x.shape[0]
-        num_pts = x.shape[-1]
+        # batchsize = x.shape[0]
+        # num_pts = x.shape[-1]
 
-        x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
+        # x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = ndft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
-        x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
+        # x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
 
-        # # Multiply relevant Fourier modes
-        out_ft = torch.zeros(batchsize, self.out_channels, self.modes1, self.modes1, dtype=torch.cfloat, device=x.device)
-        out_ft[:, :, :self.modes1, :self.modes1] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes1], self.weights1)
+        # # # Multiply relevant Fourier modes
+        # out_ft = torch.zeros(batchsize, self.out_channels, self.modes1, self.modes1, dtype=torch.cfloat, device=x.device)
+        # out_ft[:, :, :self.modes1, :self.modes1] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes1], self.weights1)
 
-        # #Return to physical space
-        x_ft = torch.reshape(out_ft, (batchsize, self.out_channels, self.modes1**2, 1))
-        x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
-        x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
+        # # #Return to physical space
+        # x_ft = torch.reshape(out_ft, (batchsize, self.out_channels, self.modes1**2, 1))
+        # x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
+        # x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
-        return x.real
+        return x
     
     def fft_forward(self, x):
-        batchsize = x.shape[0]
+        # batchsize = x.shape[0]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = torch.fft.rfft2(x)
 
         # Multiply relevant Fourier modes
-        out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-        out_ft[:, :, :self.modes1, :self.modes2] = \
-            self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        out_ft[:, :, -self.modes1:, :self.modes2] = \
-            self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
+        # out_ft[:, :, :self.modes1, :self.modes2] = \
+        #     self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        # out_ft[:, :, -self.modes1:, :self.modes2] = \
+        #     self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
-        #Return to physical space
-        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+        # #Return to physical space
+        # x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
         return x
     
     def vft_forward(self, x):
-        batchsize = x.shape[0]
+        # batchsize = x.shape[0]
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = vft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
 
-        # Multiply relevant Fourier modes
-        # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
-        x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        # # Multiply relevant Fourier modes
+        # # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
+        # x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
 
-        #Return to physical space
-        x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
+        # #Return to physical space
+        # x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
 
         return x
 
@@ -175,7 +175,8 @@ spectral_conv = SpectralConv2d_fast(width, width, ndft_modes, ndft_modes)
 # training_history = open('./training_history/matmul_experiments.txt', 'w')
 # training_history.write('Size    Time    Method \n')
 
-sizes = [32, 32, 32, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512]
+# sizes = [32, 32, 32, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512]
+sizes = [32, 64, 128, 256, 512]
 for iter, size in enumerate(sizes):
     x_pos, y_pos, x_flat, y_flat = define_positions(size)
 
@@ -199,7 +200,7 @@ for iter, size in enumerate(sizes):
     t2 = default_timer()
     t_fft = t2 - t1
 
-    if (iter+0)%3 == 0:
+    if (iter+0)%1 == 0:
         print(x_pos.shape)
         print(x_flat.shape)
 
