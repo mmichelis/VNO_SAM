@@ -67,7 +67,9 @@ class SpectralConv2d_fast(nn.Module):
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
+        t1 = default_timer()
         x_ft = ndft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
+        t2 = default_timer()
         # x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
 
         # # # Multiply relevant Fourier modes
@@ -79,12 +81,14 @@ class SpectralConv2d_fast(nn.Module):
         # x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
         # x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
-        return x
+        return t2-t1
     
     def fft_forward(self, x):
         batchsize = x.shape[0]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
+        t1 = default_timer()
         x_ft = torch.fft.rfft2(x)
+        t2 = default_timer()
 
         # Multiply relevant Fourier modes
         # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
@@ -101,7 +105,9 @@ class SpectralConv2d_fast(nn.Module):
         batchsize = x.shape[0]
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
+        t1 = default_timer()
         x_ft = vft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
+        t2 = default_timer()
 
         # # Multiply relevant Fourier modes
         # # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
@@ -185,28 +191,19 @@ for iter, size in enumerate(sizes):
 
     x = test_a[iter*batch_size:(iter+1)*batch_size,:,:size,:size].cuda()
 
-    t1 = default_timer()
     ndft = spectral_conv.ndft_forward(x)
-    t_ndft = default_timer() - t1
     
-
-    t1 = default_timer()
     vft = spectral_conv.vft_forward(x)
-    t_vft = default_timer() - t1
-    
 
-    t1 = default_timer()
     fft = spectral_conv.fft_forward(x)
-    t2 = default_timer()
-    t_fft = t2 - t1
 
     if (iter+1)%3 == 0:
         print(x_pos.shape)
         print(x_flat.shape)
 
-        print(f'{size}  {t_ndft}    NDFT')
-        print(f'{size}  {t_vft}    VFT')
-        print(f'{size}  {t_fft}    FFT')
+        print(f'{size}  {ndft}    NDFT')
+        print(f'{size}  {vft}    VFT')
+        print(f'{size}  {fft}    FFT')
 
         print('\n')
 
