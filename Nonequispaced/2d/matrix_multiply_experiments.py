@@ -32,9 +32,7 @@ import pdb
 torch.manual_seed(0)
 np.random.seed(0)
 
-import nvidia_smi
-nvidia_smi.nvmlInit()
-handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+from torch.profiler import profile, ProfilerActivity
 
 
 ################################################################
@@ -88,11 +86,6 @@ class SpectralConv2d_fast(nn.Module):
         x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
-        memory = 1e-9*torch.cuda.memory_allocated()
-        print(f"GPU Memory in use: {memory:.2f}GB")
-        mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-        print(f'NVIDIA smi memory: {1e-9*mem_res.used:.2f}GB')
-
         return t2-t1
     
     def fft_forward(self, x):
@@ -113,6 +106,9 @@ class SpectralConv2d_fast(nn.Module):
 
         #Return to physical space
         x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+
+        memory = 1e-9*torch.cuda.memory_allocated()
+        print(f"GPU Memory in use: {memory:.2f}GB")
         return t2-t1
     
     def vft_forward(self, x):
@@ -133,6 +129,8 @@ class SpectralConv2d_fast(nn.Module):
         #Return to physical space
         x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
 
+        memory = 1e-9*torch.cuda.memory_allocated()
+        print(f"GPU Memory in use: {memory:.2f}GB")
         return t2-t1
 
 ################################################################
@@ -208,22 +206,35 @@ for iter, size in enumerate(sizes):
 
     x = test_a[iter*batch_size:(iter+1)*batch_size,:,:size,:size].cuda()
 
-    ndft = spectral_conv.ndft_forward(x)
+    with profile(activities=[ProfilerActivity.CPU], profile_memory=True, record_shapes=True) as ndft_prof:
+        ndft = spectral_conv.ndft_forward(x)
+    ndft_pmem = [p.cuda_memory_usage for p in ndft_prof.key_averages()]
     
-    vft = spectral_conv.vft_forward(x)
+    with profile(activities=[ProfilerActivity.CPU], profile_memory=True, record_shapes=True) as vft_prof:
+        vft = spectral_conv.vft_forward(x)
+    vft_pmem = [p.cuda_memory_usage for p in vft_prof.key_averages()]
 
-    fft = spectral_conv.fft_forward(x)
+    with profile(activities=[ProfilerActivity.CPU], profile_memory=True, record_shapes=True) as fft_prof:
+        fft = spectral_conv.fft_forward(x)
+    fft_pmem = [p.cuda_memory_usage for p in fft_prof.key_averages()]
 
     if (iter+1)%3 == 0:
+        print(10*'-')
         print(x_pos.shape)
         print(x_flat.shape)
 
+        
+        print(ndft_prof.key_averages().table(sort_by="cuda_memory_usage", row_limit=5))
+        print(vft_prof.key_averages().table(sort_by="cuda_memory_usage", row_limit=5))
+        print(fft_prof.key_averages().table(sort_by="cuda_memory_usage", row_limit=5))
 
-        print(f'{size}  {ndft}    NDFT')
-        print(f'{size}  {vft}    VFT')
-        print(f'{size}  {fft}    FFT')
+
+        print(f'{size}  {np.sum(ndft_pmem)/1e6:.2f}MB  {ndft}    NDFT')
+        print(f'{size}  {np.sum(vft_pmem)/1e6:.2f}MB  {vft}    VFT')
+        print(f'{size}  {np.sum(fft_pmem)/1e6:.2f}MB  {fft}    FFT')
 
         print('\n')
+        print(10*'-')
 
 
 
