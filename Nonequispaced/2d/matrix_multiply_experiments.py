@@ -199,7 +199,8 @@ for iter, size in enumerate(sizes):
     t_fft = default_timer() - t1
 
     if (iter+1)%3 == 0:
-        print(iter)
+        print(x_pos.shape)
+        print(x_flat.shape)
         print(f'{size}  {t_ndft}    NDFT')
         print(f'{size}  {t_vft}    VFT')
         print(f'{size}  {t_fft}    FFT')
