@@ -12,17 +12,18 @@ sys.path.append('../../')
 from utilities3 import *
 
 distributions = {'conexp', 'exp', 'rand'}
+# select the interpolation method: linear or cubic
 interp_kind = 'linear'
 
 for dist in distributions:
-    pdb.set_trace()
+    # pdb.set_trace()
 
     # import the training data
     print(f'Loading data.')
     dataloader = MatReader('../../../VNO_data/1d/vno_'+dist+'_burgers_data_R10.mat')
     x_data = dataloader.read_field('a')[:,:]
     y_data = dataloader.read_field('u')[:,:]
-    loc = dataloader.read_field('loc')[:,:]
+    loc = dataloader.read_field('loc')[:,:] # positions of the data points
 
     # port everything to numpy
     x_data = x_data.numpy()
@@ -30,6 +31,7 @@ for dist in distributions:
     
     sparse_loc = loc.numpy()
 
+    # generating a uniform distribution across your domain
     max = np.int(np.amax(sparse_loc) + 1)
     min = np.int(np.amin(sparse_loc))
     d = np.arange(min, max)
