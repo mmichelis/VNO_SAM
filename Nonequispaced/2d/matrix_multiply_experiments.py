@@ -67,7 +67,7 @@ class SpectralConv2d_fast(nn.Module):
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        # x_ft = ndft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
+        x_ft = ndft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
         # x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
 
         # # # Multiply relevant Fourier modes
@@ -82,7 +82,7 @@ class SpectralConv2d_fast(nn.Module):
         return x
     
     def fft_forward(self, x):
-        # batchsize = x.shape[0]
+        batchsize = x.shape[0]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = torch.fft.rfft2(x)
 
@@ -98,7 +98,7 @@ class SpectralConv2d_fast(nn.Module):
         return x
     
     def vft_forward(self, x):
-        # batchsize = x.shape[0]
+        batchsize = x.shape[0]
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = vft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
@@ -175,8 +175,8 @@ spectral_conv = SpectralConv2d_fast(width, width, ndft_modes, ndft_modes)
 # training_history = open('./training_history/matmul_experiments.txt', 'w')
 # training_history.write('Size    Time    Method \n')
 
-# sizes = [32, 32, 32, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512]
-sizes = [32, 64, 128, 256, 512]
+sizes = [32, 32, 32, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512]
+# sizes = [32, 64, 128, 256, 512]
 for iter, size in enumerate(sizes):
     x_pos, y_pos, x_flat, y_flat = define_positions(size)
 
@@ -200,7 +200,7 @@ for iter, size in enumerate(sizes):
     t2 = default_timer()
     t_fft = t2 - t1
 
-    if (iter+0)%1 == 0:
+    if (iter+0)%3 == 0:
         print(x_pos.shape)
         print(x_flat.shape)
 
