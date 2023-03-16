@@ -200,7 +200,7 @@ for iter, size in enumerate(sizes):
     t2 = default_timer()
     t_fft = t2 - t1
 
-    if (iter+0)%3 == 0:
+    if (iter+1)%3 == 0:
         print(x_pos.shape)
         print(x_flat.shape)
 
