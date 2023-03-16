@@ -119,7 +119,7 @@ class SpectralConv2d_fast(nn.Module):
         t1 = default_timer()
         x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
         x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
-        t1 = default_timer()
+        t2 = default_timer()
 
         #Return to physical space
         x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
