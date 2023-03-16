@@ -187,19 +187,23 @@ for iter, size in enumerate(sizes):
     t1 = default_timer()
     ndft = spectral_conv.ndft_forward(x)
     t_ndft = default_timer() - t1
-    print(f'{size}  {t_ndft}    NDFT')
+    
 
     t1 = default_timer()
     vft = spectral_conv.vft_forward(x)
     t_vft = default_timer() - t1
-    print(f'{size}  {t_vft}    VFT')
+    
 
     t1 = default_timer()
     fft = spectral_conv.fft_forward(x)
     t_fft = default_timer() - t1
-    print(f'{size}  {t_fft}    FFT')
 
-    print('\n')
+    if iter%3 == 0:
+        print(f'{size}  {t_ndft}    NDFT')
+        print(f'{size}  {t_vft}    VFT')
+        print(f'{size}  {t_fft}    FFT')
+
+        print('\n')
 
 
 
