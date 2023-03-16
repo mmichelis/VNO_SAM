@@ -67,55 +67,62 @@ class SpectralConv2d_fast(nn.Module):
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        t1 = default_timer()
+        
         x_ft = ndft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
+        
+        x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
+
+        # # Multiply relevant Fourier modes
+        out_ft = torch.zeros(batchsize, self.out_channels, self.modes1, self.modes1, dtype=torch.cfloat, device=x.device)
+        t1 = default_timer()
+        out_ft[:, :, :self.modes1, :self.modes1] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes1], self.weights1)
         t2 = default_timer()
-        # x_ft = torch.reshape(x_ft, (batchsize, self.out_channels, self.modes1, self.modes1))
 
-        # # # Multiply relevant Fourier modes
-        # out_ft = torch.zeros(batchsize, self.out_channels, self.modes1, self.modes1, dtype=torch.cfloat, device=x.device)
-        # out_ft[:, :, :self.modes1, :self.modes1] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes1], self.weights1)
 
-        # # #Return to physical space
-        # x_ft = torch.reshape(out_ft, (batchsize, self.out_channels, self.modes1**2, 1))
-        # x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
-        # x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
+        # #Return to physical space
+        x_ft = torch.reshape(out_ft, (batchsize, self.out_channels, self.modes1**2, 1))
+        x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
+        x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
 
         return t2-t1
     
     def fft_forward(self, x):
         batchsize = x.shape[0]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        t1 = default_timer()
+        # t1 = default_timer()
         x_ft = torch.fft.rfft2(x)
-        t2 = default_timer()
+        # t2 = default_timer()
 
         # Multiply relevant Fourier modes
-        # out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
-        # out_ft[:, :, :self.modes1, :self.modes2] = \
-        #     self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # out_ft[:, :, -self.modes1:, :self.modes2] = \
-        #     self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        t1 = default_timer()
+        out_ft = torch.zeros(batchsize, self.out_channels,  x.size(-2), x.size(-1)//2 + 1, dtype=torch.cfloat, device=x.device)
+        out_ft[:, :, :self.modes1, :self.modes2] = \
+            self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        out_ft[:, :, -self.modes1:, :self.modes2] = \
+            self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        t2 = default_timer()
 
-        # #Return to physical space
-        # x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
+        #Return to physical space
+        x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
         return t2-t1
     
     def vft_forward(self, x):
         batchsize = x.shape[0]
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
-        t1 = default_timer()
+        # t1 = default_timer()
         x_ft = vft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
-        t2 = default_timer()
+        # t2 = default_timer()
 
-        # # Multiply relevant Fourier modes
-        # # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
-        # x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
-        # x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        # Multiply relevant Fourier modes
+        # out_ft = torch.zeros(batchsize, self.out_channels,  2 * self.modes1, self.modes2, dtype=torch.cfloat, device=x.device)
+        t1 = default_timer()
+        x_ft[:, :, :self.modes1, :self.modes2] = self.compl_mul2d(x_ft[:, :, :self.modes1, :self.modes2], self.weights1)
+        x_ft[:, :, -self.modes1:, :self.modes2] = self.compl_mul2d(x_ft[:, :, -self.modes1:, :self.modes2], self.weights2)
+        t1 = default_timer()
 
-        # #Return to physical space
-        # x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
+        #Return to physical space
+        x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
 
         return t2-t1
 
