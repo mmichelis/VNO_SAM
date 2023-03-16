@@ -61,10 +61,10 @@ class SpectralConv2d_fast(nn.Module):
         return torch.einsum("bixy,ioxy->boxy", input, weights)
 
     def ndft_forward(self, x):
-        # batchsize = x.shape[0]
-        # num_pts = x.shape[-1]
+        batchsize = x.shape[0]
+        num_pts = x.shape[-1]
 
-        # x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
+        x = torch.reshape(x, (batchsize, self.out_channels, num_pts**2, 1))
         # x [4, 20, 512, 512]
         #Compute Fourier coeffcients up to factor of e^(- something constant)
         x_ft = ndft_transformer.forward(x.cfloat()) #[4, 20, 32, 16]
