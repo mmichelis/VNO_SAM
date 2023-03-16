@@ -99,7 +99,7 @@ class SpectralConv2d_fast(nn.Module):
 
         # #Return to physical space
         # x = torch.fft.irfft2(out_ft, s=(x.size(-2), x.size(-1)))
-        return x
+        return t2-t1
     
     def vft_forward(self, x):
         batchsize = x.shape[0]
@@ -117,7 +117,7 @@ class SpectralConv2d_fast(nn.Module):
         # #Return to physical space
         # x = vft_transformer.inverse(x_ft).real # x [4, 20, 512, 512]
 
-        return x
+        return t2-t1
 
 ################################################################
 # configs
