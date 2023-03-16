@@ -32,6 +32,10 @@ import pdb
 torch.manual_seed(0)
 np.random.seed(0)
 
+import nvidia_smi
+nvidia_smi.nvmlInit()
+handle = nvidia_smi.nvmlDeviceGetHandleByIndex(0)
+
 
 ################################################################
 # fourier layer
@@ -83,6 +87,11 @@ class SpectralConv2d_fast(nn.Module):
         x_ft = torch.reshape(out_ft, (batchsize, self.out_channels, self.modes1**2, 1))
         x = ndft_transformer.inverse(x_ft) # x [4, 20, 512, 512]
         x = torch.reshape(x, (batchsize, self.out_channels, num_pts, num_pts))
+
+        memory = 1e-9*torch.cuda.memory_allocated()
+        print(f"GPU Memory in use: {memory:.2f}GB")
+        mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
+        print(f'NVIDIA smi memory: {1e-9*mem_res.used:.2f}GB')
 
         return t2-t1
     
@@ -160,7 +169,8 @@ def load_data():
     test_a = torch.reshape(test_a, (ntest, width, 512, 512))
 
     return test_a
-test_a = load_data()
+#test_a = load_data()
+test_a = torch.randn([ntest, width, 512, 512])
 
 def define_positions(size):
 
@@ -207,6 +217,7 @@ for iter, size in enumerate(sizes):
     if (iter+1)%3 == 0:
         print(x_pos.shape)
         print(x_flat.shape)
+
 
         print(f'{size}  {ndft}    NDFT')
         print(f'{size}  {vft}    VFT')
